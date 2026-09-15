@@ -4,6 +4,10 @@ import type { Metadata, ResolvingMetadata } from "next";
 import FamilyViewPage from "@/components/purpose-views/FamilyViewPage";
 import DefaultViewPage from "@/components/purpose-views/DefaultViewPage";
 import TravelSuitcaseLayout from "@/components/purpose-views/TravelSuitcaseLayout";
+import Birthday3DLayout from "@/components/purpose-views/Birthday3DLayout";
+import FamilyFunction3DLayout from "@/components/purpose-views/FamilyFunction3DLayout";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 type Props = {
   params: { id: string }
@@ -71,12 +75,42 @@ export default async function PublicSharePage({ params }: Props) {
   if (!section) notFound();
 
   // Dispatch to Dedicated Purpose Views
-  switch (section.purpose) {
-    case "family":
-      return <FamilyViewPage section={section} />;
-    case "travel":
-      return <TravelSuitcaseLayout images={section.images} />;
-    default:
-      return <DefaultViewPage section={section} />;
+  let ViewComponent = <DefaultViewPage section={section} />;
+  
+  if (section.purpose === "family") {
+    ViewComponent = <FamilyViewPage section={section} />;
+  } else if (section.purpose === "travel") {
+    ViewComponent = <TravelSuitcaseLayout images={section.images} />;
+  } else if (section.purpose === "birthday" || section.theme === "event-birthday") {
+    ViewComponent = (
+      <Birthday3DLayout 
+        images={section.images} 
+        title={section.title} 
+        description={section.description} 
+      />
+    );
+  } else if (section.theme === "event-family") {
+    ViewComponent = (
+      <FamilyFunction3DLayout 
+        images={section.images} 
+        title={section.title} 
+        description={section.description} 
+      />
+    );
   }
+
+  return (
+    <div className="relative w-full min-h-screen bg-[#080510]">
+      {/* Floating Back Button */}
+      <Link 
+        href="/"
+        className="fixed top-6 left-6 z-[100] flex items-center gap-2 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white/90 text-sm font-medium rounded-full transition-all border border-white/10 shadow-lg"
+      >
+        <ChevronLeft size={16} />
+        Back to Home
+      </Link>
+      
+      {ViewComponent}
+    </div>
+  );
 }

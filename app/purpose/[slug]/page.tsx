@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { createFixedTemplateAction } from "@/app/actions/createFixedTemplate";
 import FamilyClassicLayout from "@/components/purpose-views/FamilyClassicLayout";
 import TravelSuitcaseLayout from "@/components/purpose-views/TravelSuitcaseLayout";
+import Birthday3DLayout from "@/components/purpose-views/Birthday3DLayout";
+import FamilyFunction3DLayout from "@/components/purpose-views/FamilyFunction3DLayout";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -17,6 +19,21 @@ const PURPOSE_DEFAULTS: Record<string, { theme: string, Layout: any, label: stri
     theme: "travel-suitcase",
     Layout: TravelSuitcaseLayout,
     label: "Travel"
+  },
+  birthday: {
+    theme: "event-birthday",
+    Layout: Birthday3DLayout,
+    label: "Birthday Party"
+  },
+  "family-function": {
+    theme: "event-family",
+    Layout: FamilyFunction3DLayout,
+    label: "Family Function"
+  },
+  party: {
+    theme: "event-party",
+    Layout: Birthday3DLayout, // Temp fallback
+    label: "General Event / Party"
   }
 };
 

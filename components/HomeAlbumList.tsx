@@ -111,14 +111,15 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
       {/* Album List Grid - 4 Columns */}
       <div ref={listRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {filteredSections.map((section) => {
-          let fallbackCover = "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800"; // Default (family silhouette)
+          let coverImage = "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800"; // Default (family)
+          
           if (section.purpose === "travel") {
-            fallbackCover = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800"; // Lake/Boat travel vibe
+            coverImage = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800"; // Lake/Boat travel vibe
+          } else if (section.purpose === "birthday" || section.theme?.includes("birthday")) {
+            coverImage = "/wishing-tree-bg.jpg"; // The beautiful wishing tree for birthday
           } else if (section.purpose === "events") {
-            fallbackCover = "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800"; // Party/Event vibe
+            coverImage = "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800"; // Party/Event vibe
           }
-
-          const coverImage = section.images?.[0]?.originalUrl || fallbackCover;
           const photoCount = section.images?.length || 0;
           
           return (
@@ -126,11 +127,10 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
               
               {/* Image Header */}
               <Link href={`/share/${section.id}`} className="relative aspect-[4/3] w-full overflow-hidden block rounded-t-[1.5rem]">
-                <Image 
+                <img 
                   src={coverImage} 
                   alt={section.title} 
-                  fill 
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/10"></div>
 

@@ -7,6 +7,8 @@ import SlotUploader from "./SlotUploader";
 import FamilyClassicLayout from "./purpose-views/FamilyClassicLayout";
 import FamilyMosaicLayout from "./purpose-views/FamilyMosaicLayout";
 import TravelSuitcaseLayout from "./purpose-views/TravelSuitcaseLayout";
+import Birthday3DLayout from "./purpose-views/Birthday3DLayout";
+import FamilyFunction3DLayout from "./purpose-views/FamilyFunction3DLayout";
 import Link from "next/link";
 import { ChevronLeft, Share, X, Edit3 } from "lucide-react";
 
@@ -74,6 +76,21 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
       { label: "Map Journey (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 1 },
       { label: "3D Tunnel Experience (8-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2 },
       { label: "3D Vintage Astrolabe (up to 12 images)", allowMultiple: true, maxFiles: 12, dbPosition: 3 },
+    ];
+  } else if (section.theme === "event-birthday") {
+    LayoutComponent = Birthday3DLayout;
+    slotsConfig = [
+      { label: "Floating Lanterns (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 0 },
+      { label: "3D Gift Box Unwrap (5-10 images)", allowMultiple: true, maxFiles: 10, dbPosition: 1 },
+      { label: "Ferris Wheel (10-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2 },
+      { label: "Magical Wishing Tree (10-14 images)", allowMultiple: true, maxFiles: 14, dbPosition: 3 },
+    ];
+  } else if (section.theme === "event-family") {
+    LayoutComponent = FamilyFunction3DLayout;
+    slotsConfig = [
+      { label: "3D Spiraling Filmstrip (up to 50 images)", allowMultiple: true, maxFiles: 50, dbPosition: 0 },
+      { label: "3D Hallway Gallery (up to 20 images)", allowMultiple: true, maxFiles: 20, dbPosition: 1 },
+      { label: "Vintage Movie Projector (Infinite images)", allowMultiple: true, maxFiles: 100, dbPosition: 2 },
     ];
   }
 
