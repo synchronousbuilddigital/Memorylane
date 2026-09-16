@@ -97,7 +97,7 @@ export default async function AdminOverview() {
           {recent.map((s) => (
             <li key={s.id} className="flex items-center justify-between gap-4 py-3 border-b border-[#e8e0d5] last:border-0">
               <div className="min-w-0">
-                <Link href={`/share/${s.id}`} className="block font-semibold text-sm text-[#1c1917] truncate hover:text-[#8a755b] transition-colors">{s.title}</Link>
+                <Link href={`/share/${s.id}?from=/admin`} className="block font-semibold text-sm text-[#1c1917] truncate hover:text-[#8a755b] transition-colors">{s.title}</Link>
                 <Link href={`/admin/users/${s.user.id}`} className="block text-xs text-[#8a755b] truncate hover:text-[#1c1917] transition-colors">
                   {s.user.name ?? s.user.email}
                 </Link>

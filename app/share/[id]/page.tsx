@@ -8,9 +8,11 @@ import Birthday3DLayout from "@/components/purpose-views/Birthday3DLayout";
 import FamilyFunction3DLayout from "@/components/purpose-views/FamilyFunction3DLayout";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { backTarget } from "@/lib/returnTo";
 
 type Props = {
-  params: { id: string }
+  params: { id: string };
+  searchParams?: { from?: string };
 };
 
 export async function generateMetadata(
@@ -56,8 +58,10 @@ export async function generateMetadata(
   };
 }
 
-export default async function PublicSharePage({ params }: Props) {
+export default async function PublicSharePage({ params, searchParams }: Props) {
   const idOrSlug = params.id;
+  // an admin arriving from the panel carries the page to go back to
+  const back = backTarget(searchParams?.from);
 
   const section = await prisma.section.findFirst({
     where: {
@@ -105,11 +109,11 @@ export default async function PublicSharePage({ params }: Props) {
     <div className="relative w-full min-h-screen bg-[#080510]">
       {/* Floating Back Button */}
       <Link 
-        href="/"
+        href={back.href}
         className="fixed top-6 left-6 z-[100] flex items-center gap-2 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white/90 text-sm font-medium rounded-full transition-all border border-white/10 shadow-lg"
       >
         <ChevronLeft size={16} />
-        Back to Home
+        {back.label}
       </Link>
       
       {ViewComponent}

@@ -77,7 +77,7 @@ export default async function AdminUserDetail({ params }: { params: { id: string
                       <span className="text-[11px] text-[#a3907a] tabular-nums">
                         {s._count.images} photos · {s.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </span>
-                      <Link href={`/share/${s.id}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors">
+                      <Link href={`/share/${s.id}?from=/admin/users/${user.id}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors">
                         Open <ExternalLink size={11} />
                       </Link>
                     </div>

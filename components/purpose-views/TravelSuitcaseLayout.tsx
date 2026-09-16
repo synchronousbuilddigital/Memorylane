@@ -3,8 +3,6 @@
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import TravelMapLayout from "./TravelMapLayout";
 import TravelTunnelLayout from "./TravelTunnelLayout";
 import TravelAstrolabeLayout from "./TravelAstrolabeLayout";
@@ -164,14 +162,6 @@ export default function TravelSuitcaseLayout({
   return (
     <main className="w-full bg-[#0a0705] overflow-x-hidden">
       <div className="relative min-h-screen w-full font-sans">
-        {/* Back Button */}
-      <div className="absolute top-6 left-6 lg:top-10 lg:left-10 z-[100]">
-        <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-[#e8dcc5]/60 hover:text-[#e8dcc5] transition-colors bg-black/20 hover:bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/5 shadow-xl">
-          <ChevronLeft size={16} />
-          Back to Dashboard
-        </Link>
-      </div>
-
       {/* Vintage Map Texture Background */}
       <div className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-screen"
            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=2000')", backgroundSize: 'cover', backgroundPosition: 'center', filter: 'sepia(0.8) contrast(1.2)' }} />

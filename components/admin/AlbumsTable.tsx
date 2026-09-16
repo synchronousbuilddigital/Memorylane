@@ -62,13 +62,13 @@ export default function AlbumsTable({ albums, templates }: { albums: AdminAlbum[
               {a.cover && <img src={a.cover} alt="" className="w-full h-full object-cover" loading="lazy" />}
             </span>
             <span className="min-w-0">
-              <Link href={`/share/${a.id}`} className="block font-semibold text-[#1c1917] text-sm truncate hover:text-[#8a755b] transition-colors">{a.title}</Link>
+              <Link href={`/share/${a.id}?from=/admin/albums`} className="block font-semibold text-[#1c1917] text-sm truncate hover:text-[#8a755b] transition-colors">{a.title}</Link>
               <Link href={`/admin/users/${a.ownerId}`} className="block text-xs text-[#8a755b] truncate hover:text-[#1c1917] transition-colors">{a.owner}</Link>
             </span>
             <span className="hidden md:block text-[11px] font-bold uppercase tracking-[0.14em] text-[#a3907a]">{a.template}</span>
             <span className="hidden md:block text-sm text-[#5a4d41] tabular-nums text-right">{a.photos}</span>
             <span className="hidden md:block text-[11px] text-[#a3907a] text-right tabular-nums">{fmt(a.created)}</span>
-            <Link href={`/share/${a.id}`} aria-label={`Open ${a.title}`} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a3907a] hover:text-[#1c1917] hover:bg-[#f4eee6] transition-colors">
+            <Link href={`/share/${a.id}?from=/admin/albums`} aria-label={`Open ${a.title}`} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a3907a] hover:text-[#1c1917] hover:bg-[#f4eee6] transition-colors">
               <ExternalLink size={15} />
             </Link>
           </div>
