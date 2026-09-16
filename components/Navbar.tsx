@@ -14,7 +14,7 @@ const LINKS = [
   { href: "/albums?filter=favorites", label: "Favorites", match: () => false },
 ];
 
-export default function Navbar({ signOutAction, session }: { signOutAction?: () => void, session?: any }) {
+export default function Navbar({ signOutAction, session, isAdmin = false }: { signOutAction?: () => void, session?: any, isAdmin?: boolean }) {
   const isLoggedIn = !!session?.user?.id;
   const reduce = useReducedMotion();
   const pathname = usePathname() ?? "/";
@@ -41,6 +41,7 @@ export default function Navbar({ signOutAction, session }: { signOutAction?: () 
   }, []);
 
   const underlineOn = hovered ?? current;
+  const links = isAdmin ? [...LINKS, { href: "/admin", label: "Admin", match: (p: string) => p.startsWith("/admin") }] : LINKS;
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-[padding,background-color,box-shadow] duration-300 ${scrolled || open ? "py-3 bg-[#f8f6f3]/85 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.05)]" : "py-5 md:py-6 bg-transparent"}`}>
@@ -53,7 +54,7 @@ export default function Navbar({ signOutAction, session }: { signOutAction?: () 
 
         {/* Centered links with a sliding underline */}
         <div className="hidden md:flex items-center gap-8 text-[#5a4d41] font-medium text-sm tracking-wide" onMouseLeave={() => setHovered(null)}>
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <Link
               key={l.label}
               href={l.href}
@@ -137,7 +138,7 @@ export default function Navbar({ signOutAction, session }: { signOutAction?: () 
             className="md:hidden overflow-hidden"
           >
             <div className="px-4 sm:px-6 pt-4 pb-6 flex flex-col gap-1 border-t border-[#e8e0d5]/70 mt-3">
-              {LINKS.map((l, i) => (
+              {links.map((l, i) => (
                 <motion.div key={l.label} initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}>
                   <Link href={l.href} onClick={() => setOpen(false)} className="block py-3 font-serif text-2xl font-bold text-[#2c241b]">
                     {l.label}

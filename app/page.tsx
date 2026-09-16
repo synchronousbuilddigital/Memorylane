@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { viewerIsAdmin } from "@/lib/admin";
 import Navbar from "@/components/Navbar";
 import HomeAlbumList from "@/components/HomeAlbumList";
 import DashboardPurposeSelector from "@/components/DashboardPurposeSelector";
@@ -14,6 +15,7 @@ import { cleanupEmptySections } from "@/lib/emptySections";
 export default async function HomePage() {
   const session = await auth();
   const isLoggedIn = !!session?.user?.id;
+  const admin = await viewerIsAdmin();
 
   let sections: any[] = [];
   if (isLoggedIn) {
@@ -40,7 +42,7 @@ export default async function HomePage() {
       {/* Background doodles: sketched on, drifting with the scroll */}
       <HomeDoodles />
 
-      <Navbar signOutAction={handleSignOut} session={session} />
+      <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} />
 
       <main className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 pt-24 md:pt-32 pb-16 space-y-10 md:space-y-12">
         <DashboardHero isLoggedIn={isLoggedIn} />

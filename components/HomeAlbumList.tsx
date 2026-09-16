@@ -343,12 +343,12 @@ export default function HomeAlbumList({
         <div className="relative">
           <div
             ref={stripRef}
-            className="flex gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 pb-4 scroll-px-4 sm:scroll-px-6 md:scroll-px-12"
+            className="flex gap-6 md:gap-8 items-start overflow-x-auto snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 pt-6 pb-6 scroll-px-4 sm:scroll-px-6 md:scroll-px-12"
           >
             <AnimatePresence mode="popLayout" initial={false}>
               {shown.map((section, i) => (
-                <div key={section.id} data-card className="snap-start shrink-0 w-[82vw] sm:w-[46vw] md:w-[38vw] lg:w-[300px] xl:w-[330px]">
-                  <AlbumCard
+                <div key={section.id} data-card className="snap-start shrink-0 w-[74vw] sm:w-[44vw] md:w-[33vw] lg:w-[264px] xl:w-[284px]">
+                  <PolaroidCard
                     section={section}
                     index={i}
                     reduce={!!reduce}
@@ -365,10 +365,15 @@ export default function HomeAlbumList({
             </AnimatePresence>
             {/* the row ends with a doorway to the full page */}
             {shown.length > 0 && (
-              <Link href={albumsHref} className="snap-start shrink-0 w-[60vw] sm:w-[36vw] md:w-[28vw] lg:w-[220px] rounded-[1.5rem] border-2 border-dashed border-[#e8e0d5] bg-[#fcfbf9] hover:bg-white hover:border-[#d9cbb8] transition-colors flex flex-col items-center justify-center gap-3 text-center p-6 group">
-                <span className="w-12 h-12 rounded-full bg-[#f4eee6] flex items-center justify-center text-[#2c241b] transition-transform group-hover:scale-110"><ArrowRight size={20} /></span>
-                <span className="font-serif font-bold text-[#1c1917] text-lg">See all albums</span>
-                <span className="text-xs text-[#8a755b]">{sections.length} in your collection</span>
+              <Link
+                href={albumsHref}
+                className="group relative snap-start shrink-0 w-[60vw] sm:w-[34vw] md:w-[26vw] lg:w-[212px] self-start bg-[#fdfbf7] p-3 pb-[6.6rem] rounded-sm border border-dashed border-[#d9cbb8] shadow-[0_10px_30px_rgba(28,25,23,0.10)] rotate-[1.6deg] hover:rotate-0 hover:-translate-y-2 transition-transform duration-500"
+              >
+                <div className="aspect-square w-full bg-[#f4eee6] flex flex-col items-center justify-center gap-3 text-center px-4">
+                  <span className="w-11 h-11 rounded-full bg-[#fdfbf7] border border-[#e8e0d5] flex items-center justify-center text-[#2c241b] transition-transform duration-500 group-hover:translate-x-1"><ArrowRight size={18} /></span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#8a755b]">{sections.length} in your collection</span>
+                </div>
+                <span className="absolute inset-x-3 bottom-[2.6rem] h-[3.6rem] flex items-center justify-center text-center font-handwriting text-[1.45rem] leading-[1.15] text-[#2c241b]">See them all ♡</span>
               </Link>
             )}
           </div>
@@ -381,11 +386,11 @@ export default function HomeAlbumList({
         </div>
       ) : (
       <>
-      {/* Grid */}
-      <motion.div layout ref={listRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6 w-full">
+      {/* Editorial list */}
+      <motion.div layout ref={listRef} className="w-full border-t border-[#e8e0d5]">
         <AnimatePresence mode="popLayout" initial={false}>
           {shown.map((section, i) => (
-            <AlbumCard
+            <ListRow
               key={section.id}
               section={section}
               index={i}
@@ -459,57 +464,127 @@ export default function HomeAlbumList({
   );
 }
 
-/* ═══════════════════════════ One album card ═══════════════════════════ */
+/* ═══════════════════════════ Shared per-album bits ═══════════════════════════ */
 type CardProps = {
   section: AlbumSection; index: number; reduce: boolean; isFavorite: boolean; onToggleFavorite: () => void;
   menuOpen: boolean; onMenu: (open: boolean) => void; onCopy: () => void; onDelete: () => void; deleting: boolean;
 };
-// forwardRef: AnimatePresence's popLayout mode needs a handle on the element while a card leaves
-const AlbumCard = forwardRef<HTMLElement, CardProps>(function AlbumCard(
+
+// The album's own photos (first few); the stock picture only when it has none
+function useCovers(section: AlbumSection, stock: string, count: number) {
+  return useMemo(() => {
+    const own = [...(section.images ?? [])]
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+      .map((img) => sized(img.thumbUrl || img.displayUrl))
+      .filter(Boolean)
+      .slice(0, count);
+    return own.length ? own : [stock];
+  }, [section.images, stock, count]);
+}
+
+function useMenuState(menuOpen: boolean) {
+  const [confirm, setConfirm] = useState(false);
+  const menuBtn = useRef<HTMLButtonElement>(null);
+  useEffect(() => { if (!menuOpen) setConfirm(false); }, [menuOpen]);
+  return { confirm, setConfirm, menuBtn };
+}
+
+/* The contents of the ⋮ menu, shared by both presentations */
+function MenuBody({ section, confirm, setConfirm, onCopy, onDelete }: {
+  section: AlbumSection; confirm: boolean; setConfirm: (v: boolean) => void; onCopy: () => void; onDelete: () => void;
+}) {
+  if (confirm) {
+    return (
+      <div className="p-2">
+        <p className="text-sm font-semibold text-[#1c1917] mb-1">Delete this album?</p>
+        <p className="text-xs text-[#8a755b] mb-3">Its photos and notes go with it. This can&apos;t be undone.</p>
+        <div className="flex gap-2">
+          <button type="button" onClick={onDelete} className="flex-1 px-3 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors">Delete</button>
+          <button type="button" onClick={() => setConfirm(false)} className="flex-1 px-3 py-2 rounded-xl bg-[#f4eee6] text-[#2c241b] text-xs font-bold hover:bg-[#e8e0d5] transition-colors">Keep</button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <>
+      <Link href={`/section/${section.id}`} className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#1c1917] hover:bg-[#fcfbf9] transition-colors">
+        <Pencil size={15} className="text-[#8a755b]" /> Edit album
+      </Link>
+      <button type="button" onClick={onCopy} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#1c1917] hover:bg-[#fcfbf9] transition-colors text-left">
+        <Link2 size={15} className="text-[#8a755b]" /> Copy share link
+      </button>
+      <div className="h-px bg-[#e8e0d5] my-1 mx-2" />
+      <button type="button" onClick={() => setConfirm(true)} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left">
+        <Trash2 size={15} /> Delete
+      </button>
+    </>
+  );
+}
+
+function FavouriteButton({ isFavorite, reduce, onToggle, className }: { isFavorite: boolean; reduce: boolean; onToggle: () => void; className: string }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }}
+      aria-pressed={isFavorite}
+      aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      className={className}
+    >
+      <motion.span animate={isFavorite && !reduce ? { scale: [1, 1.35, 1] } : { scale: 1 }} transition={{ duration: 0.35 }} className="flex">
+        <Heart size={16} className={isFavorite ? "fill-rose-500 text-rose-500" : ""} />
+      </motion.span>
+    </button>
+  );
+}
+
+const shortDate = (d: string | Date) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+/* ═══════════════════════════ Home strip: a polaroid print ═══════════════════════════
+   A photo in a cream border with a handwritten title, a strip of tape and a slight
+   tilt — the same language as the hero. Hover straightens and lifts it. */
+const TILTS = [-2.4, 1.7, -1.1, 2.3, -1.9, 1.2, -2.6, 0.9];
+const TAPE = [-4, 3, -2, 5, -3, 2];
+
+const PolaroidCard = forwardRef<HTMLElement, CardProps>(function PolaroidCard(
   { section, index, reduce, isFavorite, onToggleFavorite, menuOpen, onMenu, onCopy, onDelete, deleting }, ref,
 ) {
   const meta = metaFor(section);
   const Icon = meta.Icon;
   const photoCount = section.images?.length ?? 0;
-
-  // The album's own photos as covers (first three), the stock picture only when it has none
-  const covers = useMemo(() => {
-    const own = [...(section.images ?? [])]
-      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-      .map((img) => sized(img.thumbUrl || img.displayUrl))
-      .filter(Boolean)
-      .slice(0, 3);
-    return own.length ? own : [meta.stock];
-  }, [section.images, meta.stock]);
-
-  // Hovering flicks through the covers
+  const covers = useCovers(section, meta.stock, 3);
+  const { confirm, setConfirm, menuBtn } = useMenuState(menuOpen);
   const [hover, setHover] = useState(false);
   const [cover, setCover] = useState(0);
-  const [confirm, setConfirm] = useState(false);
-  const menuBtn = useRef<HTMLButtonElement>(null);
+  const tilt = TILTS[index % TILTS.length];
+
   useEffect(() => {
     if (!hover || covers.length < 2 || reduce) { setCover(0); return; }
     const t = setInterval(() => setCover((c) => (c + 1) % covers.length), 1100);
     return () => clearInterval(t);
   }, [hover, covers.length, reduce]);
-  useEffect(() => { if (!menuOpen) setConfirm(false); }, [menuOpen]);
-
-  const date = new Date(section.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
     <motion.article
       ref={ref}
       layout
-      initial={{ opacity: 0, y: reduce ? 0 : 22, scale: reduce ? 1 : 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+      initial={{ opacity: 0, y: reduce ? 0 : 26, rotate: reduce ? 0 : tilt }}
+      animate={{ opacity: 1, y: 0, rotate: reduce ? 0 : tilt }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.2 } }}
+      whileHover={reduce ? undefined : { rotate: 0, y: -10 }}
       transition={{ duration: reduce ? 0.2 : 0.55, delay: Math.min(index, 8) * 0.05, ease: EASE }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className={`group relative flex flex-col bg-[#fcfbf9] rounded-[1.5rem] border border-[#e8e0d5] transition-shadow duration-500 hover:shadow-[0_24px_50px_-16px_rgba(28,25,23,0.22)] ${deleting ? "opacity-60 pointer-events-none" : ""}`}
+      className={`group relative bg-[#fdfbf7] p-3 pb-[6.6rem] rounded-sm border border-[#e8e0d5] shadow-[0_14px_34px_rgba(28,25,23,0.16)] hover:shadow-[0_26px_54px_rgba(28,25,23,0.26)] transition-shadow duration-500 ${deleting ? "opacity-60 pointer-events-none" : ""}`}
     >
-      {/* Cover */}
-      <Link href={`/share/${section.id}`} className="relative aspect-[4/3] w-full overflow-hidden block rounded-t-[1.5rem] bg-[#e8e0d5]">
+      {/* tape */}
+      <span
+        aria-hidden
+        className="absolute -top-3 left-1/2 w-16 h-7 bg-[#f4ead5]/85 backdrop-blur-sm border border-white/40 shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+        style={{ transform: `translateX(-50%) rotate(${TAPE[index % TAPE.length]}deg)` }}
+      />
+
+      {/* the print */}
+      <Link href={`/share/${section.id}`} className="relative block aspect-square w-full overflow-hidden bg-[#e8e0d5]">
         {covers.map((src, i) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -517,54 +592,135 @@ const AlbumCard = forwardRef<HTMLElement, CardProps>(function AlbumCard(
             src={src}
             alt={i === 0 ? section.title : ""}
             loading="lazy"
-            className={`absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.05] ${i === cover ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out ${i === cover ? "opacity-100" : "opacity-0"}`}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
 
-        {/* purpose badge */}
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-sm text-[#2c241b] text-[10px] font-bold uppercase tracking-widest px-2.5 py-1.5 shadow-sm">
-          <Icon size={11} /> {meta.label}
+        <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-[#fdfbf7]/92 text-[#2c241b] text-[9px] font-bold uppercase tracking-[0.18em] px-2 py-1 shadow-sm">
+          <Icon size={10} /> {meta.label}
         </span>
+        {photoCount === 0 && (
+          <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-100/95 text-amber-800 text-[9px] font-bold uppercase tracking-[0.18em] px-2 py-1 shadow-sm">Draft</span>
+        )}
 
-        {/* cover dots while flicking */}
         {covers.length > 1 && (
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             {covers.map((_, i) => <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === cover ? "bg-white" : "bg-white/40"}`} />)}
           </span>
         )}
-
-        {photoCount === 0 && (
-          <span className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-100/95 text-amber-800 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1.5 shadow-sm">Draft</span>
-        )}
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wide"><Images size={12} /> {photoCount === 0 ? "No photos yet" : `${photoCount} ${photoCount === 1 ? "Photo" : "Photos"}`}</span>
-          <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 duration-300" />
-        </div>
+        <span className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 text-[10px] font-bold tracking-wide text-white/90 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Images size={11} /> {photoCount === 0 ? "No photos yet" : photoCount}
+        </span>
       </Link>
 
-      {/* favourite */}
-      <button
-        type="button"
-        onClick={(e) => { e.preventDefault(); onToggleFavorite(); }}
-        aria-pressed={isFavorite}
-        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm transition-all duration-300 ${isFavorite ? "bg-white text-rose-500" : "bg-white/80 text-[#2c241b] hover:bg-white hover:text-rose-500"}`}
-      >
-        <motion.span animate={isFavorite && !reduce ? { scale: [1, 1.35, 1] } : { scale: 1 }} transition={{ duration: 0.35 }} className="flex">
-          <Heart size={16} className={isFavorite ? "fill-rose-500" : ""} />
-        </motion.span>
-      </button>
+      <FavouriteButton
+        isFavorite={isFavorite}
+        reduce={reduce}
+        onToggle={onToggleFavorite}
+        className={`absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm transition-colors duration-300 ${isFavorite ? "bg-[#fdfbf7] text-rose-500" : "bg-[#fdfbf7]/80 text-[#2c241b] hover:bg-[#fdfbf7] hover:text-rose-500"}`}
+      />
 
-      {/* Body */}
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <Link href={`/share/${section.id}`} className="min-w-0">
-            <h3 className="font-serif font-bold text-[#1c1917] text-lg leading-tight hover:text-[#8a755b] transition-colors line-clamp-2">{section.title}</h3>
+      {/* the written margin */}
+      <div className="absolute inset-x-3 bottom-3">
+        <Link href={`/share/${section.id}`} className="flex h-[3.6rem] items-center justify-center overflow-hidden">
+          <h3 className="font-handwriting text-[1.45rem] leading-[1.15] text-[#2c241b] text-center line-clamp-2 hover:text-[#8a755b] transition-colors">
+            {section.title}
+          </h3>
+        </Link>
+        <div className="mt-1.5 flex items-center justify-between">
+          <span className="text-[9px] font-bold text-[#a3907a] uppercase tracking-[0.16em]">{shortDate(section.createdAt)}</span>
+          <button
+            ref={menuBtn}
+            data-album-menu-button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMenu(!menuOpen); }}
+            aria-label="Album actions"
+            aria-expanded={menuOpen}
+            className={`w-7 h-7 -mr-1 rounded-full flex items-center justify-center transition-colors ${menuOpen ? "bg-[#e8e0d5] text-[#1c1917]" : "text-[#a3907a] hover:text-[#1c1917] hover:bg-[#f4eee6]"}`}
+          >
+            {deleting ? <Loader2 size={14} className="animate-spin" /> : <MoreHorizontal size={16} className="rotate-90" />}
+          </button>
+          <PortalMenu open={menuOpen} anchor={menuBtn} reduce={reduce} onClose={() => onMenu(false)}>
+            <MenuBody section={section} confirm={confirm} setConfirm={setConfirm} onCopy={onCopy} onDelete={onDelete} />
+          </PortalMenu>
+        </div>
+      </div>
+    </motion.article>
+  );
+});
+
+/* ═══════════════════════════ Albums page: an editorial row ═══════════════════════════
+   No card, no panel — a hairline rule, the title set large, and a strip of the album's
+   own thumbnails on the right. */
+const ListRow = forwardRef<HTMLElement, CardProps>(function ListRow(
+  { section, index, reduce, isFavorite, onToggleFavorite, menuOpen, onMenu, onCopy, onDelete, deleting }, ref,
+) {
+  const meta = metaFor(section);
+  const Icon = meta.Icon;
+  const photoCount = section.images?.length ?? 0;
+  const covers = useCovers(section, meta.stock, 5);
+  const { confirm, setConfirm, menuBtn } = useMenuState(menuOpen);
+
+  return (
+    <motion.article
+      ref={ref}
+      layout
+      initial={{ opacity: 0, y: reduce ? 0 : 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, transition: { duration: 0.18 } }}
+      transition={{ duration: reduce ? 0.2 : 0.5, delay: Math.min(index, 10) * 0.035, ease: EASE }}
+      className={`group relative border-b border-[#e8e0d5] transition-colors duration-300 hover:bg-[#fcfbf9] ${deleting ? "opacity-60 pointer-events-none" : ""}`}
+    >
+      <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 py-6 md:py-7 px-2 md:px-4">
+        {/* words */}
+        <div className="min-w-0 flex-1">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-[#a3907a] mb-2">
+            <Icon size={11} /> {meta.label}
+            {photoCount === 0 && <span className="ml-2 text-amber-700">· Draft</span>}
+          </span>
+          <Link href={`/share/${section.id}`} className="block">
+            <h3 className="font-serif font-black text-[#1c1917] text-2xl md:text-[1.9rem] leading-[1.1] tracking-tight transition-transform duration-300 md:group-hover:translate-x-1">
+              {section.title}
+            </h3>
           </Link>
+          <p className="text-[#5a4d41] text-sm leading-relaxed mt-1.5 line-clamp-1 max-w-xl">
+            {photoCount === 0
+              ? "No photos yet. Add some, or this draft is removed automatically."
+              : section.description || "These are some of my favorite moments — little pieces of life that make the big picture beautiful."}
+          </p>
+        </div>
 
-          {/* menu */}
-          <div className="relative shrink-0">
+        {/* the album's own photos */}
+        <Link href={`/share/${section.id}`} className="hidden sm:flex items-center gap-1.5 shrink-0" aria-hidden tabIndex={-1}>
+          {covers.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt=""
+              loading="lazy"
+              className="w-12 h-12 md:w-14 md:h-14 object-cover rounded-sm border border-[#e8e0d5] transition-transform duration-500"
+              style={{ transform: `translateY(${i % 2 ? 3 : 0}px)` }}
+            />
+          ))}
+        </Link>
+
+        {/* meta and actions */}
+        <div className="flex items-center gap-4 md:gap-6 shrink-0">
+          <div className="md:text-right">
+            <div className="text-[10px] font-bold text-[#a3907a] uppercase tracking-[0.16em]">{shortDate(section.createdAt)}</div>
+            <div className="text-xs font-semibold text-[#5a4d41] tabular-nums">{photoCount} {photoCount === 1 ? "photo" : "photos"}</div>
+          </div>
+
+          <FavouriteButton
+            isFavorite={isFavorite}
+            reduce={reduce}
+            onToggle={onToggleFavorite}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${isFavorite ? "text-rose-500" : "text-[#a3907a] hover:text-rose-500 hover:bg-[#f4eee6]"}`}
+          />
+
+          <div className="relative">
             <button
               ref={menuBtn}
               data-album-menu-button
@@ -572,49 +728,14 @@ const AlbumCard = forwardRef<HTMLElement, CardProps>(function AlbumCard(
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMenu(!menuOpen); }}
               aria-label="Album actions"
               aria-expanded={menuOpen}
-              className={`w-9 h-9 -mt-1.5 -mr-1.5 rounded-full flex items-center justify-center transition-colors ${menuOpen ? "bg-[#e8e0d5] text-[#1c1917]" : "text-[#8a755b] hover:text-[#1c1917] hover:bg-[#e8e0d5]"}`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${menuOpen ? "bg-[#e8e0d5] text-[#1c1917]" : "text-[#a3907a] hover:text-[#1c1917] hover:bg-[#f4eee6]"}`}
             >
               {deleting ? <Loader2 size={16} className="animate-spin" /> : <MoreHorizontal size={18} className="rotate-90" />}
             </button>
             <PortalMenu open={menuOpen} anchor={menuBtn} reduce={reduce} onClose={() => onMenu(false)}>
-                  {confirm ? (
-                    <div className="p-2">
-                      <p className="text-sm font-semibold text-[#1c1917] mb-1">Delete this album?</p>
-                      <p className="text-xs text-[#8a755b] mb-3">Its photos and notes go with it. This can&apos;t be undone.</p>
-                      <div className="flex gap-2">
-                        <button type="button" onClick={onDelete} className="flex-1 px-3 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors">Delete</button>
-                        <button type="button" onClick={() => setConfirm(false)} className="flex-1 px-3 py-2 rounded-xl bg-[#f4eee6] text-[#2c241b] text-xs font-bold hover:bg-[#e8e0d5] transition-colors">Keep</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <Link href={`/section/${section.id}`} className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#1c1917] hover:bg-[#fcfbf9] transition-colors">
-                        <Pencil size={15} className="text-[#8a755b]" /> Edit album
-                      </Link>
-                      <button type="button" onClick={onCopy} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#1c1917] hover:bg-[#fcfbf9] transition-colors text-left">
-                        <Link2 size={15} className="text-[#8a755b]" /> Copy share link
-                      </button>
-                      <div className="h-px bg-[#e8e0d5] my-1 mx-2" />
-                      <button type="button" onClick={() => setConfirm(true)} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left">
-                        <Trash2 size={15} /> Delete
-                      </button>
-                    </>
-                  )}
+              <MenuBody section={section} confirm={confirm} setConfirm={setConfirm} onCopy={onCopy} onDelete={onDelete} />
             </PortalMenu>
           </div>
-        </div>
-
-        <p className="text-[#5a4d41] text-xs leading-relaxed line-clamp-2 mb-5">
-          {photoCount === 0
-            ? "No photos yet. Add some, or this draft is removed automatically."
-            : section.description || "These are some of my favorite moments — little pieces of life that make the big picture beautiful."}
-        </p>
-
-        <div className="mt-auto flex items-center justify-between">
-          <span className="text-[10px] font-bold text-[#8a755b] uppercase tracking-widest">{date}</span>
-          <Link href={`/section/${section.id}`} className="text-xs font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors inline-flex items-center gap-1">
-            Edit <Pencil size={11} />
-          </Link>
         </div>
       </div>
     </motion.article>

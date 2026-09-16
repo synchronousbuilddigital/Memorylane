@@ -10,6 +10,12 @@ export default auth((req) => {
   const isPublicSharePage = req.nextUrl.pathname.startsWith("/share");
   const isPurposePage = req.nextUrl.pathname.startsWith("/purpose");
   const isLandingPage = req.nextUrl.pathname === "/home" || req.nextUrl.pathname === "/";
+  const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
+
+  // /admin always needs a session; whether that session is an admin is checked server-side in the page
+  if (isAdminPage && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
 
   if (isAuthPage) {
     if (isLoggedIn) {
