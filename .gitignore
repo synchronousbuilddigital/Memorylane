@@ -35,3 +35,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env
+.claude/agents/kfc/spec-design.md
+.claude/agents/kfc/spec-impl.md
+.claude/agents/kfc/spec-judge.md
+.claude/agents/kfc/spec-requirements.md
+.claude/agents/kfc/spec-system-prompt-loader.md
+.gitignore
+.gitignore
+.gitignore
+.claude/system-prompts/spec-workflow-starter.md
+.claude/agents/kfc/spec-tasks.md
+.gitignore
+.gitignore

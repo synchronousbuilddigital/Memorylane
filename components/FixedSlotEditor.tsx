@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateSectionDetails } from "@/app/actions/updateSection";
+import { discardEmptySection } from "@/app/actions/discardEmptySection";
 import SlotUploader from "./SlotUploader";
 import FamilyClassicLayout from "./purpose-views/FamilyClassicLayout";
 import FamilyMosaicLayout from "./purpose-views/FamilyMosaicLayout";
@@ -10,7 +11,50 @@ import TravelSuitcaseLayout from "./purpose-views/TravelSuitcaseLayout";
 import Birthday3DLayout from "./purpose-views/Birthday3DLayout";
 import FamilyFunction3DLayout from "./purpose-views/FamilyFunction3DLayout";
 import Link from "next/link";
-import { ChevronLeft, Share, X, Edit3 } from "lucide-react";
+import { ChevronLeft, Share, X, Edit3, Type } from "lucide-react";
+import { FF_TEXT_FIELDS, type TextField } from "./purpose-views/familyFunctionText";
+import { BIRTHDAY_TEXT_FIELDS } from "./purpose-views/birthdayText";
+
+/* Collapsible text fields for one slot; empty a field to go back to its default */
+function SlotTextEditor({ fields, content, onChange, onCommit }: {
+  fields: TextField[];
+  content: Record<string, unknown>;
+  onChange: (key: string, value: string) => void;
+  onCommit: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="-mt-2 mb-1 pl-1">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 flex items-center gap-1.5 py-1 transition-colors"
+      >
+        <Type size={12} /> {open ? "Hide text" : "Edit text"}
+      </button>
+      {open && (
+        <div className="mt-1 space-y-3 bg-white border border-gray-200 rounded-xl p-4">
+          {fields.map((f) => {
+            const raw = content[f.key];
+            const value = typeof raw === "string" ? raw : f.defaultValue;
+            const cls = "w-full text-sm p-2 border border-gray-200 rounded-lg focus:border-black outline-none bg-white text-gray-900 transition-colors";
+            return (
+              <div key={f.key}>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{f.label}</label>
+                {f.multiline ? (
+                  <textarea rows={f.key.endsWith("body") ? 4 : 2} value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={`${cls} resize-none`} />
+                ) : (
+                  <input type="text" value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={cls} />
+                )}
+              </div>
+            );
+          })}
+          <p className="text-[10px] text-gray-400">Clear a field to go back to the default wording. Saved when you leave a field.</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface FixedSlotEditorProps {
   section: any;
@@ -27,6 +71,18 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
   
   const [isPending, startTransition] = useTransition();
   const [isMobileEditorOpen, setIsMobileEditorOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
+  // An album with no photos is a draft: leaving it removes it rather than cluttering the dashboard
+  const hasPhotos = (section.images?.length ?? 0) > 0;
+  const leave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!hasPhotos) {
+      setLeaving(true);
+      await discardEmptySection(section.id);
+    }
+    router.push("/");
+  };
 
   const handleUploadComplete = () => {
     router.refresh();
@@ -45,9 +101,13 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
     handleSaveText(title, description, newContent);
   };
 
+  // Panel text fields: keep typing local, save once the field loses focus
+  const setContentField = (key: string, value: string) => setContent((prev: any) => ({ ...prev, [key]: value }));
+  const commitContent = () => handleSaveText(title, description, content);
+
   // Determine configuration based on theme
   let LayoutComponent = null;
-  let slotsConfig: { label: string, allowMultiple?: boolean, maxFiles?: number, dbPosition: number }[] = [];
+  let slotsConfig: { label: string, allowMultiple?: boolean, maxFiles?: number, dbPosition: number, textFields?: TextField[] }[] = [];
 
   if (section.theme === "family-classic" || section.theme === "ribbon") {
     LayoutComponent = FamilyClassicLayout;
@@ -80,17 +140,18 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
   } else if (section.theme === "event-birthday") {
     LayoutComponent = Birthday3DLayout;
     slotsConfig = [
-      { label: "Floating Lanterns (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 0 },
-      { label: "3D Gift Box Unwrap (5-10 images)", allowMultiple: true, maxFiles: 10, dbPosition: 1 },
-      { label: "Ferris Wheel (10-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2 },
-      { label: "Magical Wishing Tree (10-14 images)", allowMultiple: true, maxFiles: 14, dbPosition: 3 },
+      { label: "Floating Lanterns (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 0, textFields: BIRTHDAY_TEXT_FIELDS.cubes },
+      { label: "3D Gift Box Unwrap (5-10 images)", allowMultiple: true, maxFiles: 10, dbPosition: 1, textFields: BIRTHDAY_TEXT_FIELDS.gift },
+      { label: "Ferris Wheel (10-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2, textFields: BIRTHDAY_TEXT_FIELDS.wheel },
+      { label: "Magical Wishing Tree (10-14 images)", allowMultiple: true, maxFiles: 14, dbPosition: 3, textFields: BIRTHDAY_TEXT_FIELDS.tree },
     ];
   } else if (section.theme === "event-family") {
     LayoutComponent = FamilyFunction3DLayout;
     slotsConfig = [
       { label: "3D Spiraling Filmstrip (up to 50 images)", allowMultiple: true, maxFiles: 50, dbPosition: 0 },
-      { label: "3D Hallway Gallery (up to 20 images)", allowMultiple: true, maxFiles: 20, dbPosition: 1 },
-      { label: "Vintage Movie Projector (Infinite images)", allowMultiple: true, maxFiles: 100, dbPosition: 2 },
+      { label: "3D Hallway Gallery (up to 20 images)", allowMultiple: true, maxFiles: 20, dbPosition: 1, textFields: FF_TEXT_FIELDS.hall },
+      { label: "Vintage Movie Projector (Infinite images)", allowMultiple: true, maxFiles: 100, dbPosition: 2, textFields: FF_TEXT_FIELDS.projector },
+      { label: "Flip-Cube Photo Wall (up to 60 images)", allowMultiple: true, maxFiles: 60, dbPosition: 3, textFields: FF_TEXT_FIELDS.wall },
     ];
   }
 
@@ -110,13 +171,6 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
     acc[img.position].push(img);
     return acc;
   }, {});
-
-  // The Layout expects an array where index matches the slot.
-  // For single-image slots, it passes the single image. For multiple, it passes the array.
-  const layoutImages = slotsConfig.map((slot) => {
-    const imagesForSlot = imagesByPosition[slot.dbPosition] || [];
-    return slot.allowMultiple ? imagesForSlot : (imagesForSlot[0] || null);
-  });
 
   const completedSlots = slotsConfig.filter((slot) => (imagesByPosition[slot.dbPosition] || []).length > 0).length;
   const totalSlots = slotsConfig.length;
@@ -154,9 +208,14 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
         {/* Scrollable Main Area */}
         <div className="flex-1 overflow-y-auto flex flex-col">
           <div className="p-6 border-b border-gray-100 bg-white shrink-0">
-          <Link href="/" className="text-sm font-semibold text-gray-500 hover:text-gray-900 hidden md:flex items-center gap-2 mb-6 transition-colors">
-            <ChevronLeft size={16} /> Back to Dashboard
+          <Link href="/" onClick={leave} className="text-sm font-semibold text-gray-500 hover:text-gray-900 hidden md:flex items-center gap-2 mb-6 transition-colors">
+            <ChevronLeft size={16} /> {leaving ? "Leaving…" : "Back to Dashboard"}
           </Link>
+          {!hasPhotos && (
+            <p className="hidden md:block -mt-3 mb-5 text-[11px] leading-relaxed text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              No photos yet — this album is a draft and is removed automatically if you leave it empty.
+            </p>
+          )}
           
           <div className="mb-6 space-y-4">
             <div>
@@ -200,20 +259,24 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
           </div>
 
           <div className="p-6 space-y-4 bg-gray-50/50 flex-1">
-            {slotsConfig.map((slot, index) => {
+            {slotsConfig.map((slot) => {
             const images = imagesByPosition[slot.dbPosition] || [];
             return (
-              <SlotUploader 
-                key={slot.dbPosition}
-                sectionId={section.id}
-                position={slot.dbPosition}
-                label={slot.label}
-                currentImageUrl={images[0]?.displayUrl}
-                allowMultiple={slot.allowMultiple}
-                maxFiles={slot.maxFiles}
-                imageCount={images.length}
-                onUploadComplete={handleUploadComplete}
-              />
+              <div key={slot.dbPosition} className="space-y-2">
+                <SlotUploader 
+                  sectionId={section.id}
+                  position={slot.dbPosition}
+                  label={slot.label}
+                  currentImageUrl={images[0]?.displayUrl}
+                  allowMultiple={slot.allowMultiple}
+                  maxFiles={slot.maxFiles}
+                  imageCount={images.length}
+                  onUploadComplete={handleUploadComplete}
+                />
+                {slot.textFields && (
+                  <SlotTextEditor fields={slot.textFields} content={content} onChange={setContentField} onCommit={commitContent} />
+                )}
+              </div>
             );
           })}
           </div>

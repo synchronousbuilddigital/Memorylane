@@ -87,6 +87,7 @@ export default async function PublicSharePage({ params }: Props) {
         images={section.images} 
         title={section.title} 
         description={section.description} 
+        content={section.content}
       />
     );
   } else if (section.theme === "event-family") {
@@ -95,6 +96,7 @@ export default async function PublicSharePage({ params }: Props) {
         images={section.images} 
         title={section.title} 
         description={section.description} 
+        content={section.content}
       />
     );
   }

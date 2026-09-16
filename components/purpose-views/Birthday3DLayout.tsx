@@ -3,15 +3,27 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import InlineEditableText from "@/components/InlineEditableText";
-import { Menu, Mouse, RefreshCw } from "lucide-react";
-import BirthdayFerrisWheelLayout from "./BirthdayFerrisWheelLayout";
-import BirthdayWishingTreeLayout from "./BirthdayWishingTreeLayout";
+import { Mouse } from "lucide-react";
+import BirthdayFerrisWheelLayout from "./BirthdayFerrisWheel3D";
+import BirthdayWishingTreeLayout from "./BirthdayWishingTree3D";
+import BirthdayCubes from "./BirthdayCubes";
+import BirthdaySky from "./BirthdaySky";
+
+/* Deterministic random, so server and client agree */
+function seeded(seed: number) {
+  return () => {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 /* ─────────────────── PLACEHOLDERS ─────────────────── */
 const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1530103862676-de88b4db8ba4?auto=format&fit=crop&q=80&w=800",
+  "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1558636508-e0969431e4d2?auto=format&fit=crop&q=80&w=800",
@@ -19,89 +31,6 @@ const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1609234656388-0ff363383899?auto=format&fit=crop&q=80&w=800",
 ];
 
-const DEFAULT_CAPTIONS_S1 = [
-  "Some Madness ♡","Good Friends ♡","Next Stop More Life ♡","Unforgettable ♡","Cheers ♡",
-];
-const DEFAULT_CAPTIONS_S2 = [
-  "Good Times ♡","Brighter Days ♡","Many More ♡","Sweet Memories ♡",
-  "Best People ♡","Always Us ♡","Another Year ♡","Forever Young ♡",
-];
-
-/* ═══════════════════════════════════════════════════
-   SECTION 1 — GLOWING LANTERN CUBES
-════════════════════════════════════════════════════ */
-
-const CUBE_SIZE = 220;
-const H = CUBE_SIZE / 2;
-
-function GlowingLanternCube({
-  imgs, caption, speed = 14, initialRotation = 0, onCaptionChange,
-}: { imgs: string[]; caption: string; speed?: number; initialRotation?: number; onCaptionChange?: (v: string) => void }) {
-  const PolaroidFace = ({ src, transform, opacity = 1 }: { src: string; transform: string; opacity?: number }) => (
-    <div style={{
-      position: "absolute", inset: 0, transform,
-      border: "2px solid rgba(255,210,100,0.6)", boxSizing: "border-box",
-      overflow: "hidden", opacity, background: "#0a0500",
-    }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="memory" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse at 50% 80%, rgba(255,140,0,0.18) 0%, transparent 65%)",
-        pointerEvents: "none", mixBlendMode: "overlay",
-      }} />
-    </div>
-  );
-
-  return (
-    <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center",
-      filter: "drop-shadow(0 0 18px rgba(255,150,0,0.85)) drop-shadow(0 0 45px rgba(255,90,0,0.5)) drop-shadow(0 0 80px rgba(255,60,0,0.3))",
-    }}>
-      <div style={{ width: CUBE_SIZE, height: CUBE_SIZE, perspective: 900 }}>
-        <motion.div
-          style={{ width: "100%", height: "100%", position: "relative", transformStyle: "preserve-3d" }}
-          animate={{ rotateY: [initialRotation, initialRotation + 360], rotateX: [4, 9, 4, 0, 4] }}
-          transition={{
-            rotateY: { duration: speed, repeat: Infinity, ease: "linear" },
-            rotateX: { duration: speed * 1.4, repeat: Infinity, ease: "easeInOut" },
-          }}
-        >
-          <motion.div
-            style={{
-              position: "absolute", top: "50%", left: "50%", width: 88, height: 88,
-              transform: "translateX(-50%) translateY(-50%) translateZ(0px)",
-              borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(255,255,220,1) 0%, rgba(255,190,0,0.95) 28%, rgba(255,100,0,0.8) 55%, transparent 78%)",
-              pointerEvents: "none",
-            }}
-            animate={{ scale: [1, 1.12, 0.93, 1.08, 1], opacity: [0.88, 1, 0.82, 1, 0.88] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <PolaroidFace src={imgs[0]} transform={`translateZ(${H}px)`} opacity={1} />
-          <PolaroidFace src={imgs[1]} transform={`rotateY(180deg) translateZ(${H}px)`} opacity={0.97} />
-          <PolaroidFace src={imgs[2]} transform={`rotateY(90deg) translateZ(${H}px)`} opacity={0.95} />
-          <PolaroidFace src={imgs[3]} transform={`rotateY(-90deg) translateZ(${H}px)`} opacity={0.95} />
-          <PolaroidFace src={imgs[4]} transform={`rotateX(90deg) translateZ(${H}px)`} opacity={0.92} />
-          <PolaroidFace src={imgs[5]} transform={`rotateX(-90deg) translateZ(${H}px)`} opacity={0.92} />
-        </motion.div>
-      </div>
-      <svg width={CUBE_SIZE * 0.6} height={44} style={{ display: "block", marginTop: 0 }} overflow="visible">
-        <line x1="20%" y1="0" x2="50%" y2="100%" stroke="rgba(255,200,80,0.7)" strokeWidth="1.4" />
-        <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255,200,80,0.7)" strokeWidth="1.4" />
-        <line x1="80%" y1="0" x2="50%" y2="100%" stroke="rgba(255,200,80,0.7)" strokeWidth="1.4" />
-      </svg>
-      <div className="font-handwriting text-center text-[#fef3c7]" style={{
-        background: "rgba(20,10,0,0.82)", border: "1.5px solid rgba(255,200,80,0.55)",
-        borderRadius: 5, padding: "6px 16px 7px", fontSize: 14, letterSpacing: "0.02em",
-        boxShadow: "0 0 12px rgba(255,150,0,0.5), 0 4px 12px rgba(0,0,0,0.6)",
-        maxWidth: CUBE_SIZE * 0.95, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-      }}>
-        {onCaptionChange ? <InlineEditableText value={caption} onChange={onCaptionChange} /> : caption}
-      </div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════
    SECTION 2 — 3D GIFT BOX UNWRAP
@@ -125,37 +54,41 @@ function GiftBoxSection({
   const rafRef      = useRef<number>(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Seeded so the server and the browser lay the burst out identically
   const sprinklerTraj = React.useMemo(() => {
+    const rnd = seeded(7);
+    const palette = ["#f6e29a", "#e6c56d", "#c9a24a", "#efe6d3", "#ffd9a8", "#ffffff"];
     return Array.from({ length: 70 }).map(() => {
       // Burst mostly forward and to the sides (0 to PI) to avoid clipping the back lid
-      const angle = -0.1 * Math.PI + Math.random() * 1.2 * Math.PI;
-      const radius = 100 + Math.random() * 350;
+      const angle = -0.1 * Math.PI + rnd() * 1.2 * Math.PI;
+      const radius = 100 + rnd() * 350;
       return {
         tx: Math.cos(angle) * radius,
         tz: Math.sin(angle) * radius,
-        jump: 200 + Math.random() * 300,
-        rotX: Math.random() * 720,
-        rotY: Math.random() * 720,
-        rotZ: Math.random() * 720,
-        color: ['#ffd700', '#ff6b9d', '#c084fc', '#60a5fa', '#34d399', '#ffffff'][Math.floor(Math.random() * 6)]
+        jump: 200 + rnd() * 300,
+        rotX: rnd() * 720,
+        rotY: rnd() * 720,
+        rotZ: rnd() * 720,
+        color: palette[Math.floor(rnd() * palette.length)],
       };
     });
   }, []);
 
   const photoTrajectories = React.useMemo(() => {
+    const rnd = seeded(11);
     return Array.from({ length: 24 }).map((_, i) => {
       // Spread cubes evenly in the front 180 degrees (0 to PI) so they don't clip the lid in the back
-      const angle = -0.1 * Math.PI + (i / 24) * 1.2 * Math.PI + (Math.random() * 0.2 - 0.1);
+      const angle = -0.1 * Math.PI + (i / 24) * 1.2 * Math.PI + (rnd() * 0.2 - 0.1);
       // Keep cubes within a reasonable radius so they stay on-screen
-      const radius = 200 + Math.random() * 250;
+      const radius = 200 + rnd() * 250;
       return {
         tx: Math.cos(angle) * radius,
         tz: Math.sin(angle) * radius,
-        jump: 300 + Math.random() * 350,
-        rotX: Math.random() * 720,
-        rotY: Math.random() * 720,
-        rotZ: Math.random() * 720,
-        delay: Math.random() * 0.2,
+        jump: 300 + rnd() * 350,
+        rotX: rnd() * 720,
+        rotY: rnd() * 720,
+        rotZ: rnd() * 720,
+        delay: rnd() * 0.2,
       };
     });
   }, []);
@@ -417,29 +350,20 @@ function GiftBoxSection({
   const rH: React.CSSProperties = {
     position: "absolute", top: "50%", left: 0, right: 0,
     height: 24, marginTop: -12,
-    background: "linear-gradient(to bottom, #990000 0%, #e60000 25%, #660000 50%, #e60000 75%, #990000 100%)",
+    background: "linear-gradient(to bottom, #8a6a1e 0%, #c9a24a 25%, #5a4412 50%, #c9a24a 75%, #8a6a1e 100%)",
     boxShadow: "0 4px 12px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.6)",
   };
   const rV: React.CSSProperties = {
     position: "absolute", left: "50%", top: 0, bottom: 0,
     width: 24, marginLeft: -12,
-    background: "linear-gradient(to right, #990000 0%, #e60000 25%, #660000 50%, #e60000 75%, #990000 100%)",
+    background: "linear-gradient(to right, #8a6a1e 0%, #c9a24a 25%, #5a4412 50%, #c9a24a 75%, #8a6a1e 100%)",
     boxShadow: "0 4px 12px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.6)",
   };
-
-  /* Gold star decoration */
-  const star = (left: string, top: string, size: number): React.CSSProperties => ({
-    position: "absolute", left, top,
-    width: size, height: size,
-    background: "rgba(255,215,0,0.65)",
-    clipPath: "polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)",
-  });
 
   return (
     <div
       ref={sectionRef}
       className="relative h-screen flex items-center overflow-hidden"
-      style={{ background: "#1a0f08" }}
       onMouseMove={(e) => {
         const rect = sectionRef.current?.getBoundingClientRect();
         if (!rect) return;
@@ -461,6 +385,8 @@ function GiftBoxSection({
         filter: "brightness(0.7) blur(0.5px)",
         zIndex: 0,
       }} />
+      {/* the room dissolves into the night above and below, so its edges never show */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none", background: "linear-gradient(180deg, #140a05 0%, rgba(20,10,5,0.75) 9%, rgba(20,10,5,0) 26%, rgba(20,10,5,0) 72%, rgba(20,10,5,0.8) 92%, #140a05 100%)" }} />
       {/* Layer 2: Mid-ground vignette & warm overlay (medium movement) */}
       <div style={{
         position: "absolute", inset: "-4%",
@@ -485,16 +411,16 @@ function GiftBoxSection({
         <div style={{ position: "absolute", top: "15%", left: "30%", right: "50%", height: 1, background: "rgba(255,220,100,0.18)" }} />
         {/* Fairy lights bulbs */}
         {[
-          { l: "28%",  t: "7.5%",  c: "rgba(255,220,80,0.9)",  r: 4 },
+          { l: "28%",  t: "7.5%",  c: "rgba(230,197,109,0.9)",  r: 4 },
           { l: "32%",  t: "8.2%",  c: "rgba(255,180,100,0.8)", r: 3.5 },
-          { l: "36%",  t: "7.8%",  c: "rgba(255,240,120,0.85)",r: 4 },
-          { l: "40%",  t: "8.4%",  c: "rgba(255,200,80,0.75)", r: 3 },
+          { l: "36%",  t: "7.8%",  c: "rgba(246,226,154,0.85)",r: 4 },
+          { l: "40%",  t: "8.4%",  c: "rgba(201,162,74,0.75)", r: 3 },
           { l: "44%",  t: "7.6%",  c: "rgba(255,220,100,0.9)", r: 4 },
           { l: "48%",  t: "8.0%",  c: "rgba(255,160,80,0.8)",  r: 3.5 },
-          { l: "30%",  t: "14.5%", c: "rgba(255,200,80,0.7)",  r: 3.5 },
-          { l: "34%",  t: "15.2%", c: "rgba(255,240,120,0.8)", r: 4 },
+          { l: "30%",  t: "14.5%", c: "rgba(201,162,74,0.7)",  r: 3.5 },
+          { l: "34%",  t: "15.2%", c: "rgba(246,226,154,0.8)", r: 4 },
           { l: "38%",  t: "14.8%", c: "rgba(255,180,100,0.75)",r: 3 },
-          { l: "42%",  t: "15.4%", c: "rgba(255,220,80,0.85)", r: 3.5 },
+          { l: "42%",  t: "15.4%", c: "rgba(230,197,109,0.85)", r: 3.5 },
         ].map((b, i) => (
           <motion.div key={`bulb-${i}`} style={{
             position: "absolute", left: b.l, top: b.t,
@@ -536,7 +462,7 @@ function GiftBoxSection({
             borderRadius: "50%",
             filter: `blur(${i%3}px)`,
           }}
-          animate={{ y: [0, -30, 0], x: [0, Math.random()*20 - 10, 0], opacity: [0, 0.8, 0] }}
+          animate={{ y: [0, -30, 0], x: [0, ((i * 7) % 20) - 10, 0], opacity: [0, 0.8, 0] }}
           transition={{ duration: 4 + (i % 3), repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
         />
       ))}
@@ -583,14 +509,14 @@ function GiftBoxSection({
             {/* Metallic cap gradient */}
             <linearGradient id="capG" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%"   stopColor="#5a3e08" />
-              <stop offset="40%"  stopColor="#C49A22" />
+              <stop offset="40%"  stopColor="#b8912f" />
               <stop offset="70%"  stopColor="#8B6914" />
               <stop offset="100%" stopColor="#4a3006" />
             </linearGradient>
             {/* Bulb glass gradients per color */}
             <radialGradient id="bg0" cx="35%" cy="35%" r="65%">
               <stop offset="0%"   stopColor="#FFFBE0" stopOpacity="1" />
-              <stop offset="45%"  stopColor="#FFD840" stopOpacity="0.95" />
+              <stop offset="45%"  stopColor="#e6c56d" stopOpacity="0.95" />
               <stop offset="100%" stopColor="#CC7700" stopOpacity="0.85" />
             </radialGradient>
             <radialGradient id="bg1" cx="35%" cy="35%" r="65%">
@@ -600,7 +526,7 @@ function GiftBoxSection({
             </radialGradient>
             <radialGradient id="bg2" cx="35%" cy="35%" r="65%">
               <stop offset="0%"   stopColor="#FFFFF0" stopOpacity="1" />
-              <stop offset="45%"  stopColor="#FFEC6E" stopOpacity="0.95" />
+              <stop offset="45%"  stopColor="#f6e29a" stopOpacity="0.95" />
               <stop offset="100%" stopColor="#CCB800" stopOpacity="0.8" />
             </radialGradient>
             <radialGradient id="bg3" cx="35%" cy="35%" r="65%">
@@ -683,7 +609,7 @@ function GiftBoxSection({
             {/* Wooden clip */}
             <div style={{
               width: "11px", height: "6px",
-              background: "linear-gradient(135deg, #7a5514 0%, #C49A22 60%, #8B6914 100%)",
+              background: "linear-gradient(135deg, #7a5514 0%, #b8912f 60%, #8B6914 100%)",
               borderRadius: "2px",
               boxShadow: "0 1px 3px rgba(0,0,0,0.6)",
               marginBottom: "-2px",
@@ -719,16 +645,14 @@ function GiftBoxSection({
       <div className="relative z-20 flex flex-col justify-center h-full pl-8 sm:pl-10 md:pl-14 pr-4"
         style={{ width: "clamp(200px, 36%, 420px)", flexShrink: 0 }}>
         <div className="my-auto">
-          <p className="font-sans uppercase tracking-[0.35em] text-[#ffd89b]/80 text-[9px] mb-4 font-bold">
-            Unwrap the memories
-          </p>
-          <h2 className="font-serif font-extrabold tracking-tight leading-[0.88] text-[#fdfaf4] whitespace-pre-wrap mb-5"
+          <p className="flex items-center gap-3 text-[9px] md:text-[10px] tracking-[0.45em] uppercase font-bold mb-4 text-[#e6c56d]/85"><span className="w-8 h-[1px] bg-[#c9a24a]" /> Chapter II · Unwrap the memories</p>
+          <h2 className="font-serif font-black tracking-tight leading-[0.92] text-[#f4eee6] whitespace-pre-wrap mb-5"
             style={{ fontSize: "clamp(2rem, 4.8vw, 5.5rem)", textShadow: "0 5px 25px rgba(0,0,0,0.95)" }}>
-            <InlineEditableText value={title} onChange={onTitleChange} />
+            {onTitleChange ? <InlineEditableText value={title} onChange={onTitleChange} /> : title}
           </h2>
-          <p className="font-sans uppercase tracking-[0.28em] text-[#e3d2ba]/80 whitespace-pre-wrap font-semibold"
-            style={{ fontSize: "clamp(0.5rem, 0.85vw, 0.75rem)", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-            <InlineEditableText value={description} onChange={onDescriptionChange} />
+          <p className="font-serif italic text-[#d9cbb8]/85 whitespace-pre-wrap leading-relaxed"
+            style={{ fontSize: "clamp(0.85rem, 1.1vw, 1.05rem)", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
+            {onDescriptionChange ? <InlineEditableText value={description} onChange={onDescriptionChange} /> : description}
           </p>
           <div className="flex items-center gap-2 mt-10 text-[#e3d2ba]/60 font-bold">
             <Mouse size={13} />
@@ -749,7 +673,7 @@ function GiftBoxSection({
         <div style={{
           position: "absolute", bottom: 0, left: "2%",
           width: 220, height: 220,
-          background: "radial-gradient(ellipse, rgba(255,160,40,0.35) 0%, rgba(255,100,0,0.12) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse, rgba(255,177,94,0.35) 0%, rgba(255,150,80,0.12) 40%, transparent 70%)",
           filter: "blur(24px)",
           pointerEvents: "none", zIndex: 3,
         }} />
@@ -864,7 +788,7 @@ function GiftBoxSection({
             position: "absolute", width: W, height: H,
             marginLeft: -W/2, marginTop: -H/2,
             transform: `translateZ(${D/2 - 2}px)`,
-            background: "radial-gradient(ellipse at 50% 65%, rgba(255,210,0,0.9) 0%, rgba(255,120,0,0.6) 30%, transparent 68%)",
+            background: "radial-gradient(ellipse at 50% 65%, rgba(230,197,109,0.9) 0%, rgba(255,150,80,0.6) 30%, transparent 68%)",
             opacity: 0.05, pointerEvents: "none", zIndex: 2,
             filter: "blur(4px)",
           }} />
@@ -887,7 +811,7 @@ function GiftBoxSection({
                   : "linear-gradient(160deg, rgba(255,210,80,0.7) 0%, rgba(200,160,40,0.5) 100%)",
                 borderRadius: "40% 40% 10% 10%",
                 transform: `rotateZ(${(ti - 1) * 8}deg)`,
-                boxShadow: "0 -4px 12px rgba(255,200,0,0.3)",
+                boxShadow: "0 -4px 12px rgba(230,197,109,0.3)",
               }} />
             ))}
           </div>
@@ -1003,9 +927,9 @@ function GiftBoxSection({
                 transform:"translate(-50%,-50%) translateZ(4px)",
                 width:60, height:60,
                 borderRadius:"50%",
-                background:"radial-gradient(circle at 35% 35%, #ff4d4d 0%, #cc0000 30%, #800000 70%, #330000 100%)",
-                boxShadow:"0 15px 30px rgba(0,0,0,0.7), inset -4px -4px 15px rgba(0,0,0,0.5), 0 0 40px rgba(255,0,0,0.4)",
-                border:"1px solid rgba(255,100,100,0.8)",
+                background:"radial-gradient(circle at 35% 35%, #f0dfb0 0%, #b8912f 30%, #6e4f1a 70%, #3a2605 100%)",
+                boxShadow:"0 15px 30px rgba(0,0,0,0.7), inset -4px -4px 15px rgba(0,0,0,0.5), 0 0 40px rgba(201,162,74,0.4)",
+                border:"1px solid rgba(240,223,176,0.8)",
               }} />
               {/* 1-4. 3D Loops */}
               {[-1, 1, -1, 1].map((dx, bi) => {
@@ -1016,12 +940,12 @@ function GiftBoxSection({
                     width: 55, height: 40,
                     marginLeft: dx < 0 ? -53 : -2,
                     marginTop: dy < 0 ? -38 : -2,
-                    background: "linear-gradient(135deg, #ff4d4d 0%, #b30000 50%, #660000 100%)",
+                    background: "linear-gradient(135deg, #f0dfb0 0%, #a07a2c 50%, #5a4412 100%)",
                     borderRadius: dx < 0 ? "50% 25% 25% 50%" : "25% 50% 50% 25%",
-                    boxShadow: "0 12px 25px rgba(0,0,0,0.6), inset 0 3px 20px rgba(255,100,100,0.7)",
+                    boxShadow: "0 12px 25px rgba(0,0,0,0.6), inset 0 3px 20px rgba(240,223,176,0.7)",
                     transformOrigin: dx < 0 ? "100% 50%" : "0% 50%",
                     transform: `translateZ(2px) rotateY(${dx * -45}deg) rotateX(${dy * 40}deg) rotateZ(${dx * dy * -30}deg)`,
-                    border: "2px solid rgba(255,100,100,0.6)",
+                    border: "2px solid rgba(240,223,176,0.6)",
                   }} />
                 );
               })}
@@ -1032,7 +956,7 @@ function GiftBoxSection({
                   width: 28, height: 110,
                   marginLeft: dx < 0 ? -42 : 14,
                   marginTop: 15,
-                  background: "linear-gradient(180deg, #cc0000 0%, #660000 100%)",
+                  background: "linear-gradient(180deg, #b8912f 0%, #5a4412 100%)",
                   transformOrigin: "top center",
                   transform: `translateZ(0px) rotateX(55deg) rotateZ(${dx * 35}deg)`,
                   clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%)",
@@ -1091,7 +1015,7 @@ function GiftBoxSection({
               marginLeft: -LW/2, marginTop: -LH/2,
               transform: `translateZ(0px) translateY(${LH/2}px) rotateY(180deg)`,
               background: "linear-gradient(180deg, #9e8460 0%, #7d6341 100%)",
-              border: "2px solid rgba(139,0,0,0.1)",
+              border: "2px solid rgba(138,106,30,0.1)",
               boxSizing: "border-box", overflow: "hidden",
             }} />
 
@@ -1102,7 +1026,7 @@ function GiftBoxSection({
               marginLeft: -LD/2, marginTop: -LH/2,
               transform: `translateX(${-LW/2}px) translateZ(${LD/2}px) translateY(${LH/2}px) rotateY(-90deg)`,
               background: "linear-gradient(180deg, #9e8460 0%, #7d6341 100%)",
-              border: "2px solid rgba(139,0,0,0.1)",
+              border: "2px solid rgba(138,106,30,0.1)",
               boxSizing: "border-box", overflow: "hidden",
             }}>
               <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.15)", pointerEvents:"none" }} />
@@ -1115,7 +1039,7 @@ function GiftBoxSection({
               marginLeft: -LD/2, marginTop: -LH/2,
               transform: `translateX(${LW/2}px) translateZ(${LD/2}px) translateY(${LH/2}px) rotateY(90deg)`,
               background: "linear-gradient(180deg, #cbb18d 0%, #a88c68 100%)",
-              border: "2px solid rgba(139,0,0,0.1)",
+              border: "2px solid rgba(138,106,30,0.1)",
               boxSizing: "border-box", overflow: "hidden",
             }}>
               <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.18)", pointerEvents:"none" }} />
@@ -1152,7 +1076,7 @@ function GiftBoxSection({
             <div style={{
               background: "#faf8f2",
               padding: "12px 12px 40px",
-              boxShadow: "0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,180,0,0.2)",
+              boxShadow: "0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,177,94,0.2)",
               border: "2px solid rgba(212,175,55,0.3)",
               borderRadius: 4,
             }}>
@@ -1184,8 +1108,8 @@ function GiftBoxSection({
 ════════════════════════════════════════════════════ */
 export default function Birthday3DLayout({
   images = [],
-  title = "BIRTHDAY\nSKIES",
-  description = "FLOATING MOMENTS\nFOREVER",
+  title = "Birthday\nSkies",
+  description = "Floating moments,\nforever.",
   content = {},
   onTitleChange,
   onDescriptionChange,
@@ -1197,139 +1121,62 @@ export default function Birthday3DLayout({
   const slot3Images = images.filter((img: any) => img.position === 2).slice(0, 24);
   const slot4Images = images.filter((img: any) => img.position === 3).slice(0, 14);
 
-  let displaySlot1: any[] = slot1Images;
-  if (displaySlot1.length === 0)
-    displaySlot1 = PLACEHOLDERS.map((src, i) => ({ id: `p1-${i}`, displayUrl: src }));
-
-  const allUrls: string[] = displaySlot1.map((img: any) => img.displayUrl);
-  while (allUrls.length < 6)
-    allUrls.push(PLACEHOLDERS[allUrls.length % PLACEHOLDERS.length]);
-
-  const FLOAT_POSITIONS = [8, 24, 42, 60, 78];
+  const albumRef = useRef<HTMLDivElement>(null);
+  // Every chapter is transparent at its edges; this band of night sits between them
+  const Seam = () => (
+    <div aria-hidden className="relative z-20 h-0 pointer-events-none">
+      <div className="absolute inset-x-0 -top-[16vh] h-[32vh]" style={{ background: "linear-gradient(180deg, rgba(20,10,5,0) 0%, rgba(20,10,5,0.8) 38%, rgba(20,10,5,0.8) 62%, rgba(20,10,5,0) 100%)" }} />
+    </div>
+  );
 
   return (
-    <div className="w-full">
-      {/* ───── SECTION 1: Floating Glowing Lantern Cubes ───── */}
-      <section
-        className="relative h-screen overflow-hidden font-serif text-[#f4eee6]"
-        style={{ background: "#050B14" }}
-      >
-        {/* Background */}
-        <div
-          className="absolute inset-0 z-0 pointer-events-none"
-          style={{
-            backgroundImage: `url('/images/birthday_night_sky_v2.jpg')`,
-            backgroundSize: "cover", backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0" style={{ backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", background: "rgba(5,11,20,0.3)" }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050B14]/40 via-transparent to-[#050B14]/75" />
-        </div>
+    <div ref={albumRef} className="relative w-full">
+      <BirthdaySky scrollRoot={albumRef} />
 
-        {/* Navigation */}
-        <div className="absolute top-6 right-8 z-50 flex items-center gap-6 text-xs tracking-widest font-sans uppercase text-white/70">
-          <span className="hover:text-white cursor-pointer transition-colors hidden sm:inline">Home</span>
-          <span className="hover:text-white cursor-pointer transition-colors hidden sm:inline">Moments</span>
-          <span className="hover:text-white cursor-pointer transition-colors hidden sm:inline">Wishes</span>
-          <Menu className="hover:text-white cursor-pointer transition-colors" size={22} />
-        </div>
+      {/* ───── SECTION 1: Floating glowing photo cubes ───── */}
+      <BirthdayCubes
+        images={slot1Images}
+        title={title}
+        description={description}
+        content={content}
+        onTitleChange={onTitleChange}
+        onDescriptionChange={onDescriptionChange}
+        onContentChange={onContentChange}
+      />
 
-        {/* Hero title */}
-        <div
-          className="absolute left-4 sm:left-8 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 z-50 pointer-events-auto"
-          style={{ width: "clamp(180px, 40vw, 480px)" }}
-        >
-          <h1
-            className="font-serif font-extrabold tracking-tight leading-[0.88] text-[#f3dfc1] whitespace-pre-wrap"
-            style={{ fontSize: "clamp(2.5rem, 9vw, 9rem)", textShadow: "0 4px 32px rgba(0,0,0,0.9), 0 0 60px rgba(255,140,0,0.2)" }}
-          >
-            <InlineEditableText value={title} onChange={onTitleChange} />
-          </h1>
-          <p
-            className="font-sans uppercase tracking-[0.28em] text-[#d9cbb8]/80 whitespace-pre-wrap mt-4"
-            style={{ fontSize: "clamp(0.55rem, 1.1vw, 0.8rem)" }}
-          >
-            <InlineEditableText value={description} onChange={onDescriptionChange} />
-          </p>
-        </div>
-
-        {/* Floating lantern cubes */}
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          {displaySlot1.slice(0, 5).map((img: any, i: number) => {
-            const duration = 45 + (i % 3) * 6;
-            const delay = -(i * (duration / 5));
-            const leftPos = FLOAT_POSITIONS[i];
-            const scaleVal = 1 + (-120 + (i % 5) * 60) / 1600;
-            const faceUrls = Array.from({ length: 6 }, (_, fi) => allUrls[(i + fi) % allUrls.length]);
-            const visibilityClass = i >= 4 ? "hidden lg:block" : i >= 3 ? "hidden sm:block" : "block";
-
-            return (
-              <motion.div
-                key={img.id}
-                className={`absolute flex flex-col items-center pointer-events-auto ${visibilityClass}`}
-                style={{ left: `${leftPos}%`, top: "100vh", scale: scaleVal }}
-                animate={{ y: [0, "-160vh"], x: [0, 25, -25, 0], rotateZ: [-1.5, 1.5, -1, 1, -1.5] }}
-                transition={{
-                  y: { duration, repeat: Infinity, ease: "linear", delay },
-                  x: { duration: duration * 0.9, repeat: Infinity, ease: "easeInOut", delay },
-                  rotateZ: { duration: duration * 0.75, repeat: Infinity, ease: "easeInOut", delay },
-                }}
-              >
-                <div className="flex flex-col items-center sm:!transform-none" style={{ transform: "scale(0.6)", transformOrigin: "bottom center" }}>
-                  <GlowingLanternCube
-                    imgs={faceUrls}
-                    caption={content?.[`caption_${i}`] || DEFAULT_CAPTIONS_S1[i % DEFAULT_CAPTIONS_S1.length]}
-                    speed={12 + (i % 4) * 2}
-                    initialRotation={(i * 72) % 360}
-                    onCaptionChange={(val) => onContentChange && onContentChange(`caption_${i}`, val)}
-                  />
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Bottom decorative */}
-        <div className="absolute bottom-10 left-8 text-[#d9cbb8]/60 font-serif uppercase tracking-[0.2em] text-[0.6rem] leading-loose z-50 pointer-events-none hidden sm:block">
-          Some<br />Memories<br />Never<br />Fade
-        </div>
-        <div className="absolute bottom-14 right-10 text-[#f3dfc1] font-handwriting text-2xl md:text-3xl z-50 rotate-[-5deg] pointer-events-none">
-          High<br />on<br />Moments ♡
-        </div>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center z-50 text-[#d9cbb8]/60 cursor-pointer">
-          <Mouse size={20} className="mb-2" />
-          <span className="text-[9px] tracking-[0.3em] uppercase">Scroll Down</span>
-          <div className="mt-3 w-[1px] h-10 bg-gradient-to-b from-[#d9cbb8]/40 to-transparent" />
-        </div>
-      </section>
+      <Seam />
 
       {/* ───── SECTION 2: 3D Gift Box Unwrap ───── */}
       <GiftBoxSection
         images={slot2Images}
-        title={content?.s2_title || "OPEN\nWITH\nLOVE"}
-        description={content?.s2_description || "EVERY PHOTO\nA GIFT"}
+        title={content?.s2_title || "Open\nwith love"}
+        description={content?.s2_description || "Every photo, a gift."}
         content={content}
-        onTitleChange={(val: string) => onContentChange && onContentChange("s2_title", val)}
-        onDescriptionChange={(val: string) => onContentChange && onContentChange("s2_description", val)}
+        onTitleChange={onContentChange ? (val: string) => onContentChange("s2_title", val) : undefined}
+        onDescriptionChange={onContentChange ? (val: string) => onContentChange("s2_description", val) : undefined}
         onContentChange={onContentChange}
       />
 
+      <Seam />
+
       {/* ───── SECTION 3: 3D Ferris Wheel of Memories ───── */}
       <BirthdayFerrisWheelLayout
-        title={content?.s3_title || "RIDE THE\nMEMORIES"}
-        description={content?.s3_description || "EVERY GONDOLA\nA GIFT BOX SURPRISE"}
+        title={content?.s3_title || "Ride the\nMemories"}
+        description={content?.s3_description || "Every cabin, a moment worth the climb."}
         cards={slot3Images}
-        onTitleChange={(val: string) => onContentChange && onContentChange("s3_title", val)}
-        onDescriptionChange={(val: string) => onContentChange && onContentChange("s3_description", val)}
+        onTitleChange={onContentChange ? (val: string) => onContentChange("s3_title", val) : undefined}
+        onDescriptionChange={onContentChange ? (val: string) => onContentChange("s3_description", val) : undefined}
       />
+
+      <Seam />
 
       {/* ───── SECTION 4: Magical Wishing Tree ───── */}
       <BirthdayWishingTreeLayout
         title={content?.s4_title || "A Tree of\nBeautiful Moments"}
         description={content?.s4_description || "Every photo a story, every branch a memory, and every light a moment we'll always keep."}
         cards={slot4Images}
-        onTitleChange={(val: string) => onContentChange && onContentChange("s4_title", val)}
-        onDescriptionChange={(val: string) => onContentChange && onContentChange("s4_description", val)}
+        onTitleChange={onContentChange ? (val: string) => onContentChange("s4_title", val) : undefined}
+        onDescriptionChange={onContentChange ? (val: string) => onContentChange("s4_description", val) : undefined}
       />
     </div>
   );

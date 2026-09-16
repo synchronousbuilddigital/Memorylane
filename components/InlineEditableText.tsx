@@ -27,7 +27,7 @@ export default function InlineEditableText({
 
   if (isEditing) {
     // Determine if we need a textarea (if it's a paragraph or large text)
-    const isMultiline = Tag === "p" || Tag === "div";
+    const isMultiline = Tag === "p" || Tag === "div" || value.includes("\n");
     
     const handleBlur = () => {
       setIsEditing(false);
@@ -77,7 +77,7 @@ export default function InlineEditableText({
 
   return (
     <Tag
-      className={`${className} cursor-text hover:opacity-80 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all border-b border-transparent hover:border-white/20`}
+      className={`${className} whitespace-pre-line cursor-text hover:opacity-80 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all border-b border-transparent hover:border-white/20`}
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();

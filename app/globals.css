@@ -18,6 +18,24 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* A very slow drift for hero/banner photography */
+@keyframes kenburns {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.12) translate3d(-2%, -1.5%, 0); }
+}
+.animate-kenburns {
+  animation: kenburns 40s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-kenburns { animation: none; }
+}
+
 @layer utilities {
   .hide-scrollbar::-webkit-scrollbar {
     display: none;

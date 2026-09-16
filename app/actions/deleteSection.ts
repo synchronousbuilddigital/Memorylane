@@ -34,13 +34,18 @@ export async function deleteSection(sectionId: string) {
     where: { sectionId }
   });
 
-  // 3. Delete the Section itself
-  await prisma.section.delete({
-    where: { id: sectionId }
-  });
+  // 3. Delete the Section itself (sticky notes cascade)
+  try {
+    await prisma.section.delete({
+      where: { id: sectionId }
+    });
+  } catch (err) {
+    console.error("deleteSection failed", err);
+    return { error: "Couldn't delete this album. Please try again." };
+  }
 
-  revalidatePath('/home');
-  revalidatePath('/dashboard');
+  revalidatePath('/');
+  revalidatePath('/albums');
 
   return { success: true };
 }

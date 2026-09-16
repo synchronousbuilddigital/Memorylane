@@ -98,10 +98,10 @@ const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onI
   const STRING_OFFSETS = [140, 110, 100, 80];
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 opacity-90 transition-opacity duration-1000">
+    <div className="absolute top-0 left-0 w-full h-[44rem] overflow-hidden pointer-events-none z-10 opacity-90 transition-opacity duration-1000">
       
-      {/* The Hanging Cards (Behind the branch) */}
-      <div className="absolute top-0 left-0 w-full flex justify-around px-8 lg:px-24 pointer-events-auto z-10">
+      {/* The Hanging Cards (Behind the branch) — kept to the left 60% so they never meet the photo stack */}
+      <div className="absolute top-0 left-0 w-full lg:w-[60%] flex justify-around px-8 lg:px-16 pointer-events-auto z-10">
         {safeImages.map((img: any, i: number) => {
           const originalIndex = fullImages ? fullImages.findIndex((orig: any) => orig.displayUrl === img || orig.url === img) : -1;
           return (
@@ -222,7 +222,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
       />
 
       {/* 1. Split Hero Section */}
-      <div className="w-full max-w-7xl mx-auto px-8 mb-32 min-h-[70vh] flex flex-col lg:flex-row items-center gap-16 relative z-20 mt-16">
+      <div className="w-full max-w-7xl mx-auto px-8 mb-32 min-h-[70vh] flex flex-col lg:flex-row items-center gap-12 lg:gap-16 relative z-20 mt-[26rem] lg:mt-[24rem]">
 
         {/* Left Side: Text Content */}
         <motion.div
@@ -235,7 +235,8 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
             Family Album
           </div>
           <h1
-            className={`text-5xl md:text-7xl font-serif font-bold text-[#2c241b] tracking-tight mb-8 leading-[1.1] ${onTitleChange ? "cursor-text hover:bg-black/5 rounded-lg -mx-4 px-4 py-2 transition-colors outline-none border border-transparent focus:border-gray-200" : ""}`}
+            style={{ fontSize: "clamp(2.6rem, 4.6vw, 4.5rem)" }}
+            className={`font-serif font-bold text-[#2c241b] tracking-tight mb-8 leading-[1.08] ${onTitleChange ? "cursor-text hover:bg-black/5 rounded-lg -mx-4 px-4 py-2 transition-colors outline-none border border-transparent focus:border-gray-200" : ""}`}
             contentEditable={!!onTitleChange}
             suppressContentEditableWarning={true}
             onBlur={(e) => onTitleChange?.(e.currentTarget.textContent || "")}
@@ -269,20 +270,20 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className="w-full lg:w-7/12 h-[60vh] relative perspective-[2000px] flex items-center justify-center lg:justify-end pr-0 lg:pr-12"
+          className="w-full lg:w-7/12 relative perspective-[2000px] flex items-center justify-center lg:justify-end pr-0 lg:pr-8"
         >
           {/* Aesthetic Note */}
-          <div className="absolute -top-12 right-0 hidden lg:block z-50 pointer-events-none opacity-80">
-            <div className="font-serif italic text-2xl text-[#8a755b] rotate-6">
+          <div className="absolute -top-2 left-0 hidden lg:block z-50 pointer-events-none opacity-80">
+            <div className="font-serif italic text-2xl text-[#8a755b] -rotate-6">
               Different memories,<br />Same love ♡
             </div>
-            <svg className="w-12 h-12 ml-4 -mt-2 text-[#8a755b]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M80,20 Q60,80 20,60" />
-              <path d="M30,50 L20,60 L35,65" />
+            <svg className="w-12 h-12 ml-10 -mt-1 text-[#8a755b]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20,20 Q40,80 80,60" />
+              <path d="M70,50 L80,60 L65,65" />
             </svg>
           </div>
 
-          <div className="relative w-full max-w-[550px] h-[600px]">
+          <div className="relative w-[min(100%,480px)] lg:w-[min(100%,520px)] aspect-[11/12] mt-10 lg:mt-14 mr-6 lg:mr-10">
             <AnimatePresence initial={false}>
               {displayHeroImages.map((src, index) => {
                 // Calculate position relative to current slide
@@ -298,16 +299,16 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
                   <motion.div
                     key={`${src}-${index}`}
                     initial={{
-                      x: isFront ? -50 : offset * 50,
-                      y: offset * 15,
+                      x: isFront ? -50 : offset * 14,
+                      y: offset * 12,
                       scale: 1 - offset * 0.05,
                       rotate: offset * 4,
                       opacity: 0,
                       zIndex: 10 - offset
                     }}
                     animate={{
-                      x: isFront ? 0 : offset * 50,
-                      y: offset * 15,
+                      x: isFront ? 0 : offset * 14,
+                      y: offset * 12,
                       scale: 1 - offset * 0.05,
                       rotate: offset * 4,
                       opacity: 1 - offset * 0.15,
@@ -327,7 +328,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
                         nextSlide();
                       }
                     }}
-                    className={`absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden border-8 border-white shadow-[0_20px_50px_rgb(0,0,0,0.2)] bg-gray-100 ${isFront ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+                    className={`absolute inset-y-0 left-0 w-[calc(100%-2.5rem)] rounded-[2rem] overflow-hidden border-8 border-white shadow-[0_20px_50px_rgb(0,0,0,0.2)] bg-gray-100 ${isFront ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
                     style={{ transformOrigin: "bottom left" }}
                   >
                     <Image

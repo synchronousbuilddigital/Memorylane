@@ -29,7 +29,7 @@ const TAG_POSITIONS = [
 
 const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1530103862676-de8892d12fb3?auto=format&fit=crop&q=80&w=800",
+  "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&q=80&w=800",
 ];
 
 export default function BirthdayWishingTreeLayout({
@@ -46,7 +46,7 @@ export default function BirthdayWishingTreeLayout({
   });
 
   return (
-    <div className="relative w-full h-[100vh] md:h-[120vh] bg-[#080510] overflow-hidden" style={{ perspective: "1500px" }}>
+    <div className="relative w-full h-[100vh] md:h-[120vh] bg-[#140a05] overflow-hidden" style={{ perspective: "1500px" }}>
       {/* RESPONSIVE ASPECT-RATIO WRAPPER (Simulates object-cover) */}
       <div 
         className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-full min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
@@ -57,12 +57,19 @@ export default function BirthdayWishingTreeLayout({
             src="/wishing-tree-bg.jpg" 
             alt="Magical Wishing Tree" 
             className="w-full h-full object-cover"
-            style={{ transformOrigin: "center center" }}
+            style={{ transformOrigin: "center center", filter: "sepia(0.55) saturate(0.7) hue-rotate(-12deg) brightness(0.85)" }}
             animate={{ scale: [1.0, 1.03, 1.0] }}
             transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
           />
-          {/* Magic patch perfectly locked to the background image to completely erase the baked-in text */}
-          <div className="absolute top-[5%] left-[2%] w-[45%] h-[35%] bg-[#080510] blur-[40px] pointer-events-none rounded-full opacity-95" />
+          {/* The stock picture has captions baked into its margins; these sit in image space and hide them */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(90deg,#140a05 0%,rgba(20,10,5,0.9) 7%,transparent 15%,transparent 84%,rgba(20,10,5,0.9) 93%,#140a05 100%), linear-gradient(180deg,#140a05 0%,rgba(20,10,5,0.85) 8%,transparent 17%,transparent 80%,rgba(20,10,5,0.92) 90%,#140a05 100%)" }} />
+          {/* soft rectangles over each caption: top-left title, top-right, left column, bottom-left, bottom-centre, bottom-right */}
+          <div className="absolute top-0 left-0 w-[48%] h-[36%] bg-[#140a05] blur-[30px] pointer-events-none" />
+          <div className="absolute top-0 left-[82%] w-[18%] h-[18%] bg-[#140a05] blur-[24px] pointer-events-none" />
+          <div className="absolute top-[26%] left-0 w-[12%] h-[24%] bg-[#140a05] blur-[22px] pointer-events-none" />
+          <div className="absolute top-[58%] left-0 w-[22%] h-[42%] bg-[#140a05] blur-[24px] pointer-events-none" />
+          <div className="absolute top-[68%] left-[40%] w-[24%] h-[20%] bg-[#140a05] blur-[22px] pointer-events-none opacity-95" />
+          <div className="absolute top-[84%] left-[82%] w-[18%] h-[16%] bg-[#140a05] blur-[24px] pointer-events-none" />
         </div>
 
 
@@ -106,7 +113,7 @@ export default function BirthdayWishingTreeLayout({
                     <img src={imgUrl} alt="memory" className="w-full h-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100" />
                     
                     {/* Inner Warm Glow Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#ff8c00]/40 to-transparent pointer-events-none mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#ffb15e]/40 to-transparent pointer-events-none mix-blend-overlay" />
                     <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(255,200,100,0.5)] rounded-lg pointer-events-none" />
                   </div>
                 </motion.div>
@@ -138,24 +145,19 @@ export default function BirthdayWishingTreeLayout({
       </div> {/* Close RESPONSIVE ASPECT-RATIO WRAPPER */}
       
       {/* Dark overlay for text readability mapped to the screen, NOT the tree wrapper */}
-      <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-[#140a05]/90 via-[#140a05]/45 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#140a05]/80 to-transparent z-10 pointer-events-none" />
 
       {/* TEXT CONTENT (Left Center Aligned) */}
       <div className="absolute top-1/2 -translate-y-1/2 left-[5%] md:left-[8%] z-20 max-w-xs md:max-w-xl pointer-events-auto">
         <div className="relative">
-          <div className="mb-3">
-            <span className="text-white/70 tracking-[0.3em] text-[10px] md:text-xs font-bold uppercase drop-shadow-lg">Our Memories</span>
-          </div>
-          <InlineEditableText
-            value={title}
-            onChange={onTitleChange ?? (() => {})}
-            className="text-5xl md:text-7xl font-serif font-bold text-white leading-[1.1] drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)] mb-6"
-          />
-          <InlineEditableText
-            value={description}
-            onChange={onDescriptionChange ?? (() => {})}
-            className="text-sm md:text-lg text-white/90 leading-relaxed drop-shadow-[0_5px_10px_rgba(0,0,0,0.9)] font-medium max-w-[280px] md:max-w-lg"
-          />
+          <p className="flex items-center gap-3 text-[9px] md:text-[10px] tracking-[0.45em] uppercase font-bold mb-4 text-[#e6c56d]/85"><span className="w-8 h-[1px] bg-[#c9a24a]" /> Chapter IV · Wishing tree</p>
+          <h2 className="text-4xl md:text-6xl font-serif font-black text-[#f4eee6] leading-[1.05] drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)] mb-5 whitespace-pre-wrap">
+            {onTitleChange ? <InlineEditableText value={title} onChange={onTitleChange} /> : title}
+          </h2>
+          <p className="text-sm md:text-lg text-[#d9cbb8] font-serif italic leading-relaxed drop-shadow-[0_5px_10px_rgba(0,0,0,0.9)] max-w-[280px] md:max-w-lg whitespace-pre-wrap">
+            {onDescriptionChange ? <InlineEditableText value={description} onChange={onDescriptionChange} /> : description}
+          </p>
         </div>
       </div>
       
@@ -168,7 +170,7 @@ export default function BirthdayWishingTreeLayout({
             exit={{ scale: 0.8, opacity: 0 }}
             src={safeCards[activeIdx].displayUrl || safeCards[activeIdx].url || safeCards[activeIdx]} 
             alt="Enlarged Memory"
-            className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-4 border-[#b88040]" 
+            className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-4 border-[#c9a24a]" 
             onClick={(e) => e.stopPropagation()}
           />
           {/* Close button instruction */}

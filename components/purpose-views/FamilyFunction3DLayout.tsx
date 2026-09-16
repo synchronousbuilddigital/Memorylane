@@ -4,6 +4,8 @@ import React from "react";
 import FamilyFunctionFilmstripLayout from "./FamilyFunctionFilmstripLayout";
 import FamilyFunctionHallwayGallery from "./FamilyFunctionHallwayGallery";
 import FamilyFunctionMovieProjector from "./FamilyFunctionMovieProjector";
+import FamilyFunctionFlipCubeWall from "./FamilyFunctionFlipCubeWall";
+import { FF_TEXT_FIELDS, parseContent, textOf, lines } from "./familyFunctionText";
 
 export default function FamilyFunction3DLayout({
   images = [],
@@ -11,11 +13,20 @@ export default function FamilyFunction3DLayout({
   description = "A lifetime of beautiful moments.",
   onTitleChange,
   onDescriptionChange,
+  content,
 }: any) {
+  // Editable words for each section (defaults when nothing has been written yet)
+  const c = parseContent(content);
+  const t = (key: string) => {
+    const f = [...FF_TEXT_FIELDS.hall, ...FF_TEXT_FIELDS.projector, ...FF_TEXT_FIELDS.wall].find((x) => x.key === key)!;
+    return textOf(c, key, f.defaultValue);
+  };
+  const hallNotes = ["hall.note1", "hall.note2", "hall.note3"].map(t).filter((n) => n.trim().length > 0);
   // Each slot gets its own position-based images (matched to dbPosition in FixedSlotEditor)
   const slot1Imgs = images.filter((img: any) => img.position === 0);
   const slot2Imgs = images.filter((img: any) => img.position === 1);
   const slot3Imgs = images.filter((img: any) => img.position === 2);
+  const slot4Imgs = images.filter((img: any) => img.position === 3);
 
   return (
     <div className="w-full">
@@ -30,7 +41,7 @@ export default function FamilyFunction3DLayout({
         />
       </section>
 
-      {/* ── SECTION 2: 3D Hallway Gallery — split layout ── */}
+      {/* ── SECTION 2: 3D Hallway Gallery — split layout (scrolling over the 3D pane walks the hall) ── */}
       <section className="w-full h-screen flex overflow-hidden" style={{ background: '#1e0e05' }}>
 
         {/* LEFT PANEL: Title + description + notes */}
@@ -38,7 +49,7 @@ export default function FamilyFunction3DLayout({
           {/* Decorative top-left accent */}
           <div className="absolute top-8 left-10 flex items-center gap-2 opacity-50">
             <div className="w-6 h-[1px] bg-amber-400" />
-            <span className="text-[9px] tracking-[0.4em] uppercase font-bold text-amber-400">Family Gallery</span>
+            <span className="text-[9px] tracking-[0.4em] uppercase font-bold text-amber-400">{t("hall.label")}</span>
           </div>
 
           <div>
@@ -46,15 +57,17 @@ export default function FamilyFunction3DLayout({
               className="font-serif font-extrabold leading-tight text-white mb-5"
               style={{ fontSize: 'clamp(2rem, 3.5vw, 4rem)', textShadow: '0 4px 20px rgba(0,0,0,0.9)' }}
             >
-              Walk Through<br />Our Memories
+              {lines(t("hall.heading")).map((line, i) => (
+                <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
+              ))}
             </h2>
-            <p className="text-amber-200/70 font-sans text-sm leading-relaxed mb-8 max-w-xs">
-              Every photograph on these walls is a real moment — a laugh, a celebration, a quiet afternoon together. Walk through and let the memories come alive.
+            <p className="text-amber-200/70 font-sans text-sm leading-relaxed mb-8 max-w-xs whitespace-pre-line">
+              {t("hall.body")}
             </p>
 
             {/* Memory notes / captions */}
             <div className="space-y-3">
-              {['Family is everything ♡', 'Every moment matters', 'Together is our favourite place'].map((note, i) => (
+              {hallNotes.map((note, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="w-1 h-1 rounded-full bg-amber-400 mt-2 flex-shrink-0" />
                   <p className="text-amber-100/60 text-xs font-serif italic">{note}</p>
@@ -79,9 +92,14 @@ export default function FamilyFunction3DLayout({
         </div>
       </section>
 
-      {/* ── SECTION 3: 3D Vintage Family Movie Projector ── */}
+      {/* ── SECTION 3: 3D Vintage Family Movie Projector (tall: scrolling drives the camera) ── */}
+      <section className="w-full">
+        <FamilyFunctionMovieProjector images={slot3Imgs} heading={t("projector.heading")} subtitle={t("projector.subtitle")} />
+      </section>
+
+      {/* ── SECTION 4: Flip-Cube Photo Wall ── */}
       <section className="w-full h-screen">
-        <FamilyFunctionMovieProjector images={slot3Imgs} />
+        <FamilyFunctionFlipCubeWall images={slot4Imgs} label={t("wall.label")} heading={t("wall.heading")} subtitle={t("wall.subtitle")} />
       </section>
     </div>
   );
