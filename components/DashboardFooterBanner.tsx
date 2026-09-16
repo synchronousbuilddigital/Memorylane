@@ -40,7 +40,7 @@ export default function DashboardFooterBanner() {
         </div>
       </Reveal>
 
-      <footer className="flex flex-col md:flex-row items-center justify-between gap-6 px-2 md:px-8">
+      {/* <footer className="flex flex-col md:flex-row items-center justify-between gap-6 px-2 md:px-8">
         <Link href="/" className="flex items-center gap-3">
           <Sun size={20} className="text-[#2c241b] fill-[#2c241b]" />
           <span className="font-serif text-xl font-black tracking-tight text-[#2c241b]">Memory Lane</span>
@@ -56,7 +56,7 @@ export default function DashboardFooterBanner() {
         <p className="text-[#8a755b] text-xs font-medium flex items-center gap-1 text-center">
           Made with <Heart size={12} className="text-[#2c241b] fill-[#2c241b]" /> for beautiful moments.
         </p>
-      </footer>
+      </footer> */}
     </div>
   );
 }
