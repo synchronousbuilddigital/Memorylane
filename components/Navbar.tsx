@@ -65,7 +65,8 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 md:gap-3 group" onClick={() => setOpen(false)}>
-          <Sun size={scrolled ? 19 : 22} className="text-[#2c241b] fill-[#2c241b] transition-all duration-500 group-hover:rotate-90" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.jpg" alt="Memory Lane Logo" className={`object-cover rounded-md transition-all duration-500 shadow-sm mix-blend-multiply ${scrolled ? "w-7 h-7" : "w-8 h-8 md:w-10 md:h-10"}`} />
           <span className={`font-serif font-black tracking-tight text-[#2c241b] transition-all duration-500 ${scrolled ? "text-lg md:text-xl" : "text-xl md:text-2xl"}`}>Memory Lane</span>
         </Link>
 
