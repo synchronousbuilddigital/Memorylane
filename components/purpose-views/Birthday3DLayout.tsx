@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import InlineEditableText from "@/components/InlineEditableText";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { Mouse } from "lucide-react";
 import BirthdayFerrisWheelLayout from "./BirthdayFerrisWheel3D";
 import BirthdayWishingTreeLayout from "./BirthdayWishingTree3D";
@@ -42,6 +43,23 @@ function GiftBoxSection({
   const sectionRef  = useRef<HTMLDivElement>(null);
   const sceneRef    = useRef<HTMLDivElement>(null);
   const dragRef     = useRef({ isDragging: false, startX: 0, startY: 0, rotX: -22, rotY: 28 });
+  const movedRef    = useRef(0);
+  const coarse      = useCoarsePointer();
+
+  /* The burst is authored for a wide stage: cubes fly out to +/-450px and leap
+     up to 650. Even after the stage is scaled down that overshoots a phone on
+     both axes, so the same choreography plays at a shorter throw. A ref, not
+     state, because the animation loop reads it every frame. */
+  const burstFitRef = useRef({ spread: 1, jump: 1 });
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => {
+      burstFitRef.current = mq.matches ? { spread: 1, jump: 1 } : { spread: 0.58, jump: 0.42 };
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const lidPivotRef = useRef<HTMLDivElement>(null);
   const bowRef      = useRef<HTMLDivElement>(null);
@@ -115,6 +133,14 @@ function GiftBoxSection({
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+  /* Touch has no wheel, so the box would never open on a phone. A tap drives the
+     same target the wheel does — progressRef eases toward it, so one tap plays
+     the whole unwrap. Tapping an open box packs it again. Deliberately NOT a
+     drag: a vertical drag here would have to fight the page scroll. */
+  const toggleUnwrap = () => {
+    targetRef.current = targetRef.current > 0.5 ? 0 : 1;
+  };
+
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
       // Dynamic Spotlight Tracking
@@ -129,6 +155,7 @@ function GiftBoxSection({
       const dx = e.clientX - dragRef.current.startX;
       const dy = e.clientY - dragRef.current.startY;
       
+      movedRef.current += Math.abs(dx) + Math.abs(dy);
       dragRef.current.rotY += dx * 0.4;
       dragRef.current.rotX -= dy * 0.4;
       
@@ -146,9 +173,13 @@ function GiftBoxSection({
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
+    // without this a touch drag that the browser reclaims for scrolling leaves
+    // isDragging true, and every later finger move spins the box
+    window.addEventListener("pointercancel", handlePointerUp);
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
   }, []);
 
@@ -156,6 +187,7 @@ function GiftBoxSection({
     dragRef.current.isDragging = true;
     dragRef.current.startX = e.clientX;
     dragRef.current.startY = e.clientY;
+    movedRef.current = 0;
   };
 
   useEffect(() => {
@@ -239,10 +271,11 @@ function GiftBoxSection({
           t = Math.min(1, t);
           
           const easeOut = t * (2 - t);
-          const x = traj.tx * easeOut;
-          const z = traj.tz * easeOut;
+          const f = burstFitRef.current;
+          const x = traj.tx * easeOut * f.spread;
+          const z = traj.tz * easeOut * f.spread;
           // Floor is roughly at Y = H (since photos start at top of box Y = -H/2, floor is at H/2 relative to box center, so distance is H)
-          const y = H * easeOut - traj.jump * Math.sin(t * Math.PI);
+          const y = H * easeOut - traj.jump * Math.sin(t * Math.PI) * f.jump;
           
           // Settle flat on the floor: facing up (-90deg X), random Z rotation
           const currentRotX = traj.rotX * (1 - t) - 90 * t;
@@ -269,9 +302,10 @@ function GiftBoxSection({
           t = Math.min(1, t);
           
           const easeOut = t * (2 - t);
-          const x = traj.tx * easeOut;
-          const z = traj.tz * easeOut;
-          const y = H * easeOut - traj.jump * Math.sin(t * Math.PI);
+          const f = burstFitRef.current;
+          const x = traj.tx * easeOut * f.spread;
+          const z = traj.tz * easeOut * f.spread;
+          const y = H * easeOut - traj.jump * Math.sin(t * Math.PI) * f.jump;
           
           const rotX = traj.rotX * t;
           const rotY = traj.rotY * t;
@@ -363,7 +397,7 @@ function GiftBoxSection({
   return (
     <div
       ref={sectionRef}
-      className="relative h-screen flex items-center overflow-hidden"
+      className="relative min-h-screen lg:h-screen flex flex-col lg:flex-row items-center overflow-hidden"
       onMouseMove={(e) => {
         const rect = sectionRef.current?.getBoundingClientRect();
         if (!rect) return;
@@ -470,10 +504,10 @@ function GiftBoxSection({
       {/* ══════════════ FULL-WIDTH PHOTO GARLAND ══════════════ */}
       {/* SVG catenary wave wire with fairy lights + hanging polaroids */}
       <div style={{
-        position: "absolute", inset: 0,
+        position: "absolute", top: 0, left: 0, right: 0,
         zIndex: 20, pointerEvents: "none",
         overflow: "hidden",
-      }}>
+      }} className="h-[52vh] lg:h-screen">
         {/* SVG Wave Wire */}
         <svg
           style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "42%" }}
@@ -585,18 +619,17 @@ function GiftBoxSection({
 
         {/* Hanging thread + polaroid at each photo point on the wave */}
         {[
-          { leftPct: 8,   wireTop: 17.2, imgIdx: 0, sway: 3,    delay: 0,   tilt: -4 },
-          { leftPct: 24,  wireTop: 18.5, imgIdx: 1, sway: -2.5, delay: 0.4, tilt: 4  },
-          { leftPct: 40,  wireTop: 17.8, imgIdx: 2, sway: 2,    delay: 0.7, tilt: -5 },
-          { leftPct: 56,  wireTop: 17.2, imgIdx: 3, sway: -3,   delay: 0.2, tilt: 3  },
-          { leftPct: 71,  wireTop: 18.2, imgIdx: 4, sway: 2.5,  delay: 0.9, tilt: -3 },
-          { leftPct: 86,  wireTop: 17.0, imgIdx: 5, sway: -2,   delay: 0.5, tilt: 5  },
+          { leftPct: 8,   wireTop: 17.2, imgIdx: 0, sway: 3,    delay: 0,   tilt: -4, onPhone: true  },
+          { leftPct: 24,  wireTop: 18.5, imgIdx: 1, sway: -2.5, delay: 0.4, tilt: 4,  onPhone: false },
+          { leftPct: 40,  wireTop: 17.8, imgIdx: 2, sway: 2,    delay: 0.7, tilt: -5, onPhone: true  },
+          { leftPct: 56,  wireTop: 17.2, imgIdx: 3, sway: -3,   delay: 0.2, tilt: 3,  onPhone: true  },
+          { leftPct: 71,  wireTop: 18.2, imgIdx: 4, sway: 2.5,  delay: 0.9, tilt: -3, onPhone: false },
+          { leftPct: 86,  wireTop: 17.0, imgIdx: 5, sway: -2,   delay: 0.5, tilt: 5,  onPhone: true  },
         ].map((photo, i) => (
-          <div key={`hang-${i}`} style={{
+          <div key={`hang-${i}`} className={photo.onPhone ? "flex" : "hidden lg:flex"} style={{
             position: "absolute",
             left: `${photo.leftPct}%`,
             top: `${photo.wireTop}%`,
-            display: "flex",
             flexDirection: "column",
             alignItems: "center",
             pointerEvents: "none",
@@ -620,10 +653,8 @@ function GiftBoxSection({
               animate={{ rotate: [photo.tilt - photo.sway, photo.tilt + photo.sway, photo.tilt - photo.sway] }}
               transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: "easeInOut", delay: photo.delay }}
             >
-              <div style={{
-                width: 74, height: 88,
+              <div className="w-[52px] h-[62px] lg:w-[74px] lg:h-[88px] p-[4px] pb-[14px] lg:p-[5px] lg:pb-[20px]" style={{
                 background: "#f9f5ed",
-                padding: "5px 5px 20px",
                 boxSizing: "border-box" as const,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.6), 0 2px 5px rgba(0,0,0,0.4)",
                 overflow: "hidden",
@@ -642,8 +673,7 @@ function GiftBoxSection({
         ))}
       </div>
       {/* LEFT: text panel */}
-      <div className="relative z-20 flex flex-col justify-center h-full pl-8 sm:pl-10 md:pl-14 pr-4"
-        style={{ width: "clamp(200px, 36%, 420px)", flexShrink: 0 }}>
+      <div className="relative z-20 flex flex-col justify-center w-full lg:w-[36%] lg:max-w-[420px] lg:flex-shrink-0 h-auto lg:h-full pl-6 sm:pl-10 md:pl-14 pr-6 lg:pr-4 pt-[11.5rem] sm:pt-[14rem] pb-2 lg:pt-0 lg:pb-0">
         <div className="my-auto">
           <p className="flex items-center gap-3 text-[9px] md:text-[10px] tracking-[0.45em] uppercase font-bold mb-4 text-[#e6c56d]/85"><span className="w-8 h-[1px] bg-[#c9a24a]" /> Chapter II · Unwrap the memories</p>
           <h2 className="font-serif font-black tracking-tight leading-[0.92] text-[#f4eee6] whitespace-pre-wrap mb-5"
@@ -656,18 +686,19 @@ function GiftBoxSection({
           </p>
           <div className="flex items-center gap-2 mt-10 text-[#e3d2ba]/60 font-bold">
             <Mouse size={13} />
-            <span className="text-[8px] tracking-[0.28em] uppercase">Scroll to unwrap</span>
+            <span className="text-[8px] tracking-[0.28em] uppercase">{coarse ? "Tap to unwrap" : "Scroll to unwrap"}</span>
           </div>
         </div>
-        <div className="absolute bottom-8 left-8 sm:left-10 md:left-14 text-[#fdfaf4]/30 font-serif uppercase tracking-[0.2em] text-[0.48rem] leading-loose font-bold">
+        <div className="hidden lg:block absolute bottom-8 left-8 sm:left-10 md:left-14 text-[#fdfaf4]/30 font-serif uppercase tracking-[0.2em] text-[0.48rem] leading-loose font-bold">
           Gifted<br />With<br />Love ♡
         </div>
       </div>
 
       {/* RIGHT: TRUE CSS 3D Gift Box — sits on the table */}
-      <div className="relative z-20 flex-1 flex items-end justify-center h-full cursor-grab active:cursor-grabbing overflow-hidden"
-        style={{ perspective: 1000, perspectiveOrigin: "50% 58%", paddingBottom: "18%" }}
+      <div className="relative z-20 w-full lg:flex-1 flex items-end justify-center h-[48vh] lg:h-full cursor-grab active:cursor-grabbing overflow-visible lg:overflow-hidden pb-[34%] lg:pb-[18%] scale-[0.53] sm:scale-[0.75] lg:scale-100 origin-bottom"
+        style={{ perspective: 1000, perspectiveOrigin: "50% 58%", touchAction: "pan-y" }}
         onPointerDown={handlePointerDown}
+        onClick={() => { if (movedRef.current < 8) toggleUnwrap(); }}
       >
         {/* ── CANDLE WARM GLOW — bottom left ambience ── */}
         <div style={{
@@ -680,13 +711,14 @@ function GiftBoxSection({
 
         {/* ── FLOATING CURSIVE SIDE NOTES (like reference image) ── */}
         {[
-          { text: "Same You\nBrighter Days ♡", top: "6%",  right: "3%",  rotate: "6deg",  opacity: 0.75, size: "16px" },
-          { text: "Collect\nMoments\nNot Things",  top: "32%", right: "2%",  rotate: "-4deg", opacity: 0.65, size: "14px" },
-          { text: "Gifted with\nLove ♡",           top: "58%", right: "4%",  rotate: "3deg",  opacity: 0.6,  size: "13px" },
-          { text: "Every Photo\na Gift",            top: "18%", right: "24%", rotate: "-5deg", opacity: 0.5,  size: "12px" },
-          { text: "Forever Young ♡",               top: "78%", right: "3%",  rotate: "-3deg", opacity: 0.45, size: "12px" },
+          { text: "Same You\nBrighter Days ♡", top: "6%",  right: "3%",  rotate: "6deg",  opacity: 0.75, size: "16px", onPhone: true },
+          { text: "Collect\nMoments\nNot Things",  top: "32%", right: "2%",  rotate: "-4deg", opacity: 0.65, size: "14px", onPhone: false },
+          { text: "Gifted with\nLove ♡",           top: "58%", right: "4%",  rotate: "3deg",  opacity: 0.6,  size: "13px", onPhone: false },
+          { text: "Every Photo\na Gift",            top: "18%", right: "24%", rotate: "-5deg", opacity: 0.5,  size: "12px", onPhone: false },
+          { text: "Forever Young ♡",               top: "78%", right: "3%",  rotate: "-3deg", opacity: 0.45, size: "12px", onPhone: false },
         ].map((note, i) => (
           <motion.div key={`note-${i}`}
+            className={note.onPhone ? "" : "hidden lg:block"}
             style={{
               position: "absolute", top: note.top, right: note.right,
               fontFamily: "Georgia, 'Times New Roman', serif",

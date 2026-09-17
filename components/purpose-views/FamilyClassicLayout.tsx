@@ -33,12 +33,17 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset, on
   const duration = 4 + index * 0.7; // Different swing speeds
   const stringLength = 100 + (index % 3) * 60; // Varying drop heights
 
+  // Only two fit a phone rail and three a tablet's; the rest would hang off-screen.
+  const visibility = index >= 3 ? "hidden lg:flex" : index >= 2 ? "hidden sm:flex" : "flex";
+
   return (
     <div 
-      className="relative flex flex-col items-center" 
+      className={`relative flex-col items-center ${visibility}`}
       style={{ marginTop: stringOffset }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={() => setIsHovered(true)}
+      onTouchEnd={() => setIsHovered(false)}
     >
       <motion.div
         className="flex flex-col items-center origin-top cursor-pointer"
@@ -63,7 +68,7 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset, on
 
         {/* The Polaroid Card */}
         <div 
-          className="relative w-48 aspect-[4/5] bg-[#f4ebd8] p-3 pb-12 shadow-2xl rounded-sm cursor-pointer border border-[#e8ddc5]"
+          className="relative w-32 sm:w-40 lg:w-48 aspect-[4/5] bg-[#f4ebd8] p-2 sm:p-3 pb-8 sm:pb-10 lg:pb-12 shadow-2xl rounded-sm cursor-pointer border border-[#e8ddc5]"
           style={{ marginTop: -2 }}
         >
           <div className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/cream-paper.png')" }} />
@@ -75,7 +80,7 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset, on
           {/* Handwritten Note on the front */}
           <div className="absolute bottom-3 left-0 right-0 text-center px-2">
             <span 
-              className={`font-serif italic text-[#4a3b32] text-sm leading-tight inline-block ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-1 transition-colors outline-none" : ""}`}
+              className={`font-serif italic text-[#4a3b32] text-[11px] sm:text-xs lg:text-sm leading-tight inline-block ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-1 transition-colors outline-none" : ""}`}
               contentEditable={!!onContentChange}
               suppressContentEditableWarning={true}
               onBlur={(e) => onContentChange?.(`hangingNote_${index}`, e.currentTarget.textContent || "")}
@@ -98,10 +103,10 @@ const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onI
   const STRING_OFFSETS = [140, 110, 100, 80];
 
   return (
-    <div className="absolute top-0 left-0 w-full h-[44rem] overflow-hidden pointer-events-none z-10 opacity-90 transition-opacity duration-1000">
+    <div className="absolute top-0 left-0 w-full h-[29rem] sm:h-[35rem] lg:h-[44rem] overflow-hidden pointer-events-none z-10 opacity-90 transition-opacity duration-1000">
       
       {/* The Hanging Cards (Behind the branch) — kept to the left 60% so they never meet the photo stack */}
-      <div className="absolute top-0 left-0 w-full lg:w-[60%] flex justify-around px-8 lg:px-16 pointer-events-auto z-10">
+      <div className="absolute top-0 left-0 w-full lg:w-[60%] flex justify-around px-4 sm:px-8 lg:px-16 pointer-events-auto z-10">
         {safeImages.map((img: any, i: number) => {
           const originalIndex = fullImages ? fullImages.findIndex((orig: any) => orig.displayUrl === img || orig.url === img) : -1;
           return (
@@ -222,7 +227,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
       />
 
       {/* 1. Split Hero Section */}
-      <div className="w-full max-w-7xl mx-auto px-8 mb-32 min-h-[70vh] flex flex-col lg:flex-row items-center gap-12 lg:gap-16 relative z-20 mt-[26rem] lg:mt-[24rem]">
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 mb-20 lg:mb-32 min-h-[70vh] flex flex-col lg:flex-row items-center gap-10 lg:gap-16 relative z-20 mt-[30rem] sm:mt-[36rem] lg:mt-[24rem]">
 
         {/* Left Side: Text Content */}
         <motion.div
@@ -253,12 +258,12 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
           </p>
 
           {/* Stat Boxes */}
-          <div className="flex items-center justify-center lg:justify-start gap-4">
-            <div className="bg-white border border-[#f4ebd8] rounded-2xl px-6 py-4 shadow-sm flex flex-col items-center justify-center min-w-[120px]">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4">
+            <div className="bg-white border border-[#f4ebd8] rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 shadow-sm flex flex-col items-center justify-center min-w-[104px] sm:min-w-[120px]">
               <span className="font-bold text-2xl text-[#2c241b] mb-1">{images.length}</span>
               <span className="text-xs text-[#8a755b] uppercase font-semibold">Photos</span>
             </div>
-            <div className="bg-white border border-[#f4ebd8] rounded-2xl px-6 py-4 shadow-sm flex flex-col items-center justify-center min-w-[120px]">
+            <div className="bg-white border border-[#f4ebd8] rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 shadow-sm flex flex-col items-center justify-center min-w-[104px] sm:min-w-[120px]">
               <span className="font-bold text-2xl text-[#2c241b] mb-1">∞</span>
               <span className="text-xs text-[#8a755b] uppercase font-semibold">Memories</span>
             </div>
@@ -351,13 +356,13 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
         <svg className="w-full h-10" preserveAspectRatio="none" viewBox="0 0 1000 40" fill="none" stroke="#d5c8b5" strokeWidth="1.5">
           <path d="M0,20 C250,50 250,-10 500,20 C750,50 750,-10 1000,20" />
         </svg>
-        <div className="absolute bg-[#fdfbf7] px-8 text-[#8a755b] font-serif italic text-xl tracking-wide whitespace-nowrap">
+        <div className="absolute bg-[#fdfbf7] px-4 sm:px-8 text-[#8a755b] font-serif italic text-sm sm:text-lg lg:text-xl tracking-wide whitespace-nowrap">
           A lifetime of little moments ♡
         </div>
       </div>
 
       {/* 2. Animated Looping Ribbon Section */}
-      <div className="w-full h-[900px] bg-[#fdfbf7] overflow-hidden relative group">
+      <div className="w-full h-[460px] sm:h-[640px] lg:h-[900px] bg-[#fdfbf7] overflow-hidden relative group">
 
         {/* Left Text Content (Floating) */}
         <motion.div
@@ -365,7 +370,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="absolute top-20 left-8 md:left-16 z-30 max-w-xl pointer-events-none"
+          className="absolute top-8 md:top-20 left-5 sm:left-8 md:left-16 right-5 sm:right-auto z-30 max-w-xl pointer-events-none"
         >
           <div
             className={`inline-flex items-center gap-2 text-[#8a755b] text-xs font-bold uppercase tracking-[0.2em] mb-4 pointer-events-auto ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 -mx-2 transition-colors outline-none" : ""}`}
@@ -375,7 +380,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
           >
             {content?.ribbonDate || "Aug 02"}
           </div>
-          <h2 className="text-7xl md:text-[9rem] font-serif font-black text-[#2c241b] tracking-tighter leading-[0.85] mb-8 pointer-events-auto flex flex-col items-start gap-0 drop-shadow-sm">
+          <h2 className="text-5xl sm:text-6xl md:text-[9rem] font-serif font-black text-[#2c241b] tracking-tighter leading-[0.85] mb-6 md:mb-8 pointer-events-auto flex flex-col items-start gap-0 drop-shadow-sm">
             <span
               className={`${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 -mx-2 transition-colors outline-none block" : "block"}`}
               contentEditable={!!onContentChange}
@@ -385,7 +390,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
               {content?.ribbonTitle1 || "A Lifetime"}
             </span>
             <span 
-              className={`font-handwriting text-7xl sm:text-8xl md:text-9xl lg:text-[13rem] text-[#c87b1e] italic mt-2 md:mt-4 block drop-shadow-lg leading-none ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 transition-colors outline-none pointer-events-auto" : ""}`}
+              className={`font-handwriting text-6xl sm:text-8xl md:text-9xl lg:text-[13rem] text-[#c87b1e] italic mt-2 md:mt-4 block drop-shadow-lg leading-none ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 transition-colors outline-none pointer-events-auto" : ""}`}
               contentEditable={!!onContentChange}
               suppressContentEditableWarning={true}
               onBlur={(e) => onContentChange?.('ribbonTitle2', e.currentTarget.textContent || "")}
@@ -452,7 +457,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
 
           {/* Centered Track Container */}
           <div 
-            className="relative w-[1000px] h-full ribbon-track"
+            className="relative w-[1000px] h-full ribbon-track scale-[0.42] sm:scale-[0.62] lg:scale-100"
             onMouseEnter={(e) => {
               const anims = e.currentTarget.getAnimations({ subtree: true });
               anims.forEach(anim => {
@@ -700,7 +705,7 @@ const FloatingParallaxStack = ({ images, content, onContentChange }: { images: s
       </div>
 
       {/* Mouse Icon indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-50 pointer-events-none opacity-60">
+      <div className="hidden md:flex absolute bottom-12 left-1/2 -translate-x-1/2 flex-col items-center gap-4 z-50 pointer-events-none opacity-60">
         <div className="w-6 h-10 border border-[#fdfbf7] rounded-full flex justify-center pt-2">
           <div className="w-1 h-2 bg-[#fdfbf7] rounded-full animate-bounce" />
         </div>
@@ -932,6 +937,18 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
   const [FlipBook, setFlipBook] = useState<any>(null);
   const flipBookRef = useRef<any>(null);
 
+  /* A two-page spread needs room for two pages side by side. Below that the book
+     runs single-page instead of overflowing — same book, same pages, one at a
+     time. Starts true so the server and first client paint agree. */
+  const [spread, setSpread] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setSpread(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   React.useEffect(() => {
     import("react-pageflip").then((mod) => {
       setFlipBook(() => mod.default);
@@ -1024,7 +1041,7 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
             type="button"
             onClick={handlePrevious}
             aria-label="Previous page"
-            className="absolute -left-4 lg:-left-8 top-1/2 -translate-y-1/2 w-12 h-12 z-[100] flex items-center justify-center outline-none group cursor-pointer"
+            className="absolute left-0 sm:-left-4 lg:-left-8 top-1/2 -translate-y-1/2 w-12 h-12 z-[100] flex items-center justify-center outline-none group cursor-pointer"
           >
             <div className="w-12 h-12 rounded-full bg-black/40 text-white flex items-center justify-center opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm shadow-xl">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
@@ -1032,26 +1049,28 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
           </button>
 
           {/* The aspect ratio wrapper keeps the book responsive while maintaining 10/7 layout */}
-          <div className="relative w-full max-w-[900px] aspect-[10/7] z-10">
+          <div className={`relative w-full max-w-[900px] z-10 ${spread ? "aspect-[10/7]" : "aspect-[5/7] max-w-[320px]"}`}>
 
             <div
               className="absolute inset-0 z-10 select-none flex justify-center items-center"
-              style={{ touchAction: "none", overscrollBehavior: "none" }}
+              /* pan-y on touch: sideways swipes flip pages, vertical still scrolls
+                 the page. "none" here used to swallow both and strand the reader. */
+              style={{ touchAction: spread ? "none" : "pan-y", overscrollBehavior: "none" }}
             >
               <FlipBook
-                key={paddedImages.join(',')}
+                key={`${paddedImages.join(',')}-${spread ? "spread" : "single"}`}
                 ref={flipBookRef}
                 width={450}
                 height={630}
                 size="stretch"
-                minWidth={300}
+                minWidth={spread ? 300 : 220}
                 maxWidth={450}
-                minHeight={400}
+                minHeight={spread ? 400 : 300}
                 maxHeight={630}
                 showCover={false}
-                usePortrait={false}
+                usePortrait={!spread}
                 useMouseEvents={true}
-                mobileScrollSupport={false}
+                mobileScrollSupport={!spread}
                 clickEventForward={true}
                 flippingTime={1000}
                 drawShadow={true}
@@ -1067,14 +1086,14 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
             </div>
 
             {/* Center Binding Shadow */}
-            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-8 z-30 pointer-events-none bg-gradient-to-r from-black/10 via-black/30 to-black/10 mix-blend-multiply" />
+            {spread && <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-8 z-30 pointer-events-none bg-gradient-to-r from-black/10 via-black/30 to-black/10 mix-blend-multiply" />}
           </div>
 
           <button
             type="button"
             onClick={handleNext}
             aria-label="Next page"
-            className="absolute -right-4 lg:-right-8 top-1/2 -translate-y-1/2 w-12 h-12 z-[100] flex items-center justify-center outline-none group cursor-pointer"
+            className="absolute right-0 sm:-right-4 lg:-right-8 top-1/2 -translate-y-1/2 w-12 h-12 z-[100] flex items-center justify-center outline-none group cursor-pointer"
           >
             <div className="w-12 h-12 rounded-full bg-black/40 text-white flex items-center justify-center opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm shadow-xl">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>

@@ -7,6 +7,8 @@ import TravelMapLayout from "./TravelMapLayout";
 import TravelTunnelLayout from "./TravelTunnelLayout";
 import TravelAstrolabeLayout from "./TravelAstrolabeLayout";
 import InlineEditableText from "@/components/InlineEditableText";
+import Lightbox from "@/components/Lightbox";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 
 /* ── PLACEHOLDER DATA ── */
 const PLACEHOLDERS = [
@@ -33,6 +35,15 @@ const LOCATIONS = [
   "Maldives", "Grand Canyon", "Kyoto, Japan", "Patagonia", "Yosemite, USA"
 ];
 
+/* How much of the designed scatter fits the current stage. The positions below
+   are authored for a wide desktop stage: photos fly out to +/-480px and up to
+   -600px. On a 390px screen that puts most of them off-screen entirely, so the
+   same arrangement is flown at a smaller radius rather than redesigned. */
+const FIT = {
+  wide:   { x: 1,    y: 1,    size: 1    },
+  narrow: { x: 0.30, y: 0.52, size: 0.68 },
+};
+
 /* Pre-compute final scattered positions for the 15 polaroids around the suitcase */
 const SCATTER = Array.from({ length: 15 }, (_, i) => {
   // Funnel effect: stack upwards and spread out
@@ -54,20 +65,24 @@ const SCATTER = Array.from({ length: 15 }, (_, i) => {
 });
 
 /* ── SINGLE POLAROID ── */
-function Polaroid({ img, label, scatter, isOpen }: { img: string; label: string; scatter: typeof SCATTER[0]; isOpen: boolean }) {
+function Polaroid({ img, label, scatter, isOpen, onOpen, fit }: { img: string; label: string; scatter: typeof SCATTER[0]; isOpen: boolean; onOpen?: () => void; fit: typeof FIT.wide }) {
+  const size = Math.round(scatter.size * fit.size);
   return (
     <motion.div
-      className={`absolute top-[40%] left-1/2 cursor-grab active:cursor-grabbing ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      onClick={isOpen ? onOpen : undefined}
+      role={isOpen && onOpen ? "button" : undefined}
+      aria-label={isOpen && onOpen ? `Open ${label}` : undefined}
+      className={`absolute top-[40%] left-1/2 cursor-pointer ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
       style={{
-        width: scatter.size,
-        marginLeft: -scatter.size / 2,
-        marginTop: -scatter.size / 2,
+        width: size,
+        marginLeft: -size / 2,
+        marginTop: -size / 2,
         zIndex: 20 + Math.round(scatter.delay * 100)
       }}
       initial={{ x: 0, y: 0, scale: 0.1, opacity: 0, rotate: 0 }}
       animate={isOpen ? {
-        x: scatter.x,
-        y: scatter.y,
+        x: scatter.x * fit.x,
+        y: scatter.y * fit.y,
         scale: 1,
         opacity: 1,
         rotate: scatter.rotate,
@@ -84,7 +99,7 @@ function Polaroid({ img, label, scatter, isOpen }: { img: string; label: string;
         duration: isOpen ? 1.5 : 0.8,
         bounce: isOpen ? 0.35 : 0,
       }}
-      whileHover={isOpen ? { scale: 1.15, rotate: 0, zIndex: 999, y: scatter.y - 15 } : {}}
+      whileHover={isOpen ? { scale: 1.15, rotate: 0, zIndex: 999, y: scatter.y * fit.y - 15 } : {}}
     >
       <div className="bg-[#fdfbf7] p-3 pb-12 shadow-[0_15px_35px_rgba(0,0,0,0.3)] rounded-sm border border-[#e5dfd5]">
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-5 bg-[#f4ead5]/80 rotate-[-2deg] shadow-sm z-10 backdrop-blur-sm" />
@@ -122,6 +137,18 @@ export default function TravelSuitcaseLayout({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const coarse = useCoarsePointer();
+
+  // Starts wide so the server and the first client paint agree; corrects on mount.
+  const [fit, setFit] = useState(FIT.wide);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => setFit(mq.matches ? FIT.wide : FIT.narrow);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   const flat = images.flat().filter(Boolean);
   const safeImages = flat.length > 0
@@ -197,7 +224,7 @@ export default function TravelSuitcaseLayout({
         })}
       </div>
 
-      <div className="relative min-h-screen w-full flex flex-col lg:flex-row items-center justify-between z-10 px-8 lg:px-16 pt-24 lg:pt-0 pb-32 lg:pb-0 gap-8">
+      <div className="relative min-h-screen w-full flex flex-col lg:flex-row items-center justify-between z-10 px-5 sm:px-8 lg:px-16 pt-24 lg:pt-0 pb-8 lg:pb-0 gap-8">
 
         {/* ── LEFT COLUMN: HERO TEXT ── */}
         <div className="flex-1 w-full max-w-lg flex flex-col items-start justify-center z-20 select-none">
@@ -245,7 +272,11 @@ export default function TravelSuitcaseLayout({
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}
             className="mt-12 text-[#8a755b] text-[10px] uppercase tracking-[0.4em] pointer-events-none select-none bg-black/40 px-6 py-2 rounded-full backdrop-blur-sm"
           >
-            {!unlocked ? "Click the gold lock to unlock" : !isOpen ? "Click to open suitcase" : "Hover over your memories"}
+            {!unlocked
+              ? (coarse ? "Tap the gold lock to unlock" : "Click the gold lock to unlock")
+              : !isOpen
+              ? (coarse ? "Tap to open suitcase" : "Click to open suitcase")
+              : (coarse ? "Tap a memory to view it" : "Hover over your memories")}
           </motion.p>
         </div>
 
@@ -256,7 +287,7 @@ export default function TravelSuitcaseLayout({
             {/* The polaroids */}
             <div className="absolute inset-0 z-30 pointer-events-none" style={{ transform: "translateZ(20px)" }}>
               {safeImages.map((img, i) => (
-                <Polaroid key={i} img={img.url} label={img.note} scatter={SCATTER[i]} isOpen={isOpen} />
+                <Polaroid key={i} img={img.url} label={img.note} scatter={SCATTER[i]} isOpen={isOpen} onOpen={() => setLightboxIdx(i)} fit={fit} />
               ))}
             </div>
 
@@ -281,7 +312,7 @@ export default function TravelSuitcaseLayout({
                     }}
                     exit={{ opacity: 0, scaleY: 0, x: "-50%", z: 20 }}
                     transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
-                    className="absolute bottom-[60%] left-1/2 w-[600px] h-[800px] pointer-events-none z-20 origin-bottom"
+                    className="absolute bottom-[60%] left-1/2 w-[280px] h-[380px] sm:w-[420px] sm:h-[560px] lg:w-[600px] lg:h-[800px] pointer-events-none z-20 origin-bottom"
                     style={{
                       background: "linear-gradient(to top, rgba(255,220,150,0.6) 0%, rgba(255,220,150,0.15) 50%, transparent 100%)",
                       filter: "blur(40px)",
@@ -399,10 +430,10 @@ export default function TravelSuitcaseLayout({
 
       {/* ── STATS BAR (Bottom) ── */}
       <motion.div
-        className="absolute bottom-8 left-0 w-full flex justify-center z-50 pointer-events-none"
+        className="relative mt-12 mb-4 lg:mt-0 lg:mb-0 lg:absolute lg:bottom-8 lg:left-0 w-full flex justify-center z-50 pointer-events-none px-5 lg:px-0"
         initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
       >
-        <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16 bg-[#1a120e]/60 backdrop-blur-md px-12 py-5 rounded-full border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] pointer-events-auto">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4 w-full max-w-sm lg:w-auto lg:max-w-none lg:flex lg:flex-nowrap lg:items-center lg:justify-center lg:gap-16 bg-[#1a120e]/90 lg:bg-[#1a120e]/60 backdrop-blur-md px-8 py-5 lg:px-12 rounded-3xl lg:rounded-full border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] pointer-events-auto">
           {[
             { vKey: "statVal0", lKey: "statLbl0", defVal: "12", defLbl: "Countries" },
             { vKey: "statVal1", lKey: "statLbl1", defVal: "250+", defLbl: "Memories" },
@@ -424,7 +455,7 @@ export default function TravelSuitcaseLayout({
                   />
                 </span>
               </div>
-              {i < arr.length - 1 && <div className="w-px h-8 bg-white/10" />}
+              {i < arr.length - 1 && <div className="hidden lg:block w-px h-8 bg-white/10" />}
             </React.Fragment>
           ))}
         </div>
@@ -440,6 +471,19 @@ export default function TravelSuitcaseLayout({
 
       {/* ── SECTION 4: 3D ASTROLABE ── */}
       <TravelAstrolabeLayout images={images} content={content} onContentChange={onContentChange} />
+
+      {/* Tapping a scattered photo enlarges it — the only way to see one on a
+          phone, where the hover-zoom above never fires. */}
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <Lightbox
+            images={safeImages.map((im) => ({ displayUrl: im.url })) as unknown as React.ComponentProps<typeof Lightbox>["images"]}
+            currentIndex={lightboxIdx}
+            onClose={() => setLightboxIdx(null)}
+            onNavigate={(n) => setLightboxIdx(n)}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

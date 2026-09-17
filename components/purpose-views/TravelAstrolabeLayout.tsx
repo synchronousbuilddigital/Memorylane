@@ -354,8 +354,8 @@ export default function TravelAstrolabeLayout({
       </div>
       
       {/* ── EDITABLE NOTES ON THE LEFT ── */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-8 md:left-24 z-50 max-w-[400px] md:max-w-[600px] lg:max-w-[800px] pointer-events-none hidden md:block">
-        <div className="font-serif text-6xl md:text-8xl lg:text-9xl font-bold mb-8 text-[#e8d5b7] drop-shadow-xl leading-tight pointer-events-auto">
+      <div className="absolute top-14 md:top-1/2 md:-translate-y-1/2 left-5 right-5 md:right-auto md:left-24 z-50 max-w-none md:max-w-[600px] lg:max-w-[800px] pointer-events-none">
+        <div className="font-serif text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-bold mb-4 md:mb-8 text-[#e8d5b7] drop-shadow-xl leading-tight pointer-events-auto">
           <InlineEditableText
             value={content?.sideHeading || "A Journey\nRemembered"}
             onChange={(val) => onContentChange && onContentChange("sideHeading", val)}
@@ -363,7 +363,7 @@ export default function TravelAstrolabeLayout({
             className="whitespace-pre-line"
           />
         </div>
-        <div className="font-sans text-base md:text-xl text-[#e8d5b7] opacity-90 leading-relaxed font-light tracking-wide pointer-events-auto">
+        <div className="hidden sm:block font-sans text-sm md:text-xl text-[#e8d5b7] opacity-90 leading-relaxed font-light tracking-wide pointer-events-auto">
           <InlineEditableText
             value={content?.sideNotes || "These are the moments that shape our story. A gentle breeze carrying the echoes of laughter, the warmth of distant suns, and the quiet beauty of times we never want to forget."}
             onChange={(val) => onContentChange && onContentChange("sideNotes", val)}
@@ -375,7 +375,7 @@ export default function TravelAstrolabeLayout({
 
       {/* ── THE REALISTIC 3D CAROUSEL STRUCTURE ── */}
       <div 
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 flex items-center justify-center pointer-events-none scale-[0.5] sm:scale-[0.7] lg:scale-100"
         style={{ perspective: "1500px" }}
       >
         {/* Core Rotator (Tilted slightly forward so we see the rings from an angle) */}

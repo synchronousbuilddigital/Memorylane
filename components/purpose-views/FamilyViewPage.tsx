@@ -116,7 +116,7 @@ export default function FamilyViewPage({ section }: { section: any }) {
       )}
 
       {/* The Gallery Container */}
-      <div className="w-full relative z-30 pb-24">
+      <div className="w-full relative z-30">
         {section.theme === "family-mosaic" ? (
           <FamilyMosaicLayout images={section.images || []} />
         ) : (

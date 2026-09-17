@@ -42,12 +42,14 @@ export default function FamilyFunction3DLayout({
       </section>
 
       {/* ── SECTION 2: 3D Hallway Gallery — split layout (scrolling over the 3D pane walks the hall) ── */}
-      <section className="w-full h-screen flex overflow-hidden" style={{ background: '#1e0e05' }}>
+      <section className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row overflow-hidden" style={{ background: '#1e0e05' }}>
 
-        {/* LEFT PANEL: Title + description + notes */}
-        <div className="relative flex flex-col justify-center h-full px-10 md:px-14 flex-shrink-0" style={{ width: '36%', background: 'linear-gradient(135deg, #160a03 0%, #2a1208 60%, #3a1a0a 100%)' }}>
+        {/* LEFT PANEL: Title + description + notes.
+            Below lg this becomes a band above the hallway rather than a column
+            beside it — a 36% column on a phone left ~60px of usable text width. */}
+        <div className="relative flex flex-col justify-center w-full lg:w-[36%] h-auto lg:h-full px-6 sm:px-10 md:px-14 py-12 lg:py-0 lg:flex-shrink-0" style={{ background: 'linear-gradient(135deg, #160a03 0%, #2a1208 60%, #3a1a0a 100%)' }}>
           {/* Decorative top-left accent */}
-          <div className="absolute top-8 left-10 flex items-center gap-2 opacity-50">
+          <div className="relative mb-5 lg:mb-0 lg:absolute lg:top-8 lg:left-10 flex items-center gap-2 opacity-50">
             <div className="w-6 h-[1px] bg-amber-400" />
             <span className="text-[9px] tracking-[0.4em] uppercase font-bold text-amber-400">{t("hall.label")}</span>
           </div>
@@ -61,7 +63,7 @@ export default function FamilyFunction3DLayout({
                 <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
               ))}
             </h2>
-            <p className="text-amber-200/70 font-sans text-sm leading-relaxed mb-8 max-w-xs whitespace-pre-line">
+            <p className="text-amber-200/70 font-sans text-sm leading-relaxed mb-8 max-w-lg lg:max-w-xs whitespace-pre-line">
               {t("hall.body")}
             </p>
 
@@ -77,17 +79,18 @@ export default function FamilyFunction3DLayout({
           </div>
 
           {/* Scroll hint */}
-          <div className="absolute bottom-8 left-10 flex items-center gap-2 text-white/30">
+          <div className="relative mt-8 lg:mt-0 lg:absolute lg:bottom-8 lg:left-10 flex items-center gap-2 text-white/30">
             <span className="text-[9px] tracking-[0.3em] uppercase font-bold">Scroll to continue</span>
             <div className="w-8 h-[1px] bg-white/20" />
           </div>
 
-          {/* Decorative vertical line */}
-          <div className="absolute right-0 top-[10%] bottom-[10%] w-[1px] bg-gradient-to-b from-transparent via-amber-700/40 to-transparent" />
+          {/* Decorative vertical line — it divides two columns, so it only exists
+              once there are two columns */}
+          <div className="hidden lg:block absolute right-0 top-[10%] bottom-[10%] w-[1px] bg-gradient-to-b from-transparent via-amber-700/40 to-transparent" />
         </div>
 
         {/* RIGHT PANEL: The 3D Hallway Gallery */}
-        <div className="flex-1 h-full overflow-hidden">
+        <div className="h-[62vh] lg:h-full lg:flex-1 overflow-hidden">
           <FamilyFunctionHallwayGallery images={slot2Imgs} />
         </div>
       </section>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogOut, Sun, Menu, X } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE } from "./motion/Reveal";
+import { useNavHidden } from "@/lib/navHidden";
 
 const LINKS = [
   { href: "/", label: "Home", match: (p: string) => p === "/" },
@@ -24,6 +25,8 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
   const [menuOpen, setMenuOpen] = useState(false);  // profile menu
   const [hovered, setHovered] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  // a full-screen pinned section can ask the bar to get out of the way
+  const navHidden = useNavHidden();
 
   // the bar draws in as you leave the top: full-width header → floating rounded pill
   useEffect(() => {
@@ -45,7 +48,10 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
 
   return (
     <nav
-      className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled || open ? "top-2 sm:top-3 px-3 sm:px-5" : "top-0 px-0"}`}
+      aria-hidden={navHidden || undefined}
+      className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled || open ? "top-2 sm:top-3 px-3 sm:px-5" : "top-0 px-0"} ${
+        navHidden ? "-translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      }`}
       style={{ transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" }}
     >
       <div
@@ -126,7 +132,7 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
               </AnimatePresence>
             </div>
           ) : (
-            <Link href="/login" className="px-5 md:px-6 py-2.5 bg-[#2c241b] text-white rounded-full text-sm font-semibold tracking-wide hover:bg-[#1a1510] transition-colors shadow-md">
+            <Link href="/login" className="px-5 md:px-6 py-3 md:py-2.5 bg-[#2c241b] text-white rounded-full text-sm font-semibold tracking-wide hover:bg-[#1a1510] transition-colors shadow-md">
               Sign In
             </Link>
           )}
@@ -152,19 +158,19 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: reduce ? 0.15 : 0.35, ease: EASE }}
-            className="md:hidden overflow-hidden"
+            className="md:hidden overflow-hidden mx-3 sm:mx-5 mt-2 rounded-[1.4rem] border border-white/60 bg-[#fdfbf7]/95 backdrop-blur-2xl shadow-[0_18px_44px_-14px_rgba(28,25,23,0.35)] ring-1 ring-[#1c1917]/[0.04]"
           >
-            <div className="px-4 sm:px-6 pt-4 pb-5 flex flex-col gap-1 border-t border-[#e8e0d5]/70 mt-3">
+            <div className="px-5 pt-4 pb-5 flex flex-col gap-1">
               {links.map((l, i) => (
                 <motion.div key={l.label} initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}>
-                  <Link href={l.href} onClick={() => setOpen(false)} className="block py-3 font-serif text-2xl font-bold text-[#2c241b]">
+                  <Link href={l.href} onClick={() => setOpen(false)} className="flex items-center min-h-11 py-3 font-serif text-2xl font-bold text-[#2c241b]">
                     {l.label}
                   </Link>
                 </motion.div>
               ))}
               {isLoggedIn && signOutAction && (
                 <form action={signOutAction} className="mt-3">
-                  <button type="submit" className="flex items-center gap-2 text-sm font-bold text-red-600 py-2">
+                  <button type="submit" className="flex items-center gap-2 min-h-11 text-sm font-bold text-red-600 py-2">
                     <LogOut size={16} /> Sign out
                   </button>
                 </form>

@@ -73,7 +73,7 @@ function PolaroidPin({ x, y, rotate, img, label, delay, onClick, phase }: any) {
 
       {/* Polaroid Body */}
       <motion.div
-        className="bg-[#fdfbf7] p-2 md:p-3 pb-8 md:pb-10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-sm border border-[#e5dfd5] w-20 md:w-28 lg:w-32 mt-6 relative"
+        className="bg-[#fdfbf7] p-1.5 sm:p-2 md:p-3 pb-6 sm:pb-8 md:pb-10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-sm border border-[#e5dfd5] w-14 sm:w-20 md:w-28 lg:w-32 mt-6 relative"
         animate={{ rotate: isExiting ? 0 : rotate }}
         whileHover={isExiting ? {} : { rotate: 0, scale: 1.05 }}
       >
@@ -82,7 +82,7 @@ function PolaroidPin({ x, y, rotate, img, label, delay, onClick, phase }: any) {
           <div className="absolute inset-0 bg-black/10 mix-blend-multiply pointer-events-none" />
         </div>
         <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 text-center w-full px-2">
-          <span className="font-handwriting text-[#2c241b] text-base md:text-xl opacity-90 inline-block -rotate-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[90%]">
+          <span className="font-handwriting text-[#2c241b] text-xs sm:text-base md:text-xl opacity-90 inline-block -rotate-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[90%]">
             {label}
           </span>
         </div>
@@ -127,6 +127,17 @@ export default function TravelMapLayout({
   }).filter(Boolean) as any[];
 
   const [activeImage, setActiveImage] = useState<number | null>(null);
+
+  /* A 16:9 map cannot cover a 9:19.5 screen without running far past both edges,
+     taking the pins with it. Below lg it becomes a centred band instead. */
+  const [narrowMap, setNarrowMap] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setNarrowMap(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   // ── Infinite loop state ──
   const [phase, setPhase]       = useState<Phase>("ENTERING");
@@ -197,8 +208,10 @@ export default function TravelMapLayout({
       <motion.div 
         className="absolute z-10"
         style={{
-          width: "max(120vw, 120vh * (16/9))",
-          height: "max(120vh, 120vw * (9/16))",
+          // Portrait gets a wide band instead of a full-bleed cover: the whole
+          // map, and therefore every pin, stays on screen.
+          width: narrowMap ? "132vw" : "max(120vw, 120vh * (16/9))",
+          height: narrowMap ? "calc(132vw * 9 / 16)" : "max(120vh, 120vw * (9/16))",
           top: "50%",
           left: "50%",
           x: "-50%",

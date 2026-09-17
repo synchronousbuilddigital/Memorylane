@@ -63,15 +63,15 @@ export default async function PurposeHubPage({ params }: { params: { slug: strin
         The Fixed CTA Overlay 
         This is what the user clicks to actually create their album after viewing the default animations
       */}
-      <div className={`fixed bottom-0 left-0 w-full p-6 z-50 flex justify-center pb-8 pointer-events-none ${
+      <div className={`fixed bottom-0 left-0 w-full p-3 pb-4 sm:p-6 sm:pb-8 z-50 flex justify-center pointer-events-none ${
         theme === 'travel-suitcase' ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-white via-white/80 to-transparent'
       }`}>
-        <div className={`pointer-events-auto p-6 rounded-3xl shadow-2xl border max-w-md w-full text-center flex flex-col items-center gap-4 animate-in slide-in-from-bottom-10 duration-700 delay-500 ${
+        <div className={`pointer-events-auto p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl border max-w-md w-full text-center flex flex-col items-center gap-2.5 sm:gap-4 animate-in slide-in-from-bottom-10 duration-700 delay-500 ${
           theme === 'travel-suitcase' ? 'bg-[#1f120c]/90 backdrop-blur-md border-[#3a2215]' : 'bg-white border-gray-100'
         }`}>
           <div>
-            <h3 className={`font-serif font-bold text-xl ${theme === 'travel-suitcase' ? 'text-[#f7f1e6]' : 'text-gray-900'}`}>Make this your own</h3>
-            <p className={`text-sm mt-1 ${theme === 'travel-suitcase' ? 'text-[#b49877]' : 'text-gray-500'}`}>Swap these placeholder images with your own memories.</p>
+            <h3 className={`font-serif font-bold text-base sm:text-xl ${theme === 'travel-suitcase' ? 'text-[#f7f1e6]' : 'text-gray-900'}`}>Make this your own</h3>
+            <p className={`hidden sm:block text-sm mt-1 ${theme === 'travel-suitcase' ? 'text-[#b49877]' : 'text-gray-500'}`}>Swap these placeholder images with your own memories.</p>
           </div>
           
           {isLoggedIn ? (
@@ -80,7 +80,7 @@ export default async function PurposeHubPage({ params }: { params: { slug: strin
               <input type="hidden" name="theme" value={theme} />
               <button 
                 type="submit"
-                className={`w-full py-3 rounded-xl font-bold shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0 ${
+                className={`w-full py-2.5 sm:py-3 rounded-xl font-bold shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0 ${
                   theme === 'travel-suitcase' ? 'bg-[#f7f1e6] text-[#1f120c] hover:bg-white' : 'bg-[#2c241b] text-white hover:bg-black'
                 }`}
               >
@@ -90,7 +90,7 @@ export default async function PurposeHubPage({ params }: { params: { slug: strin
           ) : (
             <Link 
               href="/login"
-              className={`w-full py-3 rounded-xl font-bold shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center ${
+              className={`w-full py-2.5 sm:py-3 rounded-xl font-bold shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center ${
                 theme === 'travel-suitcase' ? 'bg-[#f7f1e6] text-[#1f120c] hover:bg-white' : 'bg-[#2c241b] text-white hover:bg-black'
               }`}
             >

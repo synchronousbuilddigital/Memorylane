@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import InlineEditableText from "@/components/InlineEditableText";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 
 /* ── PLACEHOLDERS ── */
@@ -187,6 +188,7 @@ export default function TravelTunnelLayout({
   const velocityRef  = useRef(0);
   const rafRef       = useRef<number>(0);
   const isHoveredRef = useRef(false);
+  const coarse       = useCoarsePointer();
   const [tunnelZ, setTunnelZ]       = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
 
@@ -227,6 +229,39 @@ export default function TravelTunnelLayout({
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  /* ── Touch — a sideways drag flies the tunnel ──
+     The wheel path above is gated on isHoveredRef, which never becomes true on a
+     phone, so the tunnel was frozen. Horizontal is the right axis to borrow: the
+     panel keeps touch-action pan-y, so a vertical swipe still scrolls the page
+     and this gesture never has to fight it. The tunnel loops, so there is no end
+     to hand scrolling back at — which is exactly why it must not take vertical. */
+  useEffect(() => {
+    const el = tunnelPanelRef.current;
+    if (!el) return;
+    let lastX: number | null = null;
+    const onStart = (e: TouchEvent) => { lastX = e.touches[0]?.clientX ?? null; };
+    const onMove = (e: TouchEvent) => {
+      const x = e.touches[0]?.clientX;
+      if (x == null || lastX == null) return;
+      const dx = lastX - x;
+      lastX = x;
+      velocityRef.current += dx * SCROLL_SPEED * 0.05;
+      velocityRef.current = Math.max(-40, Math.min(40, velocityRef.current));
+      setHasScrolled(true);
+    };
+    const onEnd = () => { lastX = null; };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: true });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchcancel", onEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+    };
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -411,7 +446,7 @@ export default function TravelTunnelLayout({
         <div
           ref={tunnelPanelRef}
           className="relative w-full lg:w-[58%] overflow-hidden"
-          style={{ minHeight: "100vh" }}
+          style={{ minHeight: "100vh", touchAction: "pan-y" }}
           onMouseEnter={() => { isHoveredRef.current = true; }}
           onMouseLeave={() => {
             isHoveredRef.current = false;
@@ -441,7 +476,7 @@ export default function TravelTunnelLayout({
 
           {/* 3D Tunnel Viewport */}
           <div
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center scale-[0.52] sm:scale-[0.72] lg:scale-100"
             style={{ perspective: "1100px", perspectiveOrigin: "50% 50%" }}
           >
             <motion.div
@@ -496,12 +531,12 @@ export default function TravelTunnelLayout({
                   <div className="w-8 h-14 rounded-full border-2 border-[#d4a843]/30 flex items-start justify-center pt-2">
                     <motion.div
                       className="w-1.5 h-3 bg-[#d4a843]/70 rounded-full"
-                      animate={{ y: [0, 14, 0], opacity: [1, 0.2, 1] }}
+                      animate={coarse ? { x: [0, 14, 0], opacity: [1, 0.2, 1] } : { y: [0, 14, 0], opacity: [1, 0.2, 1] }}
                       transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                     />
                   </div>
                   <span className="text-[#8a755b] text-[11px] uppercase tracking-[0.4em] font-semibold text-center">
-                    Hover &amp; scroll<br />to fly through
+                    {coarse ? <>Swipe sideways<br />to fly through</> : <>Hover &amp; scroll<br />to fly through</>}
                   </span>
                 </motion.div>
               </motion.div>

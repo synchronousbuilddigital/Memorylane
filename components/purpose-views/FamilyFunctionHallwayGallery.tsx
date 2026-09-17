@@ -782,8 +782,9 @@ export default function FamilyFunctionHallwayGallery({ images = [] }: { images?:
       </Canvas>
 
       {/* Hint */}
-      <div className="pointer-events-none absolute bottom-6 right-6 md:bottom-8 md:right-10 z-10 flex items-center gap-2 text-white/50 text-[9px] md:text-[10px] tracking-[0.3em] uppercase font-bold">
-        <span>Scroll here to walk · Click a picture to view</span>
+      <div className="pointer-events-none absolute bottom-6 right-6 md:bottom-8 md:right-10 z-10 flex items-center gap-2 max-w-[60%] justify-end text-right md:max-w-none md:justify-start md:text-left text-white/50 text-[9px] md:text-[10px] tracking-[0.3em] uppercase font-bold">
+        <span className="md:hidden">Swipe to walk · Tap a picture</span>
+        <span className="hidden md:inline">Scroll here to walk · Click a picture to view</span>
         <div className="w-8 h-[1px] bg-white/30" />
       </div>
 
