@@ -16,12 +16,24 @@ export default function AdminSidebar({ email }: { email: string }) {
   return (
     <aside className="lg:w-60 lg:shrink-0">
       <div className="lg:sticky lg:top-6">
+        {/* Mobile Header */}
+        <div className="flex lg:hidden items-center justify-between mb-4">
+          <div>
+            <div className="font-serif text-lg font-black tracking-tight text-[#1c1917]">Memory Lane</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#a3907a] mt-0.5">Admin</div>
+          </div>
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors bg-[#eae1d5] hover:bg-[#d9cbb8] px-3 py-1.5 rounded-lg">
+            <ArrowLeft size={13} /> Site
+          </Link>
+        </div>
+
+        {/* Desktop Header */}
         <div className="mb-6 hidden lg:block">
           <div className="font-serif text-xl font-black tracking-tight text-[#1c1917]">Memory Lane</div>
           <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#a3907a] mt-1">Admin</div>
         </div>
 
-        <nav className="flex lg:flex-col gap-1.5 overflow-x-auto hide-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0 pb-1 lg:pb-0">
+        <nav className="flex lg:flex-col gap-2 overflow-x-auto hide-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0 pb-4 lg:pb-0 scroll-smooth">
           {NAV.map(({ href, label, Icon, exact }) => {
             const active = exact ? pathname === href : pathname.startsWith(href);
             return (
@@ -39,6 +51,7 @@ export default function AdminSidebar({ email }: { email: string }) {
           })}
         </nav>
 
+        {/* Desktop Footer (Email & Back) */}
         <div className="hidden lg:block mt-6 pt-5 border-t border-[#e8e0d5]">
           <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a3907a] mb-1">Signed in as</div>
           <div className="text-xs text-[#5a4d41] break-all leading-relaxed">{email}</div>

@@ -51,20 +51,19 @@ function LivePreview({ t, dark, play }: { t: ShowcaseTemplate; dark: boolean; pl
   return (
     <div ref={ref} className="relative aspect-video bg-[#1c1917]">
       <Image src={t.image} alt={`${t.name} template preview`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-      {playing && (
-        <motion.img
-          key={t.loop}
-          src={t.loop}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          decoding="async"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
+      <motion.img
+        key={t.loop}
+        src={t.loop}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        decoding="async"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: playing ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+        style={{ willChange: "opacity" }}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
       {dark && <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#140a05]/40 via-transparent to-transparent" />}
     </div>
   );
@@ -210,7 +209,7 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
     >
       <motion.span
         aria-hidden
-        style={reduce ? undefined : { scale: bgScale }}
+        style={reduce ? undefined : { scale: bgScale, willChange: "transform" }}
         className={`absolute -top-10 right-10 font-serif font-black text-[22vw] leading-none select-none origin-top-right ${dark ? "text-white/[0.035]" : "text-[#1c1917]/[0.035]"}`}
       >
         {t.chapter}
@@ -222,16 +221,16 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
       {!reduce && (
         <motion.div
           aria-hidden
-          style={{ opacity: dim }}
+          style={{ opacity: dim, willChange: "opacity" }}
           className={`absolute inset-0 z-[1] pointer-events-none ${dark ? "bg-[#0b0603]" : "bg-[#4a2a10]"}`}
         />
       )}
 
       <motion.div
-        style={reduce ? undefined : { scale, opacity, rotateY }}
+        style={reduce ? undefined : { scale, opacity, rotateY, willChange: "transform, opacity" }}
         className="relative z-[2] w-full max-w-[1800px] mx-auto px-6 sm:px-8 xl:px-12 2xl:px-16 flex flex-col lg:grid lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] gap-6 sm:gap-8 xl:gap-14 items-center justify-center h-full max-h-[100dvh] pt-20 pb-28 lg:py-0"
       >
-        <motion.div style={reduce ? undefined : { x: wordsX }} className="w-full lg:w-auto min-w-0">
+        <motion.div style={reduce ? undefined : { x: wordsX, willChange: "transform" }} className="w-full lg:w-auto min-w-0">
           <motion.p
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, x: reduce ? 0 : -14 }, show: { opacity: 1, x: 0, transition: t0(0.05) } }}
@@ -285,7 +284,7 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
           </motion.div>
         </motion.div>
 
-        <motion.div style={reduce ? undefined : { x: printX }} className="relative w-full lg:w-auto">
+        <motion.div style={reduce ? undefined : { x: printX, willChange: "transform" }} className="relative w-full lg:w-auto">
           <motion.div
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, scale: reduce ? 1 : 0.96 }, show: { opacity: 1, scale: 1, transition: { duration: reduce ? 0.2 : 0.9, delay: 0.1, ease: EASE } } }}

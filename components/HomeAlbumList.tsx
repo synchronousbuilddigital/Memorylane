@@ -378,8 +378,8 @@ export default function HomeAlbumList({
             )}
           </div>
           {/* edge fades */}
-          <div className={`pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#f8f6f3] to-transparent transition-opacity duration-300 ${canLeft ? "opacity-100" : "opacity-0"}`} />
-          <div className={`pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#f8f6f3] to-transparent transition-opacity duration-300 ${canRight ? "opacity-100" : "opacity-0"}`} />
+          <div className={`hidden md:block pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#f8f6f3] to-transparent transition-opacity duration-300 ${canLeft ? "opacity-100" : "opacity-0"}`} />
+          <div className={`hidden md:block pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#f8f6f3] to-transparent transition-opacity duration-300 ${canRight ? "opacity-100" : "opacity-0"}`} />
           {/* arrows (desktop) */}
           <button type="button" onClick={() => scrollStrip(-1)} aria-label="Scroll albums left" disabled={!canLeft} className={`hidden md:flex absolute left-0 top-[35%] -translate-x-1/2 w-11 h-11 rounded-full bg-white border border-[#e8e0d5] shadow-lg items-center justify-center text-[#1c1917] hover:bg-[#fcfbf9] transition-all ${canLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}><ChevronLeft size={18} /></button>
           <button type="button" onClick={() => scrollStrip(1)} aria-label="Scroll albums right" disabled={!canRight} className={`hidden md:flex absolute right-0 top-[35%] translate-x-1/2 w-11 h-11 rounded-full bg-white border border-[#e8e0d5] shadow-lg items-center justify-center text-[#1c1917] hover:bg-[#fcfbf9] transition-all ${canRight ? "opacity-100" : "opacity-0 pointer-events-none"}`}><ChevronRight size={18} /></button>
