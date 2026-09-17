@@ -96,20 +96,20 @@ export default function LoginPage() {
       </div>
 
       {/* Main Layout Container */}
-      <div className="relative w-full max-w-[1600px] min-h-screen flex flex-col lg:flex-row items-center justify-between p-4 lg:p-12 z-10 gap-8 lg:gap-32">
+      <div className="relative w-full max-w-[1600px] min-h-screen flex flex-col lg:flex-row items-center justify-between p-4 lg:p-12 z-10 gap-4 sm:gap-8 lg:gap-32">
         
         {/* ======================= */}
         {/* LEFT SIDE: SCRAPBOOK COLLAGE */}
         {/* ======================= */}
-        <div className="w-full lg:w-[55%] h-[700px] lg:h-[900px] relative flex items-center justify-center">
+        <div className="w-full lg:w-[55%] h-[400px] sm:h-[650px] lg:h-[900px] relative flex items-center justify-center overflow-hidden lg:overflow-visible">
           
           {/* Top Left Handwriting */}
-          <div className="absolute top-[8%] left-[2%] font-handwriting text-4xl lg:text-5xl text-[#3b342e] -rotate-6 leading-tight z-10 opacity-90 drop-shadow-sm">
+          <div className="absolute top-[2%] lg:top-[8%] left-[2%] font-handwriting text-3xl sm:text-4xl lg:text-5xl text-[#3b342e] -rotate-6 leading-tight z-10 opacity-90 drop-shadow-sm">
             Little<br/>Moments<br/>Big Stories ♡
           </div>
 
           {/* Map Snippet Background (Bottom Left) */}
-          <div className="absolute bottom-[2%] left-[-5%] w-80 h-96 lg:w-96 lg:h-[420px] bg-[#e8decd] rounded-sm -rotate-12 shadow-sm z-0 overflow-hidden mix-blend-multiply opacity-80 border border-[#d5c7b3]">
+          <div className="absolute bottom-[2%] left-[-10%] lg:left-[-5%] w-60 h-72 sm:w-80 sm:h-96 lg:w-96 lg:h-[420px] bg-[#e8decd] rounded-sm -rotate-12 shadow-sm z-0 overflow-hidden mix-blend-multiply opacity-80 border border-[#d5c7b3]">
             <Image 
               src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800" 
               alt="Vintage Map" 
@@ -119,9 +119,9 @@ export default function LoginPage() {
           </div>
 
           {/* POLAROID 1: Mountains (Top Right/Back) */}
-          <div className="absolute top-[2%] right-[2%] w-64 lg:w-80 bg-[#fdfbf7] p-4 pb-14 lg:pb-16 shadow-[0_15px_30px_rgba(0,0,0,0.15)] rounded-sm rotate-[6deg] z-20 border border-[#e5dfd5]">
+          <div className="absolute top-[5%] lg:top-[2%] right-[2%] w-40 sm:w-56 lg:w-80 bg-[#fdfbf7] p-2 sm:p-3 lg:p-4 pb-10 sm:pb-12 lg:pb-16 shadow-[0_15px_30px_rgba(0,0,0,0.15)] rounded-sm rotate-[6deg] z-20 border border-[#e5dfd5]">
             {/* Tape */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-14 h-6 bg-[#f4ead5]/80 backdrop-blur-sm -rotate-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
+            <div className="absolute -top-2 lg:-top-3 left-1/2 -translate-x-1/2 w-10 lg:w-14 h-4 lg:h-6 bg-[#f4ead5]/80 backdrop-blur-sm -rotate-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
             
             <div className="relative aspect-square w-full overflow-hidden bg-gray-200">
               <Image 
@@ -131,15 +131,15 @@ export default function LoginPage() {
                 className="object-cover sepia-[.2]"
               />
             </div>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 font-handwriting text-3xl text-[#3b342e] whitespace-nowrap -rotate-2">
+            <div className="absolute bottom-2 lg:bottom-3 left-1/2 -translate-x-1/2 font-handwriting text-xl sm:text-2xl lg:text-3xl text-[#3b342e] whitespace-nowrap -rotate-2">
               Good Vibes
             </div>
           </div>
 
           {/* POLAROID 2: Sunset Couple (Center/Front) */}
-          <div className="absolute top-[22%] left-[10%] w-[320px] lg:w-[500px] bg-[#fdfbf7] p-5 lg:p-6 pb-20 lg:pb-24 shadow-[0_25px_50px_rgba(0,0,0,0.25)] rounded-sm -rotate-[5deg] z-30 border border-[#e5dfd5]">
+          <div className="absolute top-[18%] lg:top-[22%] left-[8%] lg:left-[10%] w-[260px] sm:w-[320px] lg:w-[500px] bg-[#fdfbf7] p-3 sm:p-4 lg:p-6 pb-14 sm:pb-16 lg:pb-24 shadow-[0_25px_50px_rgba(0,0,0,0.25)] rounded-sm -rotate-[5deg] z-30 border border-[#e5dfd5]">
             {/* Tape */}
-            <div className="absolute -top-4 left-8 w-20 h-10 bg-[#f4ead5]/90 backdrop-blur-sm rotate-6 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
+            <div className="absolute -top-3 lg:-top-4 left-4 lg:left-8 w-14 lg:w-20 h-6 lg:h-10 bg-[#f4ead5]/90 backdrop-blur-sm rotate-6 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
             
             <div className="relative aspect-square w-full overflow-hidden bg-gray-200 shadow-inner">
               <Image 
@@ -149,15 +149,15 @@ export default function LoginPage() {
                 className="object-cover sepia-[.1]"
               />
             </div>
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-handwriting text-4xl lg:text-5xl text-[#3b342e] whitespace-nowrap -rotate-3">
+            <div className="absolute bottom-3 lg:bottom-6 left-1/2 -translate-x-1/2 font-handwriting text-2xl sm:text-3xl lg:text-5xl text-[#3b342e] whitespace-nowrap -rotate-3">
               Together Always ♡
             </div>
           </div>
 
           {/* POLAROID 3: Dog (Bottom Right) */}
-          <div className="absolute bottom-[4%] right-[5%] w-72 lg:w-96 bg-[#fdfbf7] p-4 pb-16 lg:pb-20 shadow-[0_20px_40px_rgba(0,0,0,0.18)] rounded-sm rotate-[10deg] z-20 border border-[#e5dfd5]">
+          <div className="absolute bottom-[8%] lg:bottom-[4%] right-[2%] lg:right-[5%] w-44 sm:w-64 lg:w-96 bg-[#fdfbf7] p-2 sm:p-3 lg:p-4 pb-10 sm:pb-14 lg:pb-20 shadow-[0_20px_40px_rgba(0,0,0,0.18)] rounded-sm rotate-[10deg] z-20 border border-[#e5dfd5]">
              {/* Tape */}
-             <div className="absolute top-2 -right-4 w-12 h-6 bg-[#f4ead5]/80 backdrop-blur-sm -rotate-45 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
+             <div className="absolute top-1 lg:top-2 -right-2 lg:-right-4 w-8 lg:w-12 h-4 lg:h-6 bg-[#f4ead5]/80 backdrop-blur-sm -rotate-45 shadow-[0_1px_3px_rgba(0,0,0,0.1)]"></div>
              
              <div className="relative aspect-square w-full overflow-hidden bg-gray-200">
               <Image 
@@ -167,7 +167,7 @@ export default function LoginPage() {
                 className="object-cover sepia-[.15]"
               />
             </div>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-handwriting text-3xl text-[#3b342e] whitespace-nowrap -rotate-1">
+            <div className="absolute bottom-2 lg:bottom-4 left-1/2 -translate-x-1/2 font-handwriting text-xl sm:text-2xl lg:text-3xl text-[#3b342e] whitespace-nowrap -rotate-1">
               Furry Happiness ♡
             </div>
           </div>
@@ -177,10 +177,10 @@ export default function LoginPage() {
         {/* ======================= */}
         {/* RIGHT SIDE: LOGIN CARD */}
         {/* ======================= */}
-        <div className="w-full lg:w-[40%] flex items-center justify-center z-40 relative">
+        <div className="w-full lg:w-[40%] flex items-center justify-center z-40 relative -mt-10 sm:mt-0">
           
           {/* Main Paper Container with Torn Edge Filter and Tilt */}
-          <div className="relative w-full max-w-[540px] bg-[#fdfbf7] p-12 lg:p-16 -rotate-[2deg]"
+          <div className="relative w-full max-w-[540px] bg-[#fdfbf7] p-8 sm:p-12 lg:p-16 -rotate-[2deg]"
                style={{ 
                  filter: "url(#rough-edge) drop-shadow(0px 20px 30px rgba(0,0,0,0.15))",
                }}>
