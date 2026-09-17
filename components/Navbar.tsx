@@ -7,6 +7,7 @@ import { LogOut, Sun, Menu, X } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE } from "./motion/Reveal";
 import { useNavHidden } from "@/lib/navHidden";
+import PwaInstallButton from "./PwaInstallButton";
 
 const LINKS = [
   { href: "/", label: "Home", match: (p: string) => p === "/" },
@@ -168,6 +169,11 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
                   </Link>
                 </motion.div>
               ))}
+              
+              <motion.div initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + links.length * 0.05, duration: 0.3, ease: EASE }}>
+                <PwaInstallButton />
+              </motion.div>
+
               {isLoggedIn && signOutAction && (
                 <form action={signOutAction} className="mt-3">
                   <button type="submit" className="flex items-center gap-2 min-h-11 text-sm font-bold text-red-600 py-2">
