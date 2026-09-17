@@ -126,13 +126,7 @@ function Panel({ t, index }: { t: ShowcaseTemplate; index: number }) {
             {t.description}
           </motion.p>
 
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {t.scenes.map((s, i) => (
-              <motion.li key={s} variants={V.chip} custom={i} className={`text-[11px] font-bold uppercase tracking-[0.14em] border rounded-full px-3 py-1.5 ${chip}`}>
-                {s}
-              </motion.li>
-            ))}
-          </ul>
+
 
           <motion.div variants={V.ctas} className="mt-8 flex flex-wrap items-center gap-3">
             <Link href={`/purpose/${t.id}`} className={`group inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-sm font-semibold transition-colors ${dark ? "bg-[#f4eee6] text-[#1c1917] hover:bg-white" : "bg-[#1c1917] text-white hover:bg-[#3d3329]"}`}>
@@ -235,9 +229,9 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
 
       <motion.div
         style={reduce ? undefined : { scale, opacity, rotateY }}
-        className="relative z-[2] w-full max-w-[1800px] mx-auto px-8 xl:px-12 2xl:px-16 grid grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] gap-10 xl:gap-14 items-center"
+        className="relative z-[2] w-full max-w-[1800px] mx-auto px-6 sm:px-8 xl:px-12 2xl:px-16 flex flex-col lg:grid lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] gap-6 sm:gap-8 xl:gap-14 items-center justify-center h-full max-h-[100dvh] pt-20 pb-28 lg:py-0"
       >
-        <motion.div style={reduce ? undefined : { x: wordsX }} className="min-w-0">
+        <motion.div style={reduce ? undefined : { x: wordsX }} className="w-full lg:w-auto min-w-0">
           <motion.p
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, x: reduce ? 0 : -14 }, show: { opacity: 1, x: 0, transition: t0(0.05) } }}
@@ -246,7 +240,7 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
             <span className="w-8 h-[1px] bg-[#c9a24a]" /> Template {t.chapter} · {t.kicker}
           </motion.p>
 
-          <h3 className={`font-serif font-black tracking-tight leading-[0.92] ${ink}`} style={{ fontSize: "clamp(3rem, 5vw, 5.5rem)" }}>
+          <h3 className={`font-serif font-black tracking-tight leading-[0.92] ${ink}`} style={{ fontSize: "clamp(2.5rem, 5vw, 5.5rem)" }}>
             {t.name.split(" ").map((w, k) => (
               <span key={w} className="inline-block overflow-hidden mr-[0.25em] align-top pb-[0.08em] -mb-[0.08em]">
                 <motion.span
@@ -262,7 +256,7 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
           <motion.p
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: t0(0.3) } }}
-            className={`font-handwriting text-[2.1rem] mt-3 -rotate-1 ${dark ? "text-[#e6c56d]" : "text-[#8a6a1e]"}`}
+            className={`font-handwriting text-2xl lg:text-[2.1rem] mt-3 -rotate-1 ${dark ? "text-[#e6c56d]" : "text-[#8a6a1e]"}`}
           >
             {t.tagline}
           </motion.p>
@@ -270,45 +264,35 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
           <motion.p
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, y: reduce ? 0 : 12 }, show: { opacity: 1, y: 0, transition: t0(0.38) } }}
-            className={`mt-5 text-[17px] leading-relaxed max-w-xl ${soft}`}
+            className={`mt-2 lg:mt-5 text-[15px] lg:text-[17px] leading-relaxed max-w-xl ${soft}`}
           >
             {t.description}
           </motion.p>
 
-          <ul className="mt-7 flex flex-wrap gap-2">
-            {t.scenes.map((sc, k) => (
-              <motion.li
-                key={sc} animate={show} initial="hidden"
-                variants={{ hidden: { opacity: 0, y: reduce ? 0 : 10 }, show: { opacity: 1, y: 0, transition: t0(0.46 + k * 0.07) } }}
-                className={`text-[11px] font-bold uppercase tracking-[0.14em] border rounded-full px-3 py-1.5 ${chip}`}
-              >
-                {sc}
-              </motion.li>
-            ))}
-          </ul>
+
 
           <motion.div
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, y: reduce ? 0 : 12 }, show: { opacity: 1, y: 0, transition: t0(0.74) } }}
-            className="mt-9 flex flex-wrap items-center gap-3"
+            className="mt-4 lg:mt-9 flex flex-wrap items-center gap-3"
           >
             <Link href={`/purpose/${t.id}`} className={`group inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-sm font-semibold transition-colors ${dark ? "bg-[#f4eee6] text-[#1c1917] hover:bg-white" : "bg-[#1c1917] text-white hover:bg-[#3d3329]"}`}>
-              <Play size={14} className="fill-current" /> Preview the template
+              <Play size={14} className="fill-current" /> Preview
             </Link>
             <Link href={`/purpose/${t.id}`} className={`group inline-flex items-center gap-2 text-sm font-semibold transition-colors ${dark ? "text-[#d9cbb8] hover:text-white" : "text-[#5a4d41] hover:text-[#1c1917]"}`}>
-              Start with it <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              Start <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </motion.div>
         </motion.div>
 
-        <motion.div style={reduce ? undefined : { x: printX }} className="relative">
+        <motion.div style={reduce ? undefined : { x: printX }} className="relative w-full lg:w-auto">
           <motion.div
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0, scale: reduce ? 1 : 0.96 }, show: { opacity: 1, scale: 1, transition: { duration: reduce ? 0.2 : 0.9, delay: 0.1, ease: EASE } } }}
             /* 16:9 plus the 44px chrome bar: this cap keeps the print inside a short
                viewport while letting it grow to fill a tall one */
             style={{ maxWidth: "min(100%, calc(122vh - 78px))" }}
-            className={`relative ml-auto rounded-[22px] overflow-hidden ${dark ? "shadow-[0_60px_120px_-28px_rgba(0,0,0,0.85)] ring-1 ring-[#c9a24a]/40" : "shadow-[0_50px_110px_-30px_rgba(28,25,23,0.45)] ring-1 ring-[#e8e0d5]"}`}
+            className={`relative mx-auto lg:ml-auto w-full lg:w-auto rounded-[18px] lg:rounded-[22px] overflow-hidden ${dark ? "shadow-[0_40px_90px_-20px_rgba(0,0,0,0.85)] ring-1 ring-[#c9a24a]/40" : "shadow-[0_40px_90px_-20px_rgba(28,25,23,0.45)] ring-1 ring-[#e8e0d5]"}`}
           >
             <div className={`flex items-center gap-2 px-4 h-11 ${dark ? "bg-[#1f120a]" : "bg-[#f4eee6]"}`}>
               {[0, 1, 2].map((k) => <span key={k} className={`w-3 h-3 rounded-full ${dark ? "bg-white/15" : "bg-[#d9cbb8]"}`} />)}
@@ -321,7 +305,7 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
             animate={show} initial="hidden"
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: t0(0.8) } }}
             style={{ rotate: -5 }}
-            className="absolute -right-6 -bottom-7 bg-[#f4ebd8] border border-[#e5d5be] shadow-[0_16px_34px_rgba(28,25,23,0.2)] px-5 py-3 font-handwriting text-[#2c241b] text-2xl whitespace-nowrap pointer-events-none"
+            className="absolute -right-2 lg:-right-6 -bottom-4 lg:-bottom-7 bg-[#f4ebd8] border border-[#e5d5be] shadow-[0_16px_34px_rgba(28,25,23,0.2)] px-4 py-2 lg:px-5 lg:py-3 font-handwriting text-[#2c241b] text-xl lg:text-2xl whitespace-nowrap pointer-events-none"
           >
             {t.note} ♡
           </motion.div>
@@ -427,7 +411,7 @@ export default function TemplateShowcase({ templates }: { templates: ShowcaseTem
       </motion.div>
 
       {/* phones, tablets and reduced motion keep the stack */}
-      <div className={reduce ? "space-y-6 md:space-y-8" : "space-y-6 md:space-y-8 lg:hidden"}>
+      <div className={reduce ? "space-y-6 md:space-y-8" : "hidden"}>
         {templates.map((t, i) => <Panel key={t.id} t={t} index={i} />)}
       </div>
     </section>
@@ -439,7 +423,7 @@ export function TemplateStage({ templates }: { templates: ShowcaseTemplate[] }) 
   const reduce = !!useReducedMotion();
   if (reduce) return null;
   return (
-    <div className="hidden lg:block">
+    <div className={reduce ? "hidden" : "block"}>
       <HorizontalStage templates={templates} />
     </div>
   );

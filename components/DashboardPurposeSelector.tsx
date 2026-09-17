@@ -125,7 +125,7 @@ export default function DashboardPurposeSelector({ isLoggedIn = false }: { isLog
 
               {/* Panel */}
               <div className="relative flex flex-col flex-1 px-5 md:px-6 pb-5 md:pb-6 -mt-6">
-                <h3 className="font-serif font-black text-[#1c1917] text-2xl mb-1.5">{purpose.label}</h3>
+                <h3 className="font-serif font-black text-[#1c1917] text-3xl md:text-4xl tracking-tight mb-2 leading-none mt-1">{purpose.label}</h3>
                 <p className="text-[#5a4d41] text-sm leading-relaxed mb-4">{purpose.description}</p>
 
                 {/* what you get */}

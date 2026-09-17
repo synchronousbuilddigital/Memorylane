@@ -19,6 +19,7 @@ import TemplateShowcase, { TemplateStage } from "@/components/home/TemplateShowc
 import HowItWorks from "@/components/home/HowItWorks";
 import ScrollProgress from "@/components/home/ScrollProgress";
 import PaperGrain from "@/components/home/PaperGrain";
+import Footer from "@/components/Footer";
 
 const getGlobalStats = unstable_cache(
   async () => {
@@ -107,7 +108,7 @@ export default async function HomePage() {
         <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} />
 
         <main className="relative z-10 w-full pt-24 md:pt-32 pb-16">
-          <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-12 space-y-20 md:space-y-28">
+          <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-12 space-y-12 md:space-y-28">
             <HomeHero templateCount={SHOWCASE.length} sceneCount={SCENE_COUNT} />
 
             <Reveal amount={0.3}>
@@ -138,6 +139,8 @@ export default async function HomePage() {
             <DashboardFooterBanner />
           </div>
         </main>
+        
+        <Footer />
       </div>
     </HomeIntro>
   );

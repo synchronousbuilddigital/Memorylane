@@ -24,12 +24,12 @@ export default function LiveNumbers({ stats }: { stats: Stat[] }) {
   return (
     <div ref={ref} className="grid grid-cols-2 lg:grid-cols-4 border-y border-[#e8e0d5]">
       {stats.map((s, i) => (
-        <div key={s.label} className={`py-8 md:py-10 px-4 md:px-8 ${i % 2 === 1 ? "border-l border-[#e8e0d5]" : ""} ${i >= 2 ? "border-t lg:border-t-0 border-[#e8e0d5]" : ""} ${i >= 2 ? "lg:border-l" : ""}`}>
-          <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#a3907a]">{s.label}</div>
-          <div className="font-sans font-bold text-[2.6rem] md:text-[3.4rem] leading-none text-[#1c1917] mt-3">
+        <div key={s.label} className={`py-5 md:py-10 px-4 md:px-8 ${i % 2 === 1 ? "border-l border-[#e8e0d5]" : ""} ${i >= 2 ? "border-t lg:border-t-0 border-[#e8e0d5]" : ""} ${i >= 2 ? "lg:border-l" : ""}`}>
+          <div className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.28em] text-[#a3907a]">{s.label}</div>
+          <div className="font-sans font-bold text-[2rem] md:text-[3rem] leading-none text-[#1c1917] mt-2">
             <Counter value={s.value} suffix={s.suffix} run={inView} />
           </div>
-          <div className="text-xs md:text-sm text-[#5a4d41] mt-2">{s.sub}</div>
+          <div className="text-[11px] md:text-sm text-[#5a4d41] mt-1 md:mt-2">{s.sub}</div>
         </div>
       ))}
     </div>

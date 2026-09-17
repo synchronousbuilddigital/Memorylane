@@ -138,7 +138,7 @@ export default function HomeHero({ templateCount, sceneCount }: { templateCount:
   });
 
   return (
-    <section ref={heroRef} onMouseMove={onMove} className="relative w-full pt-4 md:pt-10 pb-10 md:pb-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 min-h-[78vh]">
+    <section ref={heroRef} onMouseMove={onMove} className="relative w-full pt-4 md:pt-10 pb-10 md:pb-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 min-h-[50vh] md:min-h-[78vh]">
       <motion.div style={{ y: textY, opacity: fade }} className="flex-1 w-full flex flex-col items-start z-10">
 
         <h1 className="font-serif text-[clamp(3.4rem,10vw,7rem)] font-bold text-[#1c1917] leading-[0.9] tracking-tighter flex flex-col mb-5 md:mb-6">
@@ -187,8 +187,8 @@ export default function HomeHero({ templateCount, sceneCount }: { templateCount:
       </motion.div>
 
       {/* the polaroid stage, scaled to fit whatever width it gets */}
-      <motion.div ref={stageWrap} style={{ y: stageY, opacity: fade }} className="flex-1 w-full flex justify-center lg:justify-end">
-        <div style={{ width: STAGE_W * scale, height: STAGE_H * scale }} className="relative">
+      <motion.div ref={stageWrap} style={{ y: stageY, opacity: fade }} className="absolute md:relative right-[-20%] md:right-0 top-[2%] md:top-0 w-[85%] md:w-full flex-1 flex justify-end lg:justify-end mt-10 lg:mt-0 pointer-events-none md:pointer-events-auto z-0 md:z-auto">
+        <div style={{ width: STAGE_W * scale, height: STAGE_H * scale }} className="relative scale-110 md:scale-100 origin-center pointer-events-auto">
           <div style={{ width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "top left" }} className="absolute top-0 left-0">
             <div className="absolute left-[170px] top-[130px] w-[300px] h-[300px] bg-[#d9cbb8]/30 blur-[100px] rounded-full" />
             {CARDS.map((c, i) => (
