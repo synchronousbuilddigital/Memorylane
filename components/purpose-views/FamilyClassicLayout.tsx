@@ -120,6 +120,12 @@ const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onI
               onClick={(e: React.MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
+                let originalIndex = -1;
+                if (fullImages && fullImages.length > 0) {
+                  originalIndex = fullImages.findIndex((orig: any) => orig.displayUrl === img || orig.url === img);
+                } else {
+                  originalIndex = PLACEHOLDERS.indexOf(img.displayUrl || img);
+                }
                 if (originalIndex !== -1 && onImageClick) {
                   onImageClick(originalIndex);
                 }
@@ -182,7 +188,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
 
   // Extract images by their designated position slot
   const heroImages = images.filter(img => img.position === 0);
-  const displayHeroImages = heroImages.length > 0 ? heroImages.map(i => i.displayUrl) : [PLACEHOLDERS[0]];
+  const displayHeroImages = heroImages.length > 0 ? heroImages.map(i => i.displayUrl) : PLACEHOLDERS;
 
   const scrapbookImages = React.useMemo(() =>
     images.filter(img => img.position === 3).map(i => i.displayUrl),
@@ -500,9 +506,15 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      let originalIndex = images.findIndex(original => original.id === img.id);
-                      if (originalIndex === -1) {
-                        originalIndex = images.findIndex(original => original.url === img.url || original.displayUrl === img.displayUrl);
+                      let originalIndex = -1;
+                      if (images && images.length > 0) {
+                        originalIndex = images.findIndex(original => original.id === img.id);
+                        if (originalIndex === -1) {
+                          originalIndex = images.findIndex(original => original.url === img.url || original.displayUrl === img.displayUrl);
+                        }
+                      } else {
+                        originalIndex = PLACEHOLDERS.indexOf(img.displayUrl || img);
+                        if (originalIndex === -1) originalIndex = 1; // Ribbon fallback
                       }
                       if (originalIndex !== -1) {
                         setLightboxIndex(originalIndex);
@@ -532,8 +544,22 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
       />
 
       {/* 4. The Parallax Floating Stack (Replaces Sign-off Portrait) */}
-      <FloatingParallaxStack images={slot4Images} content={content} onContentChange={onContentChange} />
+      <FloatingParallaxStack 
+        images={slot4Images} 
+        content={content} 
+        onContentChange={onContentChange}
+        onImageClick={(idx: number) => setLightboxIndex(idx)}
+        fullImages={images}
+      />
 
+      {isClient && lightboxIndex !== null && (
+        <Lightbox
+          images={images.length > 0 ? images : PLACEHOLDERS.map((url, i) => ({ id: `ph-${i}`, displayUrl: url })) as any}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={(n) => setLightboxIndex(n)}
+        />
+      )}
     </div>
   );
 }
@@ -575,7 +601,7 @@ const CARD_POSITIONS = [
   { top: "75%", left: "92%", rotate: 15, scale: 0.45, zIndex: 8, blur: 6, depth: 0.4 },
 ];
 
-const ParallaxCard = ({ image, index, mouseX, mouseY, content, onContentChange }: any) => {
+const ParallaxCard = ({ image, index, mouseX, mouseY, content, onContentChange, onClick }: any) => {
   const pos = CARD_POSITIONS[index] || CARD_POSITIONS[0];
   const [isHovered, setIsHovered] = useState(false);
   
@@ -591,7 +617,13 @@ const ParallaxCard = ({ image, index, mouseX, mouseY, content, onContentChange }
     <motion.div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="absolute flex flex-col bg-[#f4ebd8] p-3 pb-12 shadow-2xl pointer-events-auto cursor-pointer"
+      onClick={(e) => {
+        // Only trigger click if it's not an editable text area
+        if ((e.target as HTMLElement).tagName !== 'SPAN') {
+          onClick?.();
+        }
+      }}
+      className="absolute flex flex-col bg-[#f4ebd8] p-1.5 pb-8 sm:p-3 sm:pb-12 shadow-2xl pointer-events-auto cursor-pointer"
       initial={{ scale: pos.scale, filter: `blur(${pos.blur}px)`, opacity: pos.blur > 3 ? 0.8 : 1 }}
       animate={{
         scale: isHovered ? pos.scale * 1.15 : pos.scale,
@@ -614,14 +646,14 @@ const ParallaxCard = ({ image, index, mouseX, mouseY, content, onContentChange }
         className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/cream-paper.png')" }}
       />
-      <div className="relative w-56 aspect-[4/5] overflow-hidden bg-gray-200 pointer-events-none">
+      <div className="relative w-32 sm:w-56 aspect-[4/5] overflow-hidden bg-gray-200 pointer-events-none">
         <Image src={image} alt={`Parallax Memory ${index}`} fill className="object-cover" />
       </div>
       
       {/* Handwritten Text fades in if hovered or if it's already in the foreground */}
-      <div className={`absolute bottom-3 left-0 right-0 text-center pointer-events-auto z-10 transition-opacity duration-300 ${pos.blur < 3 || isHovered ? "opacity-100" : "opacity-0"}`}>
+      <div className={`absolute bottom-1.5 sm:bottom-3 left-0 right-0 text-center pointer-events-auto z-10 transition-opacity duration-300 ${pos.blur < 3 || isHovered ? "opacity-100" : "opacity-0"}`}>
         <span 
-          className={`font-serif italic text-[#4a3b32] text-lg opacity-80 ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-1 transition-colors outline-none" : ""}`}
+          className={`font-serif italic text-[#4a3b32] text-xs sm:text-lg opacity-80 ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-1 transition-colors outline-none" : ""}`}
           contentEditable={!!onContentChange}
           suppressContentEditableWarning={true}
           onBlur={(e) => onContentChange?.(`parallaxCaption_${index}`, e.currentTarget.textContent || "")}
@@ -633,7 +665,7 @@ const ParallaxCard = ({ image, index, mouseX, mouseY, content, onContentChange }
   );
 };
 
-const FloatingParallaxStack = ({ images, content, onContentChange }: { images: string[], content?: any, onContentChange?: (key: string, value: string) => void }) => {
+const FloatingParallaxStack = ({ images, content, onContentChange, onImageClick, fullImages }: any) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -714,7 +746,7 @@ const FloatingParallaxStack = ({ images, content, onContentChange }: { images: s
 
       {/* The 3D Parallax Images */}
       <div className="absolute inset-0 perspective-1000">
-        {safeImages.map((img, index) => (
+        {safeImages.map((img: any, index: number) => (
           <ParallaxCard 
             key={`parallax-${index}`} 
             image={img} 
@@ -723,6 +755,19 @@ const FloatingParallaxStack = ({ images, content, onContentChange }: { images: s
             mouseY={mouseY}
             content={content}
             onContentChange={onContentChange}
+            onClick={() => {
+              if (onImageClick) {
+                let originalIndex = -1;
+                if (fullImages && fullImages.length > 0) {
+                  originalIndex = fullImages.findIndex((original: any) => original.displayUrl === img || original.url === img);
+                } else {
+                  originalIndex = PLACEHOLDERS.indexOf(img);
+                }
+                if (originalIndex !== -1) {
+                  onImageClick(originalIndex);
+                }
+              }
+            }}
           />
         ))}
       </div>

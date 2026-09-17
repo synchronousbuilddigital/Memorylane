@@ -22,6 +22,7 @@ export type AlbumSection = {
   theme?: string | null;
   createdAt: string | Date;
   images?: Img[];
+  linkedToId?: string | null;
 };
 
 /* ───────────── Purposes: how albums are stored → how they're grouped and shown ───────────── */

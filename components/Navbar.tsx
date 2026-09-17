@@ -12,7 +12,7 @@ import PwaInstallButton from "./PwaInstallButton";
 const LINKS = [
   { href: "/", label: "Home", match: (p: string) => p === "/" },
   { href: "/albums", label: "Albums", match: (p: string) => p.startsWith("/albums") },
-  { href: "/#map", label: "Map", match: () => false },
+  { href: "/map", label: "Map", match: (p: string) => p.startsWith("/map") },
   { href: "/albums?filter=favorites", label: "Favorites", match: () => false },
 ];
 
