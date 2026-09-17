@@ -7,7 +7,7 @@ export const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* Fades and rises a block into view as it scrolls in (a plain fade when the user prefers reduced motion) */
 export function Reveal({
-  children, delay = 0, y = 28, className, once = true, amount = 0.2, id,
+  children, delay = 0, y = 28, className, once = false, amount = 0.2, id,
 }: { children: ReactNode; delay?: number; y?: number; className?: string; once?: boolean; amount?: number; id?: string }) {
   const reduce = useReducedMotion();
   return (

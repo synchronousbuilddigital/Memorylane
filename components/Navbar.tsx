@@ -25,9 +25,9 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
   const [hovered, setHovered] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // A paper-toned blur behind the bar once the hero scrolls away
+  // the bar draws in as you leave the top: full-width header → floating rounded pill
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 18);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -44,26 +44,43 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
   const links = isAdmin ? [...LINKS, { href: "/admin", label: "Admin", match: (p: string) => p.startsWith("/admin") }] : LINKS;
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-[padding,background-color,box-shadow] duration-300 ${scrolled || open ? "py-3 bg-[#f8f6f3]/85 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.05)]" : "py-5 md:py-6 bg-transparent"}`}>
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between">
+    <nav
+      className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled || open ? "top-2 sm:top-3 px-3 sm:px-5" : "top-0 px-0"}`}
+      style={{ transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" }}
+    >
+      <div
+        className={`mx-auto flex items-center justify-between transition-all duration-500 ${
+          scrolled || open
+            ? "max-w-[1180px] rounded-[1.6rem] border border-white/60 bg-[#fdfbf7]/92 backdrop-blur-2xl shadow-[0_12px_34px_-12px_rgba(28,25,23,0.30)] ring-1 ring-[#1c1917]/[0.04] px-4 sm:px-6 py-2.5"
+            : "max-w-[1600px] rounded-none border border-transparent bg-transparent px-4 sm:px-6 md:px-8 py-5 md:py-6"
+        }`}
+        style={{ transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" }}
+      >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 md:gap-3 group" onClick={() => setOpen(false)}>
-          <Sun size={22} className="text-[#2c241b] fill-[#2c241b] transition-transform duration-500 group-hover:rotate-90" />
-          <span className="font-serif text-xl md:text-2xl font-black tracking-tight text-[#2c241b]">Memory Lane</span>
+          <Sun size={scrolled ? 19 : 22} className="text-[#2c241b] fill-[#2c241b] transition-all duration-500 group-hover:rotate-90" />
+          <span className={`font-serif font-black tracking-tight text-[#2c241b] transition-all duration-500 ${scrolled ? "text-lg md:text-xl" : "text-xl md:text-2xl"}`}>Memory Lane</span>
         </Link>
 
         {/* Centered links with a sliding underline */}
-        <div className="hidden md:flex items-center gap-8 text-[#5a4d41] font-medium text-sm tracking-wide" onMouseLeave={() => setHovered(null)}>
+        <div
+          className={`hidden md:flex items-center gap-1 text-[#5a4d41] font-medium text-sm tracking-wide rounded-full transition-all duration-500 ${scrolled ? "bg-[#1c1917]/[0.035] p-1" : "p-0"}`}
+          onMouseLeave={() => setHovered(null)}
+        >
           {links.map((l) => (
             <Link
               key={l.label}
               href={l.href}
               onMouseEnter={() => setHovered(l.label)}
-              className={`relative py-1 transition-colors ${underlineOn === l.label ? "text-[#2c241b]" : "hover:text-[#2c241b]"}`}
+              className={`relative px-3.5 py-1.5 rounded-full transition-colors ${underlineOn === l.label ? "text-[#2c241b]" : "hover:text-[#2c241b]"}`}
             >
-              {l.label}
+              <span className="relative z-10">{l.label}</span>
               {underlineOn === l.label && (
-                <motion.span layoutId="nav-underline" className="absolute -bottom-0.5 left-0 w-full h-[1px] bg-[#2c241b]" transition={{ type: "spring", stiffness: 380, damping: 32 }} />
+                <motion.span
+                  layoutId="nav-pill"
+                  className="absolute inset-0 rounded-full bg-[#fdfbf7] shadow-[0_2px_8px_rgba(28,25,23,0.10)] ring-1 ring-[#e8e0d5]"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                />
               )}
             </Link>
           ))}
@@ -137,7 +154,7 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
             transition={{ duration: reduce ? 0.15 : 0.35, ease: EASE }}
             className="md:hidden overflow-hidden"
           >
-            <div className="px-4 sm:px-6 pt-4 pb-6 flex flex-col gap-1 border-t border-[#e8e0d5]/70 mt-3">
+            <div className="px-4 sm:px-6 pt-4 pb-5 flex flex-col gap-1 border-t border-[#e8e0d5]/70 mt-3">
               {links.map((l, i) => (
                 <motion.div key={l.label} initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}>
                   <Link href={l.href} onClick={() => setOpen(false)} className="block py-3 font-serif text-2xl font-bold text-[#2c241b]">
