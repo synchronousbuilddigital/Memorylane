@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Fraunces, Great_Vibes } from "next/font/google";
 import "./globals.css";
+import PwaUpdater from "@/components/PwaUpdater";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -33,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${fraunces.variable} ${handwriting.variable} font-sans antialiased text-slate-900 bg-[#f8f6f3]`}>
+        <PwaUpdater />
         {children}
       </body>
     </html>
