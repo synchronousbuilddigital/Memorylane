@@ -140,9 +140,6 @@ export default function HomeHero({ templateCount, sceneCount }: { templateCount:
   return (
     <section ref={heroRef} onMouseMove={onMove} className="relative w-full pt-4 md:pt-10 pb-10 md:pb-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 min-h-[78vh]">
       <motion.div style={{ y: textY, opacity: fade }} className="flex-1 w-full flex flex-col items-start z-10">
-        <motion.span {...rise(0.05)} className="inline-flex items-center gap-2 text-[11px] md:text-xs font-bold uppercase tracking-[0.3em] text-[#8a755b] mb-5 md:mb-6">
-          <Sparkles size={13} className="text-[#c9a24a]" /> {templateCount} templates · {sceneCount} cinematic scenes
-        </motion.span>
 
         <h1 className="font-serif text-[clamp(3.4rem,10vw,7rem)] font-bold text-[#1c1917] leading-[0.9] tracking-tighter flex flex-col mb-5 md:mb-6">
           {HEADLINE.map((word, i) => (
