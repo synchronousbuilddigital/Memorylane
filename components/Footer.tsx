@@ -59,7 +59,7 @@ export default function Footer() {
 
         {/* Right Side: Details & Contact */}
         <div className="flex flex-col items-center md:items-end text-center md:text-right mt-8 md:mt-6">
-          <h4 className="font-serif font-bold text-white text-lg mb-6 md:mb-4">Get in touch</h4>
+          <h4 className="font-serif font-bold text-white text-lg mb-6 md:mb-4">For Customise Templete <br />Contsct Us</h4>
           
           <ul className="space-y-6 md:space-y-4 text-sm text-[#d9cbb8]">
             <li>
