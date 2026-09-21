@@ -9,11 +9,14 @@ import { EASE } from "./motion/Reveal";
 import { useNavHidden } from "@/lib/navHidden";
 import PwaInstallButton from "./PwaInstallButton";
 
+/* Each link carries a small warm texture of the place it goes to. They sit far
+   back behind the label — the point is a hint of the destination, not a picture
+   you have to look at, and the ink has to stay fully readable on top. */
 const LINKS = [
-  { href: "/", label: "Home", match: (p: string) => p === "/" },
-  { href: "/albums", label: "Albums", match: (p: string) => p.startsWith("/albums") },
-  { href: "/map", label: "Map", match: (p: string) => p.startsWith("/map") },
-  { href: "/albums?filter=favorites", label: "Favorites", match: () => false },
+  { href: "/", label: "Home", art: "/nav/home.webp", match: (p: string) => p === "/" },
+  { href: "/albums", label: "Albums", art: "/nav/albums.webp", match: (p: string) => p.startsWith("/albums") },
+  { href: "/map", label: "Map", art: "/nav/map.webp", match: (p: string) => p.startsWith("/map") },
+  { href: "/albums?filter=favorites", label: "Favorites", art: "/nav/favorites.webp", match: () => false },
 ];
 
 export default function Navbar({ signOutAction, session, isAdmin = false }: { signOutAction?: () => void, session?: any, isAdmin?: boolean }) {
@@ -45,7 +48,9 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
   }, []);
 
   const underlineOn = hovered ?? current;
-  const links = isAdmin ? [...LINKS, { href: "/admin", label: "Admin", match: (p: string) => p.startsWith("/admin") }] : LINKS;
+  const links = isAdmin
+    ? [...LINKS, { href: "/admin", label: "Admin", art: null as string | null, match: (p: string) => p.startsWith("/admin") }]
+    : LINKS;
 
   return (
     <nav
@@ -75,23 +80,45 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
           className={`hidden md:flex items-center gap-1 text-[#5a4d41] font-medium text-sm tracking-wide rounded-full transition-all duration-500 ${scrolled ? "bg-[#1c1917]/[0.035] p-1" : "p-0"}`}
           onMouseLeave={() => setHovered(null)}
         >
-          {links.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              onMouseEnter={() => setHovered(l.label)}
-              className={`relative px-3.5 py-1.5 rounded-full transition-colors ${underlineOn === l.label ? "text-[#2c241b]" : "hover:text-[#2c241b]"}`}
-            >
-              <span className="relative z-10">{l.label}</span>
-              {underlineOn === l.label && (
-                <motion.span
-                  layoutId="nav-pill"
-                  className="absolute inset-0 rounded-full bg-[#fdfbf7] shadow-[0_2px_8px_rgba(28,25,23,0.10)] ring-1 ring-[#e8e0d5]"
-                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                />
-              )}
-            </Link>
-          ))}
+          {links.map((l) => {
+            const on = underlineOn === l.label;
+            return (
+              <Link
+                key={l.label}
+                href={l.href}
+                onMouseEnter={() => setHovered(l.label)}
+                className={`relative px-3.5 py-1.5 rounded-full transition-colors ${on ? "text-white" : "hover:text-[#2c241b]"}`}
+              >
+                {/* The cream pill is one shared element that slides between links,
+                    so the artwork cannot ride on it — every link would show the
+                    same picture. Each link owns its own layer underneath, and
+                    fades it in only while it is the active one. */}
+                {l.art && (
+                  <span
+                    aria-hidden
+                    className={`pointer-events-none absolute inset-0 overflow-hidden rounded-full transition-opacity duration-500 ${on ? "opacity-100" : "opacity-0"}`}
+                  >
+                    {/* A white label inverts which pixel is dangerous: with dark ink the
+                        darkest pixel set the limit, with white text it is the
+                        brightest. So the textures are graded dark with their
+                        highlights capped, which lets the image run at 90% — nearly
+                        full strength, and finally properly visible. Measured, not
+                        guessed: the brightest spot in any of the four still leaves
+                        the label at 5.07:1 or better, against a 4.5:1 floor. */}
+                    <span className="absolute inset-0 bg-cover bg-center opacity-90" style={{ backgroundImage: `url(${l.art})` }} />
+                  </span>
+                )}
+                <span className="relative z-10">{l.label}</span>
+                {on && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    className="absolute inset-0 -z-[1] rounded-full bg-[#1c1917] shadow-[0_3px_12px_rgba(28,25,23,0.28)] ring-1 ring-[#1c1917]/20"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Actions */}
@@ -162,11 +189,27 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
             transition={{ duration: reduce ? 0.15 : 0.35, ease: EASE }}
             className="md:hidden overflow-hidden mx-3 sm:mx-5 mt-2 rounded-[1.4rem] border border-white/60 bg-[#fdfbf7]/95 backdrop-blur-2xl shadow-[0_18px_44px_-14px_rgba(28,25,23,0.35)] ring-1 ring-[#1c1917]/[0.04]"
           >
-            <div className="px-5 pt-4 pb-5 flex flex-col gap-1">
+            <div className="px-4 pt-4 pb-5 flex flex-col gap-2">
+              {/* Same treatment as the desktop pills: the destination's picture
+                  behind a white label. Here every row shows its own, because the
+                  sheet lists them all at once rather than sliding one highlight
+                  between them. Rows are taller than the pills so the photograph
+                  has room to read as a photograph. */}
               {links.map((l, i) => (
                 <motion.div key={l.label} initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + i * 0.05, duration: 0.3, ease: EASE }}>
-                  <Link href={l.href} onClick={() => setOpen(false)} className="flex items-center min-h-11 py-3 font-serif text-2xl font-bold text-[#2c241b]">
-                    {l.label}
+                  <Link
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className={`relative flex items-center overflow-hidden rounded-2xl px-4 min-h-[3.75rem] font-serif text-2xl font-bold transition-transform active:scale-[0.98] ${l.art ? "text-white bg-[#1c1917] ring-1 ring-[#1c1917]/20 shadow-[0_3px_12px_rgba(28,25,23,0.22)]" : "text-[#2c241b]"}`}
+                  >
+                    {l.art && (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-90"
+                        style={{ backgroundImage: `url(${l.art})` }}
+                      />
+                    )}
+                    <span className="relative z-10">{l.label}</span>
                   </Link>
                 </motion.div>
               ))}

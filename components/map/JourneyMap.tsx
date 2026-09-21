@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useLayoutEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { Users, Plane, Cake, PartyPopper, Sparkles, Images, ArrowRight, Edit3, Link as LinkIcon, Unlink, Loader2, X } from "lucide-react";
+import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { Users, Plane, Cake, PartyPopper, Sparkles, Images, ArrowRight, Edit3, Link as LinkIcon, Unlink, Loader2, X, Plus } from "lucide-react";
 import type { AlbumSection } from "@/components/HomeAlbumList";
 
 const STOCK = {
@@ -21,6 +21,34 @@ const PURPOSE_META: Record<string, { label: string; Icon: any; stock: string }> 
   party: { label: "Party", Icon: PartyPopper, stock: STOCK.event },
 };
 const OTHER = { label: "Album", Icon: Images, stock: STOCK.family };
+
+/* A marker on the rail. `at` is how far along the rail it sits, so it lights
+   the moment the gold reaches it rather than sitting grey while the line runs
+   straight through. The ramp is short so it reads as arriving, not fading. */
+function RailMarker({ progress, at, kind }: { progress: MotionValue<number>; at: number; kind: "stop" | "branch" | "end" }) {
+  const lit = useTransform(progress, [Math.max(0, at - 0.012), at], [0, 1]);
+  const borderColor = useTransform(lit, [0, 1], ["#e8e0d5", "#c9a24a"]);
+  const backgroundColor = useTransform(lit, [0, 1], ["#f8f6f3", "#fdf3d8"]);
+  const scale = useTransform(lit, [0, 1], [1, 1.18]);
+  const boxShadow = useTransform(lit, (v) => `0 0 ${16 * v}px ${4 * v}px rgba(201,162,74,${0.45 * v})`);
+
+  if (kind === "branch") {
+    return (
+      <motion.span
+        aria-hidden
+        style={{ borderColor, backgroundColor, scale, boxShadow }}
+        className="absolute left-10 md:left-1/2 -ml-[7px] top-1/2 -mt-[7px] w-3.5 h-3.5 rotate-45 border-2 z-[1]"
+      />
+    );
+  }
+  return (
+    <motion.span
+      aria-hidden
+      style={{ borderColor, backgroundColor, scale, boxShadow }}
+      className={`absolute left-10 md:left-1/2 -ml-3 w-6 h-6 rounded-full z-[1] ${kind === "end" ? "border-4 border-dashed" : "border-4"}`}
+    />
+  );
+}
 
 const metaFor = (s: AlbumSection) => PURPOSE_META[s.purpose ?? ""] ?? (s.theme?.includes("birthday") ? PURPOSE_META.birthday : OTHER);
 
@@ -40,7 +68,72 @@ export default function JourneyMap({ sections }: { sections: AlbumSection[] }) {
   const [linkingFrom, setLinkingFrom] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
+  const railRef = useRef<HTMLDivElement>(null);
+  const nodesRef = useRef<HTMLDivElement>(null);
+
+  /* The rail used to span the whole container, which ran past the first stop at
+     the top and past the last one at the bottom, leaving a length of line with
+     nothing on it at each end. It is now inset to the exact centres of the
+     first and last stop, measured after layout. */
+  const [inset, setInset] = useState({ top: 0, bottom: 0 });
+  /* How far along the rail each marker sits, 0 at the first stop and 1 at the
+     last. The markers used to be inert: the gold ran straight through them and
+     they stayed grey, so the line never looked connected to the journey. Each
+     one now lights as the fill reaches it. */
+  const [fracs, setFracs] = useState<Record<string, number>>({});
+  useLayoutEffect(() => {
+    const el = nodesRef.current;
+    if (!el) return;
+    /* offsetTop, not getBoundingClientRect: the cards arrive with a translate on
+       them, and a client rect includes that transform. Measuring the rect while
+       a card was still 30px below its resting place left the rail 30px too long
+       once it settled. Offsets are layout, so animation cannot skew them. */
+    const offsetWithin = (node: HTMLElement, root: HTMLElement) => {
+      let y = 0;
+      let n: HTMLElement | null = node;
+      while (n && n !== root) { y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return y;
+    };
+    const measure = () => {
+      const stops = el.querySelectorAll<HTMLElement>("[data-stop]");
+      if (stops.length === 0) return;
+      const centre = (n: HTMLElement) => offsetWithin(n, el) + n.offsetHeight / 2;
+      const first = centre(stops[0]);
+      const last = centre(stops[stops.length - 1]);
+      setInset({
+        top: Math.max(0, Math.round(first)),
+        bottom: Math.max(0, Math.round(el.offsetHeight - last)),
+      });
+
+      // the rail's extent comes from the stops; every marker, branches included,
+      // is placed along that same span
+      const span = Math.max(1, last - first);
+      const next: Record<string, number> = {};
+      el.querySelectorAll<HTMLElement>("[data-marker]").forEach((m) => {
+        const key = m.getAttribute("data-marker");
+        if (key) next[key] = Math.min(1, Math.max(0, (centre(m) - first) / span));
+      });
+      setFracs(next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    // images finishing later change the stop positions
+    const t = setTimeout(measure, 600);
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); clearTimeout(t); window.removeEventListener("resize", measure); };
+  }, [sections.length]);
+
+  /* Progress is measured against the RAIL, not the container. Against the
+     container the line could never fill: it finished only once the container's
+     end reached the viewport centre, and the container ended below the last
+     stop, so at full scroll the gold stopped around 86%. */
+  /* "end 85%" rather than "end center": completing at the viewport centre needs
+     half a screen of page below the rail's end, which does not exist once the
+     rail ends near the foot of the document — so the gold stopped short of the
+     final stop. 85% completes it as the last stop nears the bottom of the
+     screen, which is both reachable and where it feels finished. */
+  const { scrollYProgress } = useScroll({ target: railRef, offset: ["start center", "end 85%"] });
   const pathProgress = useSpring(scrollYProgress, { stiffness: 60, damping: 20 });
   const glowY = useTransform(pathProgress, [0, 1], ["0%", "100%"]);
 
@@ -94,17 +187,28 @@ export default function JourneyMap({ sections }: { sections: AlbumSection[] }) {
         whileInView={{ opacity: 1, x: 0, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.7, type: "spring", bounce: 0.3 }}
-        className={`relative flex items-center justify-start md:justify-center w-full mb-16 md:mb-32 ${isBranch ? 'mt-8 md:mt-16 opacity-90 scale-95' : ''}`}
+        data-marker={section.id}
+        {...(!isBranch ? { "data-stop": "" } : {})}
+        className={`relative flex items-center justify-start md:justify-center w-full mb-10 md:mb-20 last:mb-0 ${isBranch ? 'mt-4 md:mt-8 opacity-95' : ''}`}
       >
-        {/* Connector line dot on desktop (only for main trunk) */}
-        {!isBranch && <div className="hidden md:block absolute left-1/2 -ml-3 w-6 h-6 bg-[#f8f6f3] border-4 border-[#e8e0d5] rounded-full z-0" />}
+        {/* The stop on the rail. It sits on the mobile rail too — it used to be
+            desktop-only, so the phone had a line with no stops on it. */}
+        {!isBranch && <RailMarker progress={pathProgress} at={fracs[section.id] ?? 0} kind="stop" />}
         
-        {/* Branch connector line */}
+        {/* A branch hangs off the main line rather than sitting on it: a hollow
+            diamond where it leaves the rail, and a dashed run out to the card.
+            The old version was a vertical line at top:-100px, height 140px,
+            offset 20% — three fixed numbers that lined up with nothing. These
+            are anchored to the rail and to the row's own centre, so they meet
+            the card whatever size it is. */}
         {isBranch && (
-          <div className={`hidden md:block absolute top-[-100px] w-px h-[140px] border-l-2 border-dashed border-[#d9cbb8] z-0 ${isLeft ? 'right-[20%]' : 'left-[20%]'}`} />
+          <>
+            <span aria-hidden className={`absolute top-1/2 -mt-px border-t-2 border-dashed border-[#d9cbb8] z-0 w-6 md:w-12 ${isLeft ? "left-10 md:left-auto md:right-1/2" : "left-10 md:left-1/2"}`} />
+            <RailMarker progress={pathProgress} at={fracs[section.id] ?? 0} kind="branch" />
+          </>
         )}
         
-        <div className={`w-full pl-12 md:pl-0 md:w-[42%] ${isLeft ? "md:pr-12 md:mr-[50%] md:text-right" : "md:pl-12 md:ml-[50%] md:text-left"}`}>
+        <div className={`w-full pl-16 sm:pl-20 md:pl-0 md:w-[42%] ${isLeft ? "md:pr-12 md:mr-[50%] md:text-right" : "md:pl-12 md:ml-[50%] md:text-left"}`}>
           <div className={`flex flex-col ${isLeft ? "md:items-end" : "md:items-start"}`}>
             
             {/* Meta */}
@@ -116,8 +220,22 @@ export default function JourneyMap({ sections }: { sections: AlbumSection[] }) {
             </div>
 
             {/* Preview */}
-            <div className="relative group">
-              <Link href={`/share/${section.id}`} className="block w-full max-w-[280px] md:max-w-[320px] aspect-square rounded-sm bg-[#fdfbf7] p-2 pb-[4.5rem] border border-[#e8e0d5] shadow-[0_15px_35px_rgba(28,25,23,0.12)] hover:shadow-[0_25px_50px_rgba(28,25,23,0.2)] hover:-translate-y-2 transition-all duration-500 mb-4" style={{ transform: `rotate(${isLeft ? -2 : 2.5}deg)` }}>
+            {/* The wrapper needs the width. It had none, so the Link's `w-full`
+                resolved against a shrink-to-fit box and every polaroid came out
+                85px square, sized by its caption rather than the layout. */}
+            <div className="relative group w-full max-w-[280px] md:max-w-[320px] mb-4">
+              {/* The page already fetches three photos per album and used to show
+                  one. The other two sit behind as a fanned stack, so an album with
+                  more in it looks like it. */}
+              {covers.slice(1, 3).map((c, k) => (
+                <span
+                  key={`fan-${k}`}
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 aspect-square rounded-sm bg-[#fdfbf7] border border-[#e8e0d5] shadow-[0_10px_24px_rgba(28,25,23,0.10)] transition-transform duration-500 group-hover:-translate-y-1"
+                  style={{ transform: `rotate(${(isLeft ? 1 : -1) * (k + 1) * 3.5}deg) translateY(${(k + 1) * 3}px)`, zIndex: 0 }}
+                />
+              ))}
+              <Link href={`/share/${section.id}`} className="relative z-[1] block w-full aspect-square rounded-sm bg-[#fdfbf7] p-2 pb-[4.5rem] border border-[#e8e0d5] shadow-[0_15px_35px_rgba(28,25,23,0.12)] hover:shadow-[0_25px_50px_rgba(28,25,23,0.2)] hover:-translate-y-2 transition-all duration-500" style={{ transform: `rotate(${isLeft ? -2 : 2.5}deg)` }}>
                 <div className="relative w-full h-full bg-gray-200 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={covers[0] as string} alt={section.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
@@ -169,29 +287,80 @@ export default function JourneyMap({ sections }: { sections: AlbumSection[] }) {
         </button>
       </div>
 
-      <div ref={containerRef} className="relative mt-20" style={{ minHeight: mainTrunk.length * 350 }}>
+      {/* No minHeight: it was mainTrunk.length * 350, an arbitrary number that
+          padded the container past its own content and stretched the rail with it. */}
+      <div ref={containerRef} className="relative mt-20">
         {/* The Central Path Line */}
-        <div className="absolute left-10 md:left-1/2 top-0 bottom-0 w-[4px] -ml-[2px] rounded-full bg-[#e8e0d5]">
+        <div
+          ref={railRef}
+          className="absolute left-10 md:left-1/2 w-[4px] -ml-[2px] rounded-full bg-[#e8e0d5]"
+          style={{ top: inset.top, bottom: inset.bottom }}
+        >
           <motion.div className="absolute top-0 left-0 w-full bg-[#c9a24a] rounded-full origin-top" style={{ height: "100%", scaleY: pathProgress }} />
-          <motion.div className="absolute left-1/2 -ml-2 w-4 h-4 bg-white border-[3px] border-[#c9a24a] rounded-full shadow-[0_0_15px_rgba(201,162,74,0.6)] z-10" style={{ top: glowY }} />
+          {/* -mt-2 centres the marker on the fill's leading edge; without it the
+              marker hung its own height below the gold. */}
+          <motion.div className="absolute left-1/2 -ml-2 -mt-2 w-4 h-4 bg-white border-[3px] border-[#c9a24a] rounded-full shadow-[0_0_15px_rgba(201,162,74,0.6)] z-10" style={{ top: glowY }} />
         </div>
 
         {/* The Journey Nodes */}
-        <div className="relative z-10 w-full">
+        <div ref={nodesRef} className="relative z-10 w-full">
           {mainTrunk.map((section, i) => {
             const isLeft = i % 2 === 0;
             const branches = branchMap.get(section.id) || [];
-            
+            const year = new Date(section.createdAt).getFullYear();
+            const prevYear = i > 0 ? new Date(mainTrunk[i - 1].createdAt).getFullYear() : null;
+
             return (
               <div key={`group-${section.id}`} className="relative">
+                {/* A year badge sits on the rail wherever the year turns over,
+                    so the line reads as a timeline rather than a list. */}
+                {year !== prevYear && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.45 }}
+                    className={`relative flex w-full ${i === 0 ? "mb-8 md:mb-12" : "mt-2 mb-10 md:mt-6 md:mb-16"}`}
+                  >
+                    <span className="absolute left-10 md:left-1/2 -translate-x-1/2 rounded-full bg-[#1c1917] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#e6c56d] shadow-[0_8px_20px_rgba(28,25,23,0.25)] tabular-nums">
+                      {year}
+                    </span>
+                    <span className="block h-7" />
+                  </motion.div>
+                )}
+
                 {/* Render Main Trunk Item */}
                 {renderNode(section, isLeft)}
                 
                 {/* Render any branches attached to it */}
-                {branches.map((branch, j) => renderNode(branch, isLeft, true))}
+                {branches.map((branch) => renderNode(branch, isLeft, true))}
               </div>
             );
           })}
+
+          {/* The line has to end somewhere. Ending it on an invitation rather
+              than mid-air also means the gold fill completes when you arrive. */}
+          <motion.div
+            data-stop
+            data-marker="__end"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6 }}
+            className="relative mt-10 md:mt-20 flex w-full items-center justify-start md:justify-center"
+          >
+            <RailMarker progress={pathProgress} at={fracs["__end"] ?? 1} kind="end" />
+            <div className="w-full pl-16 sm:pl-20 md:w-[42%] md:pl-12 md:ml-[50%] md:text-left">
+              <Link
+                href="/#create"
+                className="group inline-flex min-h-11 items-center gap-2.5 rounded-full border border-dashed border-[#d9cbb8] bg-white/70 px-5 py-3 text-sm font-semibold text-[#5a4d41] shadow-sm transition-all hover:border-[#c9a24a] hover:text-[#1c1917]"
+              >
+                <Plus size={16} className="text-[#c9a24a]" />
+                Start your next chapter
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
 
