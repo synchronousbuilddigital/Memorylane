@@ -2,9 +2,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import JourneyMap from "@/components/map/JourneyMap";
+import GlobeView, { type MapAlbum } from "@/components/map/GlobeView";
+import MapTabs from "@/components/map/MapTabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { viewerIsAdmin } from "@/lib/admin";
+import { currentProfile } from "@/lib/profile";
 import PaperGrain from "@/components/home/PaperGrain";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +17,8 @@ export default async function MapPage() {
     redirect("/"); // Or to a login page
   }
 
-  const admin = await viewerIsAdmin();
+  const viewer = await currentProfile();
+  const admin = !!viewer?.isAdmin;
   const userId = session.user.id;
 
   const handleSignOut = async () => {
@@ -31,23 +34,35 @@ export default async function MapPage() {
     orderBy: { createdAt: "asc" },
   });
 
+  const albums: MapAlbum[] = sections.map((s) => ({
+    id: s.id,
+    title: s.title,
+    placeName: s.placeName,
+    lat: s.lat,
+    lng: s.lng,
+    cover: s.images[0]?.thumbUrl ?? s.images[0]?.displayUrl ?? null,
+  }));
+
   return (
     <div className="min-h-screen bg-[#f8f6f3] text-[#1c1917] selection:bg-[#d9cbb8]/50 relative overflow-x-clip">
       <PaperGrain />
-      <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} />
+      <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} viewer={viewer} />
       
-      <main className="relative z-10 w-full pt-32 pb-32">
+      <main className="relative z-10 w-full pt-24 pb-20 md:pt-32 md:pb-32">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-12">
-          <div className="text-center mb-24">
+          <div className="text-center mb-12 md:mb-24">
             <h1 className="font-serif text-[clamp(2.5rem,6vw,4.5rem)] font-black text-[#1c1917] leading-[1.1] tracking-tighter mb-4">
               Your Journey of Life
             </h1>
-            <p className="text-[#5a4d41] text-lg font-medium max-w-xl mx-auto">
-              Every memory is a stop along the way. Follow the path you've built.
+            <p className="text-[#5a4d41] text-base md:text-lg font-medium max-w-xl mx-auto">
+              Every memory is a stop along the way. Follow the path you&apos;ve built.
             </p>
           </div>
           
-          <JourneyMap sections={sections} />
+          <MapTabs
+            globe={<GlobeView albums={albums} />}
+            timeline={<JourneyMap sections={sections} />}
+          />
         </div>
       </main>
 

@@ -106,20 +106,27 @@ type Geo = {
    Labels float above the high runs and below the low one. */
 const DESKTOP: Geo = {
   vw: 1200, vh: 720, road: 64, radius: 80,
-  points: [[40, 480], [170, 480], [170, 260], [450, 260], [450, 480], [730, 480], [730, 260], [1010, 260], [1010, 480], [1160, 480]],
-  stops: [[310, 260], [590, 480], [870, 260]],
+  /* Begins on the first stop and ends on the last. It used to run in from the
+     left edge and out to the right, so a quarter of the road at each end
+     carried nothing. The rhythm between the stops is unchanged; only the tails
+     are gone, and the road is spread to fill the width they freed. */
+  points: [[130, 260], [400, 260], [400, 480], [800, 480], [800, 260], [1070, 260]],
+  stops: [[130, 260], [600, 480], [1070, 260]],
   side: ["above", "below", "above"],
-  ring: 72, leader: 52, duration: 8,
+  ring: 72, leader: 52, duration: 5,
 };
 
 /* Phone and tablet: the same road stood on end. Labels sit beside each stop,
    alternating sides so nothing ever crosses the road. */
 const MOBILE: Geo = {
-  vw: 360, vh: 880, road: 46, radius: 62,
-  points: [[70, 30], [70, 250], [290, 250], [290, 570], [70, 570], [70, 850]],
-  stops: [[70, 120], [290, 410], [70, 730]],
+  vw: 360, vh: 760, road: 46, radius: 62,
+  /* The road begins and ends on its outer stops. It used to run 90 units past
+     the first and 120 past the last, which read as a stub of empty road at each
+     end with nothing on it. Everything is shifted up to close the gap that left. */
+  points: [[70, 75], [70, 205], [290, 205], [290, 525], [70, 525], [70, 685]],
+  stops: [[70, 75], [290, 365], [70, 685]],
   side: ["right", "left", "right"],
-  ring: 56, leader: 40, duration: 8.5,
+  ring: 56, leader: 40, duration: 5.2,
 };
 
 const COMET = 0.11; // length of the travelling light, as a fraction of the road
@@ -146,8 +153,8 @@ function Road({ geo, className }: { geo: Geo; className?: string }) {
     if (reduce) { progress.set(1); reach.set(1); return; }
     const latch = progress.on("change", (p) => { if (p > reach.get()) reach.set(p); });
     const ctrl = animate(progress, [0, 1], {
-      duration: geo.duration, delay: 0.4, ease: "easeInOut",
-      repeat: Infinity, repeatDelay: 1.2,
+      duration: geo.duration, delay: 0.25, ease: "easeInOut",
+      repeat: Infinity, repeatDelay: 0.7,
     });
     return () => { latch(); ctrl.stop(); };
   }, [inView, reduce, progress, reach, geo.duration]);

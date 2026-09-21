@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { viewerIsAdmin } from "@/lib/admin";
+import { currentProfile } from "@/lib/profile";
 import { cleanupEmptySections } from "@/lib/emptySections";
 import { SHOWCASE, SCENE_COUNT } from "@/lib/templatesShowcase";
 import Navbar from "@/components/Navbar";
@@ -90,7 +90,8 @@ async function UserAlbumsAsync({ userId }: { userId: string }) {
 export default async function HomePage() {
   const session = await auth();
   const isLoggedIn = !!session?.user?.id;
-  const admin = await viewerIsAdmin();
+  const viewer = await currentProfile();
+  const admin = !!viewer?.isAdmin;
 
   const handleSignOut = async () => {
     "use server";
@@ -105,7 +106,7 @@ export default async function HomePage() {
         <PaperGrain />
         <HomeDoodles />
 
-        <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} />
+        <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} viewer={viewer} />
 
         <main className="relative z-10 w-full pt-24 md:pt-32 pb-16">
           <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-12 space-y-12 md:space-y-28">

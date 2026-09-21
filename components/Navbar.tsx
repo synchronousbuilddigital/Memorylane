@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { LogOut, Sun, Menu, X } from "lucide-react";
+import { LogOut, Sun, Menu, X, UserRound } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE } from "./motion/Reveal";
 import { useNavHidden } from "@/lib/navHidden";
+import type { Viewer } from "@/lib/profile";
 import PwaInstallButton from "./PwaInstallButton";
 
 /* Each link carries a small warm texture of the place it goes to. They sit far
@@ -19,7 +20,7 @@ const LINKS = [
   { href: "/albums?filter=favorites", label: "Favorites", art: "/nav/favorites.webp", match: () => false },
 ];
 
-export default function Navbar({ signOutAction, session, isAdmin = false }: { signOutAction?: () => void, session?: any, isAdmin?: boolean }) {
+export default function Navbar({ signOutAction, session, isAdmin = false, viewer }: { signOutAction?: () => void, session?: any, isAdmin?: boolean, viewer?: Viewer | null }) {
   const isLoggedIn = !!session?.user?.id;
   const reduce = useReducedMotion();
   const pathname = usePathname() ?? "/";
@@ -131,11 +132,17 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
                 aria-expanded={menuOpen}
                 className="flex items-center gap-2 text-[#2c241b] p-1 pr-3 rounded-full transition-colors duration-300 hover:bg-black/5 min-h-11"
               >
-                <div className="w-8 h-8 bg-[#e8e0d5] text-[#5a4d41] rounded-full flex items-center justify-center overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="https://ui-avatars.com/api/?name=User&background=e8e0d5&color=5a4d41" alt="Profile" className="w-full h-full object-cover" />
+                <div className="w-8 h-8 bg-[#e8e0d5] text-[#5a4d41] rounded-full flex items-center justify-center overflow-hidden text-xs font-bold">
+                  {viewer?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={viewer.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    (viewer?.name ?? viewer?.email ?? "?").charAt(0).toUpperCase()
+                  )}
                 </div>
-                <span className="text-sm font-semibold tracking-wide hidden sm:inline">Profile</span>
+                <span className="text-sm font-semibold tracking-wide hidden sm:inline max-w-[9rem] truncate">
+                  {viewer?.name?.split(" ")[0] ?? "Profile"}
+                </span>
               </button>
               <AnimatePresence>
                 {menuOpen && (
@@ -147,6 +154,23 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
                     className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl border border-[#e8e0d5] rounded-2xl shadow-xl origin-top-right z-50"
                   >
                     <div className="p-2">
+                      {viewer && (
+                        <>
+                          <div className="px-4 pt-2 pb-3">
+                            <p className="truncate text-sm font-bold text-[#1c1917]">{viewer.name ?? "Your profile"}</p>
+                            <p className="truncate text-xs text-[#8a755b]">{viewer.email}</p>
+                          </div>
+                          <Link
+                            href="/profile"
+                            onClick={() => setMenuOpen(false)}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#2c241b] hover:bg-[#f4eee6] rounded-xl transition-colors"
+                          >
+                            <UserRound size={18} className="text-[#8a755b]" />
+                            Edit profile
+                          </Link>
+                          <div className="my-1 h-px bg-[#e8e0d5]" />
+                        </>
+                      )}
                       {signOutAction && (
                         <form action={signOutAction}>
                           <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors">
@@ -217,6 +241,29 @@ export default function Navbar({ signOutAction, session, isAdmin = false }: { si
               <motion.div initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + links.length * 0.05, duration: 0.3, ease: EASE }}>
                 <PwaInstallButton />
               </motion.div>
+
+              {viewer && (
+                <motion.div initial={{ opacity: 0, x: reduce ? 0 : -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + (links.length + 1) * 0.05, duration: 0.3, ease: EASE }}>
+                  <Link
+                    href="/profile"
+                    onClick={() => setOpen(false)}
+                    className="mt-1 flex items-center gap-3 rounded-2xl border border-[#e8e0d5] bg-[#fcfbf9] px-4 py-3 min-h-[3.75rem] transition-transform active:scale-[0.98]"
+                  >
+                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#f4eee6] text-[#8a755b] flex items-center justify-center text-sm font-bold">
+                      {viewer.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={viewer.image} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        (viewer.name ?? viewer.email ?? "?").charAt(0).toUpperCase()
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-serif text-lg font-bold text-[#2c241b]">{viewer.name ?? "Your profile"}</span>
+                      <span className="block truncate text-xs text-[#8a755b]">Edit your details</span>
+                    </span>
+                  </Link>
+                </motion.div>
+              )}
 
               {isLoggedIn && signOutAction && (
                 <form action={signOutAction} className="mt-3">

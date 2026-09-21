@@ -138,7 +138,7 @@ export default function HomeHero({ templateCount, sceneCount }: { templateCount:
   });
 
   return (
-    <section ref={heroRef} onMouseMove={onMove} className="relative w-full pt-4 md:pt-10 pb-10 md:pb-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 min-h-[50vh] md:min-h-[78vh]">
+    <section ref={heroRef} onMouseMove={onMove} className="relative w-full pt-4 md:pt-10 pb-0 md:pb-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 min-h-[50vh] md:min-h-[78vh]">
       <motion.div style={{ y: textY, opacity: fade }} className="flex-1 w-full flex flex-col items-start z-10">
 
         <h1 className="font-serif text-[clamp(3.4rem,10vw,7rem)] font-bold text-[#1c1917] leading-[0.9] tracking-tighter flex flex-col mb-5 md:mb-6">
@@ -180,7 +180,7 @@ export default function HomeHero({ templateCount, sceneCount }: { templateCount:
 
         <motion.div {...rise(0.9)} className="flex flex-wrap items-center gap-4">
           <MagneticLink href="#create">Start a New Memory Lane</MagneticLink>
-          <Link href="#templates" className="group inline-flex items-center gap-2 text-sm font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors py-4">
+          <Link href="#templates" className="group inline-flex items-center gap-2 text-sm font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors py-3 md:py-4">
             See the templates <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>

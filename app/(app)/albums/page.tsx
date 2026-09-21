@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { viewerIsAdmin } from "@/lib/admin";
+import { currentProfile } from "@/lib/profile";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
@@ -15,7 +15,8 @@ import { cleanupEmptySections } from "@/lib/emptySections";
 export default async function AlbumsPage({ searchParams }: { searchParams: { filter?: string } }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
-  const admin = await viewerIsAdmin();
+  const viewer = await currentProfile();
+  const admin = !!viewer?.isAdmin;
 
   await cleanupEmptySections(session.user.id);
   const sections = await prisma.section.findMany({
@@ -33,7 +34,7 @@ export default async function AlbumsPage({ searchParams }: { searchParams: { fil
   return (
     <div className="min-h-screen bg-[#f8f6f3] text-[#1c1917] selection:bg-[#d9cbb8]/50 relative overflow-hidden">
       <HomeDoodles />
-      <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} />
+      <Navbar signOutAction={handleSignOut} session={session} isAdmin={admin} viewer={viewer} />
 
       <main className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 pt-28 md:pt-36 pb-16 space-y-10 md:space-y-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

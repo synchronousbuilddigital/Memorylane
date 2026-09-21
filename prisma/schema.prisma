@@ -27,6 +27,13 @@ model User {
   role          Role      @default(USER)
   roleUpdatedAt DateTime?
   roleUpdatedBy String?
+  // Profile, owned by the person rather than by Google. `name` and `image`
+  // arrive from the provider on first sign-in and are theirs to change after
+  // that; email stays as the provider set it, because it is the identity they
+  // sign in with and admin access is matched on it.
+  phone         String?
+  bio           String?
+  location      String?
   accounts      Account[]
   sessions      Session[]
   sections      Section[]
@@ -87,6 +94,12 @@ model Section {
   images         Image[]
   stickyNotes    StickyNote[]
   
+  // Where this memory happened. Set by dropping a pin on the globe, so these
+  // are real coordinates rather than a place name we would have to resolve.
+  placeName      String?
+  lat            Float?
+  lng            Float?
+
   // Custom Journey Connections
   linkedToId     String?
   linkedTo       Section?     @relation("JourneyLinks", fields: [linkedToId], references: [id])

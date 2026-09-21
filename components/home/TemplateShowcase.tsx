@@ -391,40 +391,26 @@ function HorizontalStage({ templates }: { templates: ShowcaseTemplate[] }) {
 export default function TemplateShowcase({ templates }: { templates: ShowcaseTemplate[] }) {
   const reduce = !!useReducedMotion();
   const V = mk(reduce);
+
+  /* When motion is allowed, TemplateStage carries both the heading and the
+     slides as one section — so this renders nothing and the page shows a single
+     block rather than a heading here and the templates further down.
+     Reduced motion is the only case left for this path: the stage returns null
+     there, so the heading and the plain stack live here instead. */
+  if (!reduce) return null;
+
   return (
     <section id="templates" className="scroll-mt-28 space-y-6 md:space-y-8">
       <motion.div initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.4 }} className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 md:mb-4">
-        <div>
-          <motion.span variants={V.tagline} className="block text-[11px] font-bold uppercase tracking-[0.3em] text-[#8a755b] mb-3">Our templates</motion.span>
-          <h2 className="font-serif font-black text-[#1c1917] tracking-tight leading-[0.95]" style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)" }}>
-            {["Four worlds", "for your photographs."].map((line, i) => (
-              <span key={line} className="relative block overflow-visible pb-[0.08em] -mb-[0.08em]">
-                <span className="block overflow-hidden">
-                  <motion.span className="block" variants={V.line} custom={i}>{line}</motion.span>
-                </span>
-                {line === "Four worlds" && (
-                  <svg aria-hidden viewBox="0 0 320 24" className="absolute left-0 -bottom-[0.02em] w-[95%] sm:w-[85%] md:w-[70%] lg:w-[60%] h-[0.22em] pointer-events-none" preserveAspectRatio="none">
-                    <motion.path
-                      d="M4 16 C 60 6, 120 20, 180 12 S 290 8, 316 14"
-                      fill="none" stroke="#c9a24a" strokeWidth="7" strokeLinecap="round"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      whileInView={{ pathLength: 1, opacity: 0.85 }}
-                      viewport={{ once: true, amount: 0.8 }}
-                      transition={{ pathLength: { duration: reduce ? 0.2 : 0.9, delay: 0.5, ease: "easeInOut" }, opacity: { duration: 0.2, delay: 0.5 } }}
-                    />
-                  </svg>
-                )}
-              </span>
-            ))}
-          </h2>
-        </div>
+        <h2 className="font-serif font-black text-[#1c1917] tracking-tight leading-[0.95]" style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)" }}>
+          Our templates
+        </h2>
         <motion.p variants={V.fade} className="text-[#5a4d41] text-sm md:text-base max-w-sm md:text-right">
           Each one is a set of scenes built in real 3D. Upload your photos into the slots and the whole thing comes alive.
         </motion.p>
       </motion.div>
 
-      {/* phones, tablets and reduced motion keep the stack */}
-      <div className={reduce ? "space-y-6 md:space-y-8" : "hidden"}>
+      <div className="space-y-6 md:space-y-8">
         {templates.map((t, i) => <Panel key={t.id} t={t} index={i} />)}
       </div>
     </section>
@@ -434,10 +420,48 @@ export default function TemplateShowcase({ templates }: { templates: ShowcaseTem
 /* The stage is a sibling of the section so it can run full-bleed, outside the page gutter */
 export function TemplateStage({ templates }: { templates: ShowcaseTemplate[] }) {
   const reduce = !!useReducedMotion();
+  const V = mk(reduce);
   if (reduce) return null;
   return (
-    <div className={reduce ? "hidden" : "block"}>
+    /* One section, one surface. The heading used to sit in the page's centred
+       gutter on #f8f6f3 while the slides ran full-bleed on #fdfbf7, and two flat
+       creams meeting edge to edge drew a hard line across the page — which is
+       what made the heading look like a separate block. Both now sit on the
+       slide colour, so the join is invisible. */
+    <section id="templates" className="relative scroll-mt-28 bg-[#fdfbf7]">
+      {/* The surface still changes where this section begins. A short fade from
+          the page colour into this one keeps that a transition rather than a
+          second hard line further up the page. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#f8f6f3] to-transparent" />
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: false, amount: 0.4 }}
+        className="relative mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-12 pt-14 md:pt-20 pb-8 md:pb-10 flex flex-col md:flex-row md:items-end justify-between gap-4"
+      >
+        <h2 className="font-serif font-black text-[#1c1917] tracking-tight leading-[0.95]" style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)" }}>
+          <span className="relative block overflow-visible pb-[0.08em] -mb-[0.08em]">
+            <span className="block overflow-hidden">
+              <motion.span className="block" variants={V.line} custom={0}>Our templates</motion.span>
+            </span>
+            <svg aria-hidden viewBox="0 0 320 24" className="absolute left-0 -bottom-[0.02em] w-[95%] sm:w-[85%] md:w-[70%] lg:w-[60%] h-[0.22em] pointer-events-none" preserveAspectRatio="none">
+              <motion.path
+                d="M4 16 C 60 6, 120 20, 180 12 S 290 8, 316 14"
+                fill="none" stroke="#c9a24a" strokeWidth="7" strokeLinecap="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 0.85 }}
+                viewport={{ once: true, amount: 0.8 }}
+                transition={{ pathLength: { duration: reduce ? 0.2 : 0.9, delay: 0.5, ease: "easeInOut" }, opacity: { duration: 0.2, delay: 0.5 } }}
+              />
+            </svg>
+          </span>
+        </h2>
+        <motion.p variants={V.fade} className="text-[#5a4d41] text-sm md:text-base max-w-sm md:text-right">
+          Each one is a set of scenes built in real 3D. Upload your photos into the slots and the whole thing comes alive.
+        </motion.p>
+      </motion.div>
+
       <HorizontalStage templates={templates} />
-    </div>
+    </section>
   );
 }
