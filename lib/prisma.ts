@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL || "postgresql://dummy:dummy@ep-dummy.aws.neon.tech/neondb?sslmode=require",
+      url: process.env.DATABASE_URL 
     },
   },
 });

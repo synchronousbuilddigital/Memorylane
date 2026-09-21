@@ -5,12 +5,19 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { templateLabelFor } from "@/lib/templates";
 import StatTile from "@/components/admin/StatTile";
+import RoleToggle from "@/components/admin/RoleToggle";
+import { requireAdmin } from "@/lib/admin";
 
 export default async function AdminUserDetail({ params }: { params: { id: string } }) {
+  // the layout already gated this, but the page needs to know who is looking
+  // so it can warn before an admin removes their own access
+  const me = await requireAdmin();
+
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     select: {
       id: true, name: true, email: true, image: true, createdAt: true,
+      role: true, roleUpdatedAt: true, roleUpdatedBy: true,
       sections: {
         orderBy: { createdAt: "desc" },
         select: {
@@ -42,6 +49,23 @@ export default async function AdminUserDetail({ params }: { params: { id: string
           <p className="text-sm text-[#8a755b] truncate">{user.email}</p>
         </div>
       </header>
+
+      <section className="rounded-2xl border border-[#e8e0d5] bg-[#fcfbf9] p-5">
+        <h2 className="font-serif text-base font-bold text-[#1c1917] mb-1">Access</h2>
+        <p className="text-xs text-[#8a755b] mb-4">
+          Admins can see every account and album, and can grant admin to others.
+          {user.roleUpdatedAt && (
+            <> Last changed {user.roleUpdatedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            {user.roleUpdatedBy ? ` by ${user.roleUpdatedBy}` : ""}.</>
+          )}
+        </p>
+        <RoleToggle
+          userId={user.id}
+          initialIsAdmin={user.role === "ADMIN"}
+          isSelf={user.id === me.id}
+          label={user.name ?? user.email ?? "this account"}
+        />
+      </section>
 
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatTile label="Albums" value={user.sections.length} />

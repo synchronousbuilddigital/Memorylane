@@ -7,16 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Two roles today. If granular permissions are ever needed (say a support role
+// that can view albums but not delete them), this enum becomes a Role table
+// plus a join, and the admin helpers keep the same signatures.
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  // Privilege lives here, not in an env var. It defaults to USER so a new
+  // sign-in can never arrive privileged, and only the promote/demote action
+  // writes it.
+  role          Role      @default(USER)
+  roleUpdatedAt DateTime?
+  roleUpdatedBy String?
   accounts      Account[]
   sessions      Session[]
   sections      Section[]
   createdAt     DateTime  @default(now())
+
+  @@index([role])
 }
 
 model Account {

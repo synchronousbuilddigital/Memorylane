@@ -15,11 +15,13 @@ const s3 = hasR2 ? new S3Client({
 
 export async function getPresignedUrl(key: string, contentType: string) {
   if (!s3) {
-    // Mock presigned URL for local development without R2
-    return {
-      url: `/api/upload/mock?key=${encodeURIComponent(key)}`,
-      key,
-    };
+    // There used to be a local fallback here that posted to /api/upload/mock.
+    // That route wrote a caller-supplied path to disk with no session and no
+    // sanitising, so it was removed. Uploads go through Cloudinary instead
+    // (see /api/upload/presign); failing loudly beats writing files unchecked.
+    throw new Error(
+      "R2 is not configured (R2_ACCOUNT_ID / R2_ACCESS_KEY_ID missing). Use the Cloudinary upload path instead.",
+    );
   }
 
   const command = new PutObjectCommand({

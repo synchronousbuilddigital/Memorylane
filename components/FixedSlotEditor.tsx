@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { updateSectionDetails } from "@/app/actions/updateSection";
 import { discardEmptySection } from "@/app/actions/discardEmptySection";
 import SlotUploader from "./SlotUploader";
+import ShareControl from "./ShareControl";
 import FamilyClassicLayout from "./purpose-views/FamilyClassicLayout";
 import FamilyMosaicLayout from "./purpose-views/FamilyMosaicLayout";
 import TravelSuitcaseLayout from "./purpose-views/TravelSuitcaseLayout";
@@ -282,9 +283,15 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
-          <Link 
-            href={`/share/${section.shareSlug || section.id}`}
+        <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0 space-y-3">
+          <ShareControl
+            sectionId={section.id}
+            initialIsPublic={!!section.isPublic}
+            initialSlug={section.shareSlug ?? null}
+          />
+          {/* the owner can always preview by id, whether or not sharing is on */}
+          <Link
+            href={`/share/${section.id}`}
             target="_blank"
             className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-md transition-all"
           >

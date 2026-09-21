@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { loadSharedSection } from "@/lib/share";
 import { notFound } from "next/navigation";
 import type { Metadata, ResolvingMetadata } from "next";
 import FamilyViewPage from "@/components/purpose-views/FamilyViewPage";
@@ -20,13 +21,10 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const idOrSlug = params.id;
+  // Only a live share link gets a title and a preview image. A private album
+  // must not leak its title or a photo through link previews or search.
   const section = await prisma.section.findFirst({
-    where: {
-      OR: [
-        { id: idOrSlug },
-        { shareSlug: idOrSlug }
-      ]
-    },
+    where: { shareSlug: idOrSlug, isPublic: true },
     include: {
       images: {
         take: 1,
@@ -36,7 +34,7 @@ export async function generateMetadata(
   });
 
   if (!section) {
-    return { title: "Album Not Found | Memory Lane" };
+    return { title: "Album Not Found | Memory Lane", robots: { index: false, follow: false } };
   }
 
   const imageUrl = section.images.length > 0 ? section.images[0].displayUrl : null;
@@ -63,18 +61,10 @@ export default async function PublicSharePage({ params, searchParams }: Props) {
   // an admin arriving from the panel carries the page to go back to
   const back = backTarget(searchParams?.from);
 
-  const section = await prisma.section.findFirst({
-    where: {
-      OR: [
-        { id: idOrSlug },
-        { shareSlug: idOrSlug }
-      ]
-    },
-    include: { 
-      images: { include: { notes: true }, orderBy: { position: "asc" } },
-      stickyNotes: true,
-    },
-  });
+  // A live share link opens the album for anyone. A raw id opens it only for
+  // its owner or an admin — so a stranger holding an id sees the same "not
+  // found" as for an album that does not exist.
+  const section = await loadSharedSection(idOrSlug);
 
   if (!section) notFound();
 

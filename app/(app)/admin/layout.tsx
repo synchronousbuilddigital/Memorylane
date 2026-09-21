@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { requireAdmin } from "@/lib/admin";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
-/* Every /admin page sits behind this. The check is server-side against ADMIN_EMAILS;
-   the middleware only guarantees there is a session at all. */
+/* Every /admin page sits behind this. The check is server-side against the
+   user's role in the database, read fresh on each request; the middleware only
+   guarantees there is a session at all. */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const { email } = await requireAdmin();
   return (

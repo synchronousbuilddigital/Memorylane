@@ -11,7 +11,7 @@ const NAV: { href: string; label: string; Icon: LucideIcon; exact?: boolean }[] 
   { href: "/admin/plans", label: "Plans", Icon: CreditCard },
 ];
 
-export default function AdminSidebar({ email }: { email: string }) {
+export default function AdminSidebar({ email }: { email: string | null }) {
   const pathname = usePathname() ?? "";
   return (
     <aside className="lg:w-60 lg:shrink-0">
@@ -54,7 +54,7 @@ export default function AdminSidebar({ email }: { email: string }) {
         {/* Desktop Footer (Email & Back) */}
         <div className="hidden lg:block mt-6 pt-5 border-t border-[#e8e0d5]">
           <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a3907a] mb-1">Signed in as</div>
-          <div className="text-xs text-[#5a4d41] break-all leading-relaxed">{email}</div>
+          <div className="text-xs text-[#5a4d41] break-all leading-relaxed">{email ?? "Signed in"}</div>
           <Link href="/" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#5a4d41] hover:text-[#1c1917] transition-colors">
             <ArrowLeft size={13} /> Back to the site
           </Link>

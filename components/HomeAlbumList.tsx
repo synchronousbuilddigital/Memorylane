@@ -10,6 +10,7 @@ import {
   Users, Plane, Cake, PartyPopper, Sparkles, Images, Pencil, Link2, Trash2, type LucideIcon,
 } from "lucide-react";
 import { deleteSection } from "@/app/actions/deleteSection";
+import { setSharing } from "@/app/actions/shareSection";
 import { EASE } from "./motion/Reveal";
 
 /* ───────────── Types (what the home page passes from Prisma) ───────────── */
@@ -23,6 +24,8 @@ export type AlbumSection = {
   createdAt: string | Date;
   images?: Img[];
   linkedToId?: string | null;
+  isPublic?: boolean | null;
+  shareSlug?: string | null;
 };
 
 /* ───────────── Purposes: how albums are stored → how they're grouped and shown ───────────── */
@@ -189,14 +192,27 @@ export default function HomeAlbumList({
   const activeFilter = FILTERS.find((f) => f.value === filter)!;
   const albumsHref = filter === "all" ? "/albums" : `/albums?filter=${filter}`;
 
-  const copyLink = async (id: string) => {
+  const copyLink = async (section: AlbumSection) => {
+    setMenuFor(null);
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/share/${id}`);
-      setToast("Share link copied");
+      let slug = section.shareSlug;
+      let live = !!section.isPublic;
+
+      // an album that has never been shared gets a link the moment one is asked for
+      if (!live || !slug) {
+        const res = await setSharing(section.id, true);
+        if (!res.ok) return setToast(res.error);
+        slug = res.shareSlug;
+        live = res.isPublic;
+        router.refresh();
+      }
+      if (!slug) return setToast("Couldn't create a link — try again");
+
+      await navigator.clipboard.writeText(`${window.location.origin}/share/${slug}`);
+      setToast(section.isPublic ? "Share link copied" : "Sharing turned on — link copied");
     } catch {
       setToast("Couldn't copy — try again");
     }
-    setMenuFor(null);
   };
 
   const remove = (id: string) => {
@@ -357,7 +373,7 @@ export default function HomeAlbumList({
                     onToggleFavorite={() => toggleFavorite(section.id)}
                     menuOpen={menuFor === section.id}
                     onMenu={(open) => setMenuFor(open ? section.id : null)}
-                    onCopy={() => copyLink(section.id)}
+                    onCopy={() => copyLink(section)}
                     onDelete={() => remove(section.id)}
                     deleting={deletingId === section.id}
                   />
@@ -400,7 +416,7 @@ export default function HomeAlbumList({
               onToggleFavorite={() => toggleFavorite(section.id)}
               menuOpen={menuFor === section.id}
               onMenu={(open) => setMenuFor(open ? section.id : null)}
-              onCopy={() => copyLink(section.id)}
+              onCopy={() => copyLink(section)}
               onDelete={() => remove(section.id)}
               deleting={deletingId === section.id}
             />

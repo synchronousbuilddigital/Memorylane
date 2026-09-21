@@ -29,8 +29,13 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
-
-
+  /* Known quirk: on any path this middleware matches, a page's notFound()
+     still answers 200 rather than 404 (verified in a production build; paths
+     the matcher skips answer 404 correctly). Returning undefined here instead
+     of NextResponse.next() does not change it, so the cause is inside the
+     NextAuth wrapper. It leaks nothing — the body is the not-found page, and
+     the share route sends "noindex, nofollow" so a crawler will not index a
+     private album's URL. Worth revisiting on the next NextAuth upgrade. */
   return NextResponse.next();
 });
 

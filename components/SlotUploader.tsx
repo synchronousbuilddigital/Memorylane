@@ -46,17 +46,24 @@ export default function SlotUploader({
         // 1. Get presigned URL/credentials
         const signRes = await fetch("/api/upload/presign", {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sectionId }),
         });
-        const { signature, timestamp, apiKey, cloudName, folder } = await signRes.json();
+        if (!signRes.ok) {
+          const { error } = await signRes.json().catch(() => ({ error: "" }));
+          throw new Error(signRes.status === 429 ? "Too many uploads at once. Please wait a moment." : error || "Could not start the upload");
+        }
+        const { signature, timestamp, apiKey, cloudName, folder, allowedFormats } = await signRes.json();
 
-        // 2. Upload to Cloudinary
+        // 2. Upload to Cloudinary. Every field here is part of what the server
+        //    signed, so the browser cannot widen what it is allowed to send.
         const formData = new FormData();
         formData.append("file", file);
         formData.append("api_key", apiKey);
         formData.append("timestamp", timestamp.toString());
         formData.append("signature", signature);
         formData.append("folder", folder);
+        formData.append("allowed_formats", allowedFormats);
 
         const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
           method: "POST",
@@ -80,7 +87,7 @@ export default function SlotUploader({
       onUploadComplete();
     } catch (err) {
       console.error("Upload failed", err);
-      alert("Failed to upload images. Please try again.");
+      alert(err instanceof Error ? err.message : "Failed to upload images. Please try again.");
     } finally {
       setIsUploading(false);
     }

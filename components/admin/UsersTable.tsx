@@ -2,14 +2,16 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, ArrowRight, X } from "lucide-react";
+import { Search, ArrowRight, X, ShieldCheck } from "lucide-react";
 
 export type AdminUser = {
   id: string; name: string | null; email: string | null; image: string | null;
+  isAdmin: boolean;
   joined: string; albums: number; photos: number; lastAlbum: string | null;
 };
 
 const SORTS = [
+  { value: "admins", label: "Admins" },
   { value: "recent", label: "Newest" },
   { value: "albums", label: "Most albums" },
   { value: "photos", label: "Most photos" },
@@ -24,6 +26,10 @@ export default function UsersTable({ users }: { users: AdminUser[] }) {
     const needle = q.trim().toLowerCase();
     const list = users.filter((u) => !needle || `${u.name ?? ""} ${u.email ?? ""}`.toLowerCase().includes(needle));
     return [...list].sort((a, b) => {
+      if (sort === "admins") {
+        if (a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
+        return new Date(b.joined).getTime() - new Date(a.joined).getTime();
+      }
       if (sort === "albums") return b.albums - a.albums;
       if (sort === "photos") return b.photos - a.photos;
       if (sort === "name") return (a.name ?? a.email ?? "").localeCompare(b.name ?? b.email ?? "");
@@ -51,12 +57,12 @@ export default function UsersTable({ users }: { users: AdminUser[] }) {
             </button>
           )}
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
           {SORTS.map((s) => (
             <button
               key={s.value}
               onClick={() => setSort(s.value)}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${sort === s.value ? "bg-[#1c1917] text-white" : "bg-[#fcfbf9] border border-[#e8e0d5] text-[#5a4d41] hover:text-[#1c1917]"}`}
+              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${sort === s.value ? "bg-[#1c1917] text-white" : "bg-[#fcfbf9] border border-[#e8e0d5] text-[#5a4d41] hover:text-[#1c1917]"}`}
             >
               {s.label}
             </button>
@@ -76,7 +82,14 @@ export default function UsersTable({ users }: { users: AdminUser[] }) {
               {u.image ? <img src={u.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : (u.name ?? u.email ?? "?").charAt(0).toUpperCase()}
             </span>
             <span className="min-w-0">
-              <span className="block font-semibold text-[#1c1917] text-sm truncate">{u.name ?? "No name"}</span>
+              <span className="flex items-center gap-2">
+                <span className="font-semibold text-[#1c1917] text-sm truncate">{u.name ?? "No name"}</span>
+                {u.isAdmin && (
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#1c1917] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#e6c56d]">
+                    <ShieldCheck size={10} /> Admin
+                  </span>
+                )}
+              </span>
               <span className="block text-xs text-[#8a755b] truncate">{u.email}</span>
             </span>
             <span className="hidden md:block text-sm text-[#5a4d41] tabular-nums text-right">{u.albums}<span className="text-[10px] text-[#a3907a] ml-1">alb</span></span>
