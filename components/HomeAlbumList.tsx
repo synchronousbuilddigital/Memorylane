@@ -32,9 +32,9 @@ export type AlbumSection = {
 type Group = "family" | "travel" | "event" | "other";
 type Meta = { label: string; group: Group; Icon: LucideIcon; stock: string; create: string };
 const STOCK = {
-  family: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800",
-  travel: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800",
-  event: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800",
+  family: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511895426328-dc8714191300",
+  travel: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1476514525535-07fb3b4ae5f1",
+  event: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511795409834-ef04bbd61622",
 };
 const PURPOSE_META: Record<string, Meta> = {
   family: { label: "Family", group: "family", Icon: Users, stock: STOCK.family, create: "/purpose/family" },

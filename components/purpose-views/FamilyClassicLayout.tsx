@@ -17,11 +17,11 @@ interface FamilyClassicLayoutProps {
 }
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2070&auto=format&fit=crop", // Hero
-  "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1954&auto=format&fit=crop", // Detail L
-  "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=2070&auto=format&fit=crop", // Detail R
-  "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?q=80&w=2070&auto=format&fit=crop", // Landscape
-  "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=2038&auto=format&fit=crop"  // Portrait
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1511895426328-dc8714191300", // Hero
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1954/memory_lane/stock/photo-1542037104857-ffbb0b9155fb", // Detail L
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1609220136736-443140cffec6", // Detail R
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1475503572774-15a45e5d60b9", // Landscape
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2038/memory_lane/stock/photo-1502086223501-7ea6ecd79368"  // Portrait
 ];
 
 // ---------------------------------------------------------
@@ -146,7 +146,7 @@ const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onI
             {/* Solid color fallback */}
             <rect width="1000" height="200" fill="#4a2e15" />
             {/* Very warm, beautiful brown wood texture */}
-            <image href="https://images.unsplash.com/photo-1581417478175-a8eeee2ba154?q=80&w=2400" x="0" y="0" width="1000" height="200" preserveAspectRatio="none" opacity="0.65" />
+            <image href="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2400/memory_lane/stock/photo-1511895426328-dc8714191300" x="0" y="0" width="1000" height="200" preserveAspectRatio="none" opacity="0.65" />
           </pattern>
           <filter id="shadow">
             <feDropShadow dx="0" dy="8" stdDeviation="6" floodOpacity="0.4" floodColor="#2a1b12"/>
@@ -694,7 +694,7 @@ const FloatingParallaxStack = ({ images, content, onContentChange, onImageClick,
       <div 
         className="absolute inset-0 opacity-60 mix-blend-overlay pointer-events-none transition-transform duration-[10s] ease-out group-hover:scale-105"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1453928582365-b6ad33cbcf64?q=80&w=2400')",
+          backgroundImage: "url('https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2400/memory_lane/stock/photo-1453928582365-b6ad33cbcf64')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -1000,7 +1000,7 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
     });
   }, []);
 
-  const fallbackImage = "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1954";
+  const fallbackImage = "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1954/memory_lane/stock/photo-1542037104857-ffbb0b9155fb";
   const safeImages = images && images.length > 0 ? images : [fallbackImage];
   let paddedImages = [...safeImages];
 

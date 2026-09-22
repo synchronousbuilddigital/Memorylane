@@ -17,14 +17,14 @@ import InlineEditableText from "@/components/InlineEditableText";
    ──────────────────────────────────────────────────────────────────────────── */
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1609234656388-0ff363383899?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=700&q=70&auto=format&fit=crop",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1511895426328-dc8714191300",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1502086223501-7ea6ecd79368",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1609220136736-443140cffec6",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1475503572774-15a45e5d60b9",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1542037104857-ffbb0b9155fb",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1609234656388-0ff363383899",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1464349095431-e9a21285b5f3",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1513151233558-d860c5398176",
 ];
 const WISHES = ["Good\nPeople ♡", "Better\nDays ♡", "More\nTo Come ♡"];
 const MAX_FRAMES = 14;

@@ -72,7 +72,7 @@ export default function LoginPage() {
         {/* ===================== */}
         {/* Top Left Dried Flower */}
         <div className="absolute top-10 left-20 opacity-80 rotate-[-20deg]">
-          <Image src="https://images.unsplash.com/photo-1603533867307-b354255e3c32?auto=format&fit=crop&q=80&w=200" alt="Dried flower" width={150} height={150} className="object-cover rounded-full mix-blend-multiply opacity-50 blur-[1px] grayscale sepia" />
+          <Image src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_200/memory_lane/stock/photo-1603533867307-b354255e3c32" alt="Dried flower" width={150} height={150} className="object-cover rounded-full mix-blend-multiply opacity-50 blur-[1px] grayscale sepia" />
         </div>
         {/* Bottom Right Leaves */}
         <div className="absolute bottom-10 right-10 opacity-90 rotate-[15deg] z-50">
@@ -111,7 +111,7 @@ export default function LoginPage() {
           {/* Map Snippet Background (Bottom Left) */}
           <div className="absolute bottom-[2%] left-[-10%] lg:left-[-5%] w-52 h-64 sm:w-80 sm:h-96 lg:w-96 lg:h-[420px] bg-[#e8decd] rounded-sm -rotate-12 shadow-sm z-0 overflow-hidden mix-blend-multiply opacity-80 border border-[#d5c7b3]">
             <Image 
-              src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800" 
+              src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1524661135-423995f22d0b" 
               alt="Vintage Map" 
               fill 
               className="object-cover opacity-60 grayscale sepia-[.5]"
@@ -125,7 +125,7 @@ export default function LoginPage() {
             
             <div className="relative aspect-square w-full overflow-hidden bg-gray-200">
               <Image 
-                src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800" 
+                src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1469474968028-56623f02e42e" 
                 alt="Mountains" 
                 fill 
                 className="object-cover sepia-[.2]"
@@ -143,7 +143,7 @@ export default function LoginPage() {
             
             <div className="relative aspect-square w-full overflow-hidden bg-gray-200 shadow-inner">
               <Image 
-                src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800" 
+                src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511895426328-dc8714191300" 
                 alt="Sunset Couple" 
                 fill 
                 className="object-cover sepia-[.1]"
@@ -161,7 +161,7 @@ export default function LoginPage() {
              
              <div className="relative aspect-square w-full overflow-hidden bg-gray-200">
               <Image 
-                src="https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=800" 
+                src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1544568100-847a948585b9" 
                 alt="Happy Dog" 
                 fill 
                 className="object-cover sepia-[.15]"

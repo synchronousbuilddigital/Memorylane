@@ -8,14 +8,14 @@ interface FamilyMosaicLayoutProps {
 }
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1581952976147-5a0d15560381?q=80&w=2072&auto=format&fit=crop", // Large horizontal
-  "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1954&auto=format&fit=crop", // Small square
-  "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=2038&auto=format&fit=crop", // Small square
-  "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=2070&auto=format&fit=crop", // Tall vertical
-  "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?q=80&w=2070&auto=format&fit=crop", // Large horizontal
-  "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2070&auto=format&fit=crop", // Small square
-  "https://images.unsplash.com/photo-1601288496920-b6154fe3626a?q=80&w=1926&auto=format&fit=crop", // Tall vertical
-  "https://images.unsplash.com/photo-1529156069898-49953eb1b5ce?q=80&w=2070&auto=format&fit=crop", // Small square
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2072/memory_lane/stock/photo-1511895426328-dc8714191300", // Large horizontal
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1954/memory_lane/stock/photo-1542037104857-ffbb0b9155fb", // Small square
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2038/memory_lane/stock/photo-1502086223501-7ea6ecd79368", // Small square
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1609220136736-443140cffec6", // Tall vertical
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1475503572774-15a45e5d60b9", // Large horizontal
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1511895426328-dc8714191300", // Small square
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1926/memory_lane/stock/photo-1601288496920-b6154fe3626a", // Tall vertical
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1511895426328-dc8714191300", // Small square
 ];
 
 const containerVariants: Variants = {

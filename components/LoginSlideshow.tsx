@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const slideImages = [
-  "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1516280440502-0c9f1396b2df?q=80&w=2070&auto=format&fit=crop"
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1475924156734-496f6cac6ec1",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1550684848-fac1c5b4e853",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1493246507139-91e8fad9978e",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2070/memory_lane/stock/photo-1476514525535-07fb3b4ae5f1"
 ];
 
 export default function LoginSlideshow() {

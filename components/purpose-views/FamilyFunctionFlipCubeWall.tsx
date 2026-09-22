@@ -21,18 +21,18 @@ import { fillCount } from "./familyFunctionText";
 type ImageLike = string | { displayUrl?: string; originalUrl?: string; url?: string; position?: number };
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1609234656388-0ff363383899?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1601288496920-b6154fe3626a?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1544568100-847a948585b9?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=70&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=700&q=70&auto=format&fit=crop",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1511895426328-dc8714191300",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1502086223501-7ea6ecd79368",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1542037104857-ffbb0b9155fb",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1609220136736-443140cffec6",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1609234656388-0ff363383899",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1475503572774-15a45e5d60b9",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1511795409834-ef04bbd61622",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1601288496920-b6154fe3626a",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1544568100-847a948585b9",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1499856871958-5b9627545d1a",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1476514525535-07fb3b4ae5f1",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_700/memory_lane/stock/photo-1506748686214-e9df14d4d9d0",
 ];
 
 /* ───────────── Deterministic random (keeps the wall identical between renders) ───────────── */

@@ -29,7 +29,7 @@ export default function FamilyFunctionMovieProjector({
     
     if (extracted.length === 0) {
       extracted.push(
-        "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1000&auto=format&fit=crop"
+        "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1000/memory_lane/stock/photo-1511895426328-dc8714191300"
       );
     }
     return extracted;

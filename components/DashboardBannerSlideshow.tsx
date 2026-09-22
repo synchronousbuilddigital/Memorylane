@@ -11,7 +11,7 @@ const BANNERS = [
     title: "Family Memories",
     subtitle: "A warm, nostalgic scrapbook for your loved ones. Featuring hanging polaroids and cinematic opening curtains.",
     icon: Heart,
-    bgImage: "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2400",
+    bgImage: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2400/memory_lane/stock/photo-1511895426328-dc8714191300",
     color: "from-amber-900/90 to-amber-950/90",
     accent: "text-amber-200",
     font: "font-serif italic"
@@ -21,7 +21,7 @@ const BANNERS = [
     title: "Travel & Adventures",
     subtitle: "Build a cinematic filmstrip of your journeys. Smooth scrolling, massive photography, and interactive maps.",
     icon: Plane,
-    bgImage: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2400",
+    bgImage: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2400/memory_lane/stock/photo-1436491865332-7a61a109cc05",
     color: "from-blue-900/90 to-indigo-950/90",
     accent: "text-blue-200",
     font: "font-sans font-bold"
@@ -31,7 +31,7 @@ const BANNERS = [
     title: "Events & Celebrations",
     subtitle: "Toss together a fun, chaotic polaroid pile from the party. Interactive physics and bouncy animations.",
     icon: Calendar,
-    bgImage: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2400",
+    bgImage: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2400/memory_lane/stock/photo-1511795409834-ef04bbd61622",
     color: "from-purple-900/90 to-fuchsia-950/90",
     accent: "text-purple-200",
     font: "font-sans font-extrabold"

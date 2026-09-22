@@ -10,7 +10,7 @@ export default function DashboardFooterBanner() {
       <Reveal amount={0.15}>
         <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] md:aspect-[4/1] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-10 md:mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] group">
           <Image
-            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=2000"
+            src="https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2000/memory_lane/stock/photo-1469474968028-56623f02e42e"
             alt="Mountains Landscape"
             fill
             sizes="(max-width: 768px) 100vw, 1600px"

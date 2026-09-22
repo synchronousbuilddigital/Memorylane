@@ -8,10 +8,10 @@ import InlineEditableText from "@/components/InlineEditableText";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1531123414708-f40f06bf3eb6?auto=format&fit=crop&q=80&w=800",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511895426328-dc8714191300",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1476514525535-07fb3b4ae5f1",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511556532299-8f662fc26c06",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511895426328-dc8714191300",
 ];
 
 // Helper to create a true 3D ribbon geometry that correctly bends along a spline

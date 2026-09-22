@@ -8,12 +8,12 @@ import Lightbox from "../Lightbox";
 
 /* ── PLACEHOLDERS ── */
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1527631746610-bca00a040d60?q=80&w=800",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
-  "https://images.unsplash.com/photo-1517677129300-07b130802f46?q=80&w=800",
-  "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800",
-  "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=800",
-  "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=800",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1527631746610-bca00a040d60",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1507525428034-b723cf961d3e",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1517677129300-07b130802f46",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1583337130417-3346a1be7dee",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1506197603052-3cc9c3a201bd",
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1518684079-3c830dcef090",
 ];
 
 const LABELS = [
@@ -28,7 +28,7 @@ const LABELS = [
 /* ── ORNAMENT COMPONENTS ── */
 const GlobeOrnament = () => (
   <div className="w-14 h-14 md:w-20 md:h-20 rounded-full relative overflow-hidden bg-[#a68a5c] shadow-[inset_-4px_-4px_10px_rgba(0,0,0,0.5),0_10px_20px_rgba(0,0,0,0.4)] border-2 border-[#b59868]">
-    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b')] bg-cover opacity-50 mix-blend-multiply" />
+    <div className="absolute inset-0 bg-[url('https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto/memory_lane/stock/photo-1524661135-423995f22d0b')] bg-cover opacity-50 mix-blend-multiply" />
     <div className="absolute w-[110%] h-[110%] top-1/2 left-1/2 rounded-full border-4 border-[#5c4322]/60" style={{ transform: 'translate(-50%, -50%) rotateX(65deg) rotateY(15deg)' }} />
   </div>
 );

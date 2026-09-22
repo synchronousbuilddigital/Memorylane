@@ -28,11 +28,11 @@ const MAP_LOCATIONS = [
 ];
 
 const PLACEHOLDERS = [
-  "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=800&auto=format&fit=crop", // NY
-  "https://images.unsplash.com/photo-1502602881462-8c1ee502c362?q=80&w=800&auto=format&fit=crop", // Paris
-  "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800&auto=format&fit=crop", // Tokyo
-  "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800&auto=format&fit=crop", // Bali
-  "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?q=80&w=800&auto=format&fit=crop", // Rio
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1496442226666-8d4d0e62e6e9", // NY
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1476514525535-07fb3b4ae5f1", // Paris
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1503899036084-c55cdd92da26", // Tokyo
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1537996194471-e657df975ab4", // Bali
+  "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1483729558449-99ef09a8c325", // Rio
 ];
 
 /* ── LOOP TIMING ──
@@ -294,7 +294,7 @@ export default function TravelMapLayout({
       <motion.div 
         className="absolute inset-0 pointer-events-none z-30 opacity-20 mix-blend-screen"
         style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2560&auto=format&fit=crop')",
+          backgroundImage: "url('https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_2560/memory_lane/stock/photo-1550684376-efcbd6e3f031')",
           backgroundSize: "cover",
           x: useTransform(spX, [0, 1], [-50, 50]),
           y: useTransform(spY, [0, 1], [-50, 50]),

@@ -24,6 +24,11 @@ import { v2 as cloudinary } from "cloudinary";
 cloudinary.config({ secure: true, url: process.env.CLOUDINARY_URL });
 
 const FOLDER = "memory_lane/";
+
+/* Stock photography is referenced by the source code, not by any database
+   row, so the reference check below cannot see it. Without this it would be
+   reported as orphaned and deleted — quietly, and days later. */
+const KEEP = ["memory_lane/stock/"];
 const doDelete = process.argv.includes("--delete");
 
 const prisma = new PrismaClient();
@@ -72,7 +77,9 @@ try {
   } while (cursor);
   process.stdout.write("\r".padEnd(50) + "\r");
 
-  const orphans = held.filter((r) => !referenced(r.public_id));
+  const orphans = held.filter(
+    (r) => !KEEP.some((k) => r.public_id.startsWith(k)) && !referenced(r.public_id),
+  );
   const wasted = orphans.reduce((n, r) => n + (r.bytes ?? 0), 0);
   const total = held.reduce((n, r) => n + (r.bytes ?? 0), 0);
 

@@ -20,9 +20,9 @@ const HEADLINE = ["Your", "Memory", "Lanes"];
 
 type Card = { id: string; src: string; alt: string; caption: string; rot: number; left: number; top: number; w: number; aspect: string; depth: number; tape?: boolean };
 const CARDS: Card[] = [
-  { id: "family", src: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800", alt: "Family", caption: "Good Memories", rot: -12, left: 0, top: 110, w: 272, aspect: "aspect-[3/4]", depth: 0.55 },
-  { id: "travel", src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800", alt: "Travel", caption: "Just Moments ♡", rot: 3, left: 170, top: 40, w: 320, aspect: "aspect-square", depth: 1, tape: true },
-  { id: "sky", src: "https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&q=80&w=800", alt: "Landscape", caption: "Brighter Days", rot: 12, left: 400, top: 80, w: 256, aspect: "aspect-[4/5]", depth: 0.8 },
+  { id: "family", src: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1511895426328-dc8714191300", alt: "Family", caption: "Good Memories", rot: -12, left: 0, top: 110, w: 272, aspect: "aspect-[3/4]", depth: 0.55 },
+  { id: "travel", src: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1469474968028-56623f02e42e", alt: "Travel", caption: "Just Moments ♡", rot: 3, left: 170, top: 40, w: 320, aspect: "aspect-square", depth: 1, tape: true },
+  { id: "sky", src: "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_800/memory_lane/stock/photo-1500835556837-99ac94a94552", alt: "Landscape", caption: "Brighter Days", rot: 12, left: 400, top: 80, w: 256, aspect: "aspect-[4/5]", depth: 0.8 },
 ];
 
 function useFitScale(designWidth: number) {
