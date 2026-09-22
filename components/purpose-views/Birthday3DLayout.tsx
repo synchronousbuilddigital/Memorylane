@@ -38,7 +38,7 @@ const PLACEHOLDERS = [
 ════════════════════════════════════════════════════ */
 
 function GiftBoxSection({
-  images, title, description, content, onTitleChange, onDescriptionChange, onContentChange,
+  images, title, description, content, onTitleChange, onDescriptionChange,
 }: any) {
   const sectionRef  = useRef<HTMLDivElement>(null);
   const sceneRef    = useRef<HTMLDivElement>(null);

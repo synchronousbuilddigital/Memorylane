@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { LogOut, Sun, Menu, X, UserRound } from "lucide-react";
+import { LogOut, Menu, X, UserRound } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE } from "./motion/Reveal";
 import { useNavHidden } from "@/lib/navHidden";

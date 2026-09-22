@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, useScroll, type MotionValue } from "framer-motion";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { EASE } from "../motion/Reveal";
@@ -105,7 +105,7 @@ function MagneticLink({ href, children }: { href: string; children: React.ReactN
   );
 }
 
-export default function HomeHero({ templateCount, sceneCount }: { templateCount: number; sceneCount: number }) {
+export default function HomeHero() {
   const reduce = !!useReducedMotion();
   const ready = useIntroReady();
   const { ref: stageWrap, scale } = useFitScale(STAGE_W);

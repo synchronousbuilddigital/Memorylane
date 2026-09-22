@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { loadSharedSection } from "@/lib/share";
 import { notFound } from "next/navigation";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import FamilyViewPage from "@/components/purpose-views/FamilyViewPage";
 import DefaultViewPage from "@/components/purpose-views/DefaultViewPage";
 import TravelSuitcaseLayout from "@/components/purpose-views/TravelSuitcaseLayout";
@@ -17,8 +17,7 @@ type Props = {
 };
 
 export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
+  { params }: Props
 ): Promise<Metadata> {
   const idOrSlug = params.id;
   // Only a live share link gets a title and a preview image. A private album

@@ -96,7 +96,7 @@ function RibbonItem({
   
   // localT loops seamlessly from -10 to 10
   const localT = useTransform(time, (tVal: number) => {
-    let absoluteT = tVal + (index * SPACING);
+    const absoluteT = tVal + (index * SPACING);
     let wrapped = absoluteT % T_LENGTH;
     if (wrapped < 0) wrapped += T_LENGTH;
     return T_START + wrapped;
@@ -129,7 +129,7 @@ function RibbonItem({
     const dx = R - A * (expTerm * Math.cos(t) + factor * expTerm * Math.sin(t));
     const dy = -A * (-expTerm * Math.sin(t) + factor * expTerm * Math.cos(t));
     
-    let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
     return angle * 0.6; // Scale down banking so photos are easier to read
   });
 

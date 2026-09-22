@@ -52,7 +52,6 @@ export default function RibbonSegment({ curve, t0, t1, width, imageUrl }: Ribbon
         frenetFrames.normals.length - 1
       );
       
-      const normal = frenetFrames.normals[frameIndex];
       const binormal = frenetFrames.binormals[frameIndex];
 
       // To make a flat ribbon, we sweep left and right along the BINORMAL vector

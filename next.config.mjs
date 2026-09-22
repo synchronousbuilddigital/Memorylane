@@ -11,9 +11,12 @@ const withPWA = withPWAInit({
 const nextConfig = {
   reactStrictMode: false,
   eslint: {
-    // Still on: the repo carries ~134 pre-existing lint findings (mostly
-    // `no-explicit-any`). Clear those, then set this to false.
-    ignoreDuringBuilds: true,
+    // Off: lint failures stop a deploy. The pre-existing debt that used to
+    // make this impossible is gone — unused vars, unescaped entities and
+    // prefer-const are all at zero. What remains is `no-explicit-any`, set
+    // to a warning in .eslintrc.json so the debt stays visible without
+    // blocking, while every other rule now fails the build.
+    ignoreDuringBuilds: false,
   },
   typescript: {
     // Off: the project typechecks clean, so a type error should stop a deploy.

@@ -1,3 +1,12 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    // A warning, not off. 76 `any`s remain in the big 3D layout components,
+    // and typing them properly is real work rather than a rename. Left as
+    // errors they kept eslint.ignoreDuringBuilds switched on, which meant no
+    // lint rule at all could block a deploy. As a warning the debt stays
+    // visible while every other rule — unused vars, unescaped entities,
+    // hooks — now fails the build. Retype them, then put this back to error.
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
 }

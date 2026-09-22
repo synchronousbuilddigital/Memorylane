@@ -110,7 +110,7 @@ export default async function HomePage() {
 
         <main className="relative z-10 w-full pt-24 md:pt-32 pb-16">
           <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-12 space-y-12 md:space-y-28">
-            <HomeHero templateCount={SHOWCASE.length} sceneCount={SCENE_COUNT} />
+            <HomeHero />
 
             <Reveal amount={0.3}>
               <Suspense fallback={<GlobalStatsFallback />}>

@@ -1,6 +1,4 @@
 import Image from "next/image";
-import { Sun, Heart } from "lucide-react";
-import Link from "next/link";
 import { Reveal } from "./motion/Reveal";
 
 export default function DashboardFooterBanner() {

@@ -164,8 +164,6 @@ export default function TravelSuitcaseLayout({
   const mX = useMotionValue(0.5), mY = useMotionValue(0.5);
   const spX = useSpring(mX, { damping: 30, stiffness: 80 });
   const spY = useSpring(mY, { damping: 30, stiffness: 80 });
-  const bgX = useTransform(spX, [0, 1], [15, -15]);
-  const bgY = useTransform(spY, [0, 1], [15, -15]);
   const rotateYContainer = useTransform(spX, [0, 1], [-12, 12]);
   const rotateXContainer = useTransform(spY, [0, 1], [12, -12]);
 

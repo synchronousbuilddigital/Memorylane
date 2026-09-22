@@ -3,7 +3,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { MapPin, Plane } from "lucide-react";
 import dynamic from "next/dynamic";
 import InlineEditableText from "@/components/InlineEditableText";
 

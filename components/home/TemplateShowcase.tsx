@@ -84,7 +84,6 @@ function Panel({ t, index }: { t: ShowcaseTemplate; index: number }) {
 
   const ink = dark ? "text-[#f4eee6]" : "text-[#1c1917]";
   const soft = dark ? "text-[#d9cbb8]/80" : "text-[#5a4d41]";
-  const chip = dark ? "bg-white/[0.06] border-white/10 text-[#e6c56d]" : "bg-[#f4eee6] border-[#e8e0d5] text-[#5a4d41]";
 
   return (
     <motion.section
@@ -198,7 +197,6 @@ function Slide({ t, i, n, progress }: { t: ShowcaseTemplate; i: number; n: numbe
 
   const ink = dark ? "text-[#f4eee6]" : "text-[#1c1917]";
   const soft = dark ? "text-[#d9cbb8]/80" : "text-[#5a4d41]";
-  const chip = dark ? "bg-white/[0.06] border-white/10 text-[#e6c56d]" : "bg-[#f4eee6] border-[#e8e0d5] text-[#5a4d41]";
   const show = active ? "show" : "hidden";
   const t0 = (delay: number) => ({ duration: reduce ? 0.2 : 0.7, delay, ease: EASE });
 

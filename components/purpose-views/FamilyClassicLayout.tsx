@@ -3,7 +3,6 @@
 import { motion, useScroll, useTransform, AnimatePresence, useSpring, useMotionValue } from "framer-motion";
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import Lightbox from "@/components/Lightbox";
 
 interface FamilyClassicLayoutProps {
@@ -108,7 +107,6 @@ const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onI
       {/* The Hanging Cards (Behind the branch) — kept to the left 60% so they never meet the photo stack */}
       <div className="absolute top-0 left-0 w-full lg:w-[60%] flex justify-around px-4 sm:px-8 lg:px-16 pointer-events-auto z-10">
         {safeImages.map((img: any, i: number) => {
-          const originalIndex = fullImages ? fullImages.findIndex((orig: any) => orig.displayUrl === img || orig.url === img) : -1;
           return (
             <PendulumCard 
               key={`hanging-${i}`} 
@@ -204,20 +202,13 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
 
   // Parallax for the cinematic break
   const yLandscape = useTransform(scrollYProgress, [0.4, 0.8], [0, -100]);
-  const scaleLandscape = useTransform(scrollYProgress, [0.4, 0.8], [1.1, 1]);
 
-  const [isPhotoDetailOpen, setIsPhotoDetailOpen] = useState(false);
-  const [activePhoto, setActivePhoto] = useState<any>(null);
 
   // Slideshow Logic
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % displayHeroImages.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + displayHeroImages.length) % displayHeroImages.length);
   };
 
   return (
@@ -780,16 +771,6 @@ const FloatingParallaxStack = ({ images, content, onContentChange, onImageClick,
 // Scrapbook Sub-Component
 // ---------------------------------------------------------
 
-const SCRAPBOOK_QUOTES = [
-  "You are the stars in my dark and cold nights—shining and unwavering.",
-  "May the flowers remind us why the rain was so necessary.",
-  "Little pieces of life that make the big picture beautiful.",
-  "A lifetime of little moments.",
-  "Hold onto the memories, they will hold onto you.",
-];
-
-const STICKERS = ["⭐", "🎀", "✨", "🌸", "💌", "🦋", "🍄", "🧸"];
-
 // ---------------------------------------------------------
 // Flip Page
 // ---------------------------------------------------------
@@ -832,13 +813,8 @@ function ScrapbookPage({
   content?: any;
   onContentChange?: (key: string, value: string) => void;
 }) {
-  const spreadIndex = Math.floor(index / 2);
 
-  const quoteIndex = spreadIndex % SCRAPBOOK_QUOTES.length;
 
-  const sticker1 = STICKERS[spreadIndex % STICKERS.length];
-
-  const sticker2 = STICKERS[(spreadIndex + 3) % STICKERS.length];
 
   // -------------------------------------------------------
   // LEFT PAGE
@@ -1002,7 +978,7 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
 
   const fallbackImage = "https://res.cloudinary.com/ttntkum2/image/upload/f_auto,q_auto,w_1954/memory_lane/stock/photo-1542037104857-ffbb0b9155fb";
   const safeImages = images && images.length > 0 ? images : [fallbackImage];
-  let paddedImages = [...safeImages];
+  const paddedImages = [...safeImages];
 
   // Ensure we have at least 4 pages so there is actually something to flip to!
   // If we only have 2 pages, the book opens to the only spread and cannot flip forward.

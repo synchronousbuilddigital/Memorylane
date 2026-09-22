@@ -278,7 +278,7 @@ export default function LoginPage() {
             {/* Bottom Right Handwriting */}
             <div className="mt-10 flex justify-end relative">
                <div className="font-handwriting text-3xl text-[#3b342e] -rotate-6 opacity-90 pr-6 text-right leading-tight drop-shadow-sm">
-                 "Memories<br/>make life beautiful" ♡
+                 &ldquo;Memories<br/>make life beautiful&rdquo; ♡
                </div>
             </div>
 

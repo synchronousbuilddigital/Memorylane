@@ -119,7 +119,7 @@ export default function CreateAlbumForm() {
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-2">
-              Don't worry, you can always change the layout later in the album settings!
+              Don&apos;t worry, you can always change the layout later in the album settings!
             </p>
           </div>
 

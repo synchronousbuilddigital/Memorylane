@@ -165,7 +165,7 @@ export default function JourneyMap({ sections }: { sections: AlbumSection[] }) {
           <Plane size={24} />
         </div>
         <h2 className="text-2xl font-serif font-bold text-[#1c1917] mb-3">Your journey begins here</h2>
-        <p className="text-[#8a755b] mb-8">Create your first Memory Lane album to start charting your life's journey.</p>
+        <p className="text-[#8a755b] mb-8">Create your first Memory Lane album to start charting your life&apos;s journey.</p>
         <Link href="/#create" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#1c1917] text-white font-semibold hover:bg-[#3d3329] transition-colors">
           Start a New Lane <ArrowRight size={16} />
         </Link>

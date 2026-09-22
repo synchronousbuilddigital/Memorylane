@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, Suspense, useMemo, useState, useEffect } from "react";
+import { useRef, Suspense, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, OrbitControls, useTexture } from "@react-three/drei";
+import { Environment, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { Image as PrismaImage } from "@prisma/client";
 import { ErrorBoundary } from "react-error-boundary";

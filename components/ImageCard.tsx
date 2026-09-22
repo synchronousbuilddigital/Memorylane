@@ -2,7 +2,6 @@
 
 import { Image, Note } from "@prisma/client";
 import { motion } from "framer-motion";
-import NoteOverlay from "./NoteOverlay";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { deleteImageAction } from "@/app/actions/deleteImage";
@@ -176,7 +175,7 @@ export default function ImageCard({ image, index, layoutType, onClick, readOnly 
               {image.notes && image.notes.length > 0 ? (
                 image.notes.map((note) => (
                   <p key={note.id} className="font-serif italic text-lg text-black/80 leading-relaxed" style={{ color: note.color }}>
-                    "{note.text}"
+                    &ldquo;{note.text}&rdquo;
                   </p>
                 ))
               ) : (

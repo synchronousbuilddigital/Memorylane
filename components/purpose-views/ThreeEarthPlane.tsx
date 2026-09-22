@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { TextureLoader, Mesh, DoubleSide } from "three";
 import { OrbitControls, Environment } from "@react-three/drei";
 
