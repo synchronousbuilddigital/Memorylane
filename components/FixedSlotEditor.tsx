@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateSectionDetails } from "@/app/actions/updateSection";
 import { TITLE_MAX, DESCRIPTION_MAX, FIELD_MAX, FIELD_MULTILINE_MAX } from "@/lib/sectionText";
+import { slotsForTheme } from "@/lib/albumSlots";
 import { discardEmptySection } from "@/app/actions/discardEmptySection";
 import SlotUploader from "./SlotUploader";
 import ShareControl from "./ShareControl";
@@ -14,8 +15,7 @@ import Birthday3DLayout from "./purpose-views/Birthday3DLayout";
 import FamilyFunction3DLayout from "./purpose-views/FamilyFunction3DLayout";
 import Link from "next/link";
 import { ChevronLeft, Share, X, Edit3, Type } from "lucide-react";
-import { FF_TEXT_FIELDS, type TextField } from "./purpose-views/familyFunctionText";
-import { BIRTHDAY_TEXT_FIELDS } from "./purpose-views/birthdayText";
+import { type TextField } from "./purpose-views/familyFunctionText";
 
 /* Collapsible text fields for one slot; empty a field to go back to its default */
 function SlotTextEditor({ fields, content, onChange, onCommit }: {
@@ -117,55 +117,20 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
   const setContentField = (key: string, value: string) => setContent((prev: any) => ({ ...prev, [key]: value }));
   const commitContent = () => handleSaveText(title, description, content);
 
-  // Determine configuration based on theme
-  let LayoutComponent = null;
-  let slotsConfig: { label: string, allowMultiple?: boolean, maxFiles?: number, dbPosition: number, textFields?: TextField[] }[] = [];
-
-  if (section.theme === "family-classic" || section.theme === "ribbon") {
-    LayoutComponent = FamilyClassicLayout;
-    slotsConfig = [
-      { label: "Hero Background Slideshow", allowMultiple: true, maxFiles: 6, dbPosition: 0 },
-      { label: "Animated Photo Ribbon", allowMultiple: true, maxFiles: 20, dbPosition: 1 },
-      { label: "Interactive Scrapbook", allowMultiple: true, maxFiles: 20, dbPosition: 3 },
-      { label: "Floating 3D Parallax Stack", allowMultiple: true, maxFiles: 15, dbPosition: 4 },
-    ];
-  } else if (section.theme === "family-mosaic" || section.theme === "everyday") {
-    LayoutComponent = FamilyMosaicLayout;
-    slotsConfig = [
-      { label: "Large Horizontal (Top)", dbPosition: 0 },
-      { label: "Small Square 1", dbPosition: 1 },
-      { label: "Small Square 2", dbPosition: 2 },
-      { label: "Tall Vertical (Right)", dbPosition: 3 },
-      { label: "Large Horizontal (Middle)", dbPosition: 4 },
-      { label: "Small Square 3", dbPosition: 5 },
-      { label: "Tall Vertical (Left)", dbPosition: 6 },
-      { label: "Small Square 4", dbPosition: 7 },
-    ];
-  } else if (section.theme === "travel-suitcase") {
-    LayoutComponent = TravelSuitcaseLayout;
-    slotsConfig = [
-      { label: "Suitcase Polaroids (10-15)", allowMultiple: true, maxFiles: 15, dbPosition: 0 },
-      { label: "Map Journey (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 1 },
-      { label: "3D Tunnel Experience (8-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2 },
-      { label: "3D Vintage Astrolabe (up to 12 images)", allowMultiple: true, maxFiles: 12, dbPosition: 3 },
-    ];
-  } else if (section.theme === "event-birthday") {
-    LayoutComponent = Birthday3DLayout;
-    slotsConfig = [
-      { label: "Floating Lanterns (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 0, textFields: BIRTHDAY_TEXT_FIELDS.cubes },
-      { label: "3D Gift Box Unwrap (5-10 images)", allowMultiple: true, maxFiles: 10, dbPosition: 1, textFields: BIRTHDAY_TEXT_FIELDS.gift },
-      { label: "Ferris Wheel (10-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2, textFields: BIRTHDAY_TEXT_FIELDS.wheel },
-      { label: "Magical Wishing Tree (10-14 images)", allowMultiple: true, maxFiles: 14, dbPosition: 3, textFields: BIRTHDAY_TEXT_FIELDS.tree },
-    ];
-  } else if (section.theme === "event-family") {
-    LayoutComponent = FamilyFunction3DLayout;
-    slotsConfig = [
-      { label: "3D Spiraling Filmstrip (up to 50 images)", allowMultiple: true, maxFiles: 50, dbPosition: 0 },
-      { label: "3D Hallway Gallery (up to 20 images)", allowMultiple: true, maxFiles: 20, dbPosition: 1, textFields: FF_TEXT_FIELDS.hall },
-      { label: "Vintage Movie Projector (Infinite images)", allowMultiple: true, maxFiles: 100, dbPosition: 2, textFields: FF_TEXT_FIELDS.projector },
-      { label: "Flip-Cube Photo Wall (up to 60 images)", allowMultiple: true, maxFiles: 60, dbPosition: 3, textFields: FF_TEXT_FIELDS.wall },
-    ];
-  }
+  /* The slot definitions live in lib/albumSlots so the server can validate
+     against the same list — a position is a slot, and only this list says
+     which slots exist. Only the layout component is chosen here. */
+  const LAYOUTS: Record<string, React.ComponentType<any>> = {
+    "family-classic": FamilyClassicLayout,
+    ribbon: FamilyClassicLayout,
+    "family-mosaic": FamilyMosaicLayout,
+    everyday: FamilyMosaicLayout,
+    "travel-suitcase": TravelSuitcaseLayout,
+    "event-birthday": Birthday3DLayout,
+    "event-family": FamilyFunction3DLayout,
+  };
+  const LayoutComponent = LAYOUTS[section.theme] ?? null;
+  const slotsConfig = slotsForTheme(section.theme);
 
   if (!LayoutComponent) {
     return <div className="p-8 text-center">Unsupported template.</div>;
