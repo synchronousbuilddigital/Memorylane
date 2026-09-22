@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+import { withAuth } from "@/lib/withAuth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { rateLimit, tooMany } from "@/lib/rateLimit";
 import { slotAt, slotsForTheme } from "@/lib/albumSlots";
 
@@ -26,14 +26,10 @@ const Body = z.object({
   height: z.number().int().positive().max(20000).optional(),
 });
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest, { userId }) => {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
-    const rl = rateLimit(`external:${session.user.id}`, 120, 60_000);
+    const rl = rateLimit(`external:${userId}`, 120, 60_000);
     if (!rl.ok) return tooMany(rl.retryAfterSec);
 
     const parsed = Body.safeParse(await req.json().catch(() => null));
@@ -49,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Verify section ownership
     const section = await prisma.section.findFirst({
-      where: { id: sectionId, userId: session.user.id },
+      where: { id: sectionId, userId },
       select: { id: true, theme: true },
     });
 
@@ -90,4 +86,4 @@ export async function POST(req: NextRequest) {
     console.error("External upload error:", error);
     return NextResponse.json({ error: "Could not save that image" }, { status: 500 });
   }
-}
+});

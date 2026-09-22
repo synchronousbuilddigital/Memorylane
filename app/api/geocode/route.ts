@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/withAuth";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
 import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 /* Turns a typed place name into coordinates, so setting an album's place is a
@@ -103,11 +103,7 @@ function shorten(row: NominatimRow): string {
   return out.join(", ") || String(row.display_name ?? "").slice(0, 120);
 }
 
-export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export const GET = withAuth(async (req: Request, { userId }) => {
 
   const parsed = Query.safeParse({ q: new URL(req.url).searchParams.get("q") ?? "" });
   if (!parsed.success) return NextResponse.json({ hits: [] });
@@ -115,7 +111,7 @@ export async function GET(req: Request) {
 
   // typing is debounced in the field, so this is generous for a person and
   // tight for a script
-  const rl = rateLimit(`geocode:${session.user.id}`, 40, 60_000);
+  const rl = rateLimit(`geocode:${userId}`, 40, 60_000);
   if (!rl.ok) return tooMany(rl.retryAfterSec);
 
   const key = q.toLowerCase();
@@ -164,4 +160,4 @@ export async function GET(req: Request) {
     console.error("Geocode error:", err);
     return NextResponse.json({ error: "Could not look that place up" }, { status: 502 });
   }
-}
+});

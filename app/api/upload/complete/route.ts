@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/withAuth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getPublicUrl } from "@/lib/r2";
-import { auth } from "@/lib/auth";
 import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 const Body = z.object({
@@ -11,13 +11,9 @@ const Body = z.object({
   sectionId: z.string().min(1).max(64),
 });
 
-export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export const POST = withAuth(async (req: Request, { userId }) => {
 
-  const rl = rateLimit(`complete:${session.user.id}`, 120, 60_000);
+  const rl = rateLimit(`complete:${userId}`, 120, 60_000);
   if (!rl.ok) return tooMany(rl.retryAfterSec);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
@@ -29,7 +25,7 @@ export async function POST(req: Request) {
   // this writes a row into an album, so the album must belong to the caller.
   // Without this check any signed-in user could attach images to any album.
   const section = await prisma.section.findFirst({
-    where: { id: sectionId, userId: session.user.id },
+    where: { id: sectionId, userId },
     select: { id: true },
   });
   if (!section) {
@@ -70,4 +66,4 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(image);
-}
+});
