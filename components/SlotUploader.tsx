@@ -26,70 +26,113 @@ export default function SlotUploader({
   imageCount = 0
 }: SlotUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [failed, setFailed] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     let imageFiles = files.filter(f => f.type.startsWith("image/"));
-    
+
     if (allowMultiple && imageFiles.length > maxFiles) {
       alert(`You can only upload up to ${maxFiles} images for this slot.`);
       imageFiles = imageFiles.slice(0, maxFiles);
     }
-    
+
     if (imageFiles.length === 0) return;
 
     setIsUploading(true);
+    setProgress({ done: 0, total: imageFiles.length });
+    setFailed(0);
+
+    /* Three things used to go wrong here, and they compounded.
+
+       Each file fetched its own signature, and presign allows 60 a minute —
+       so the slots that invite 100, 60 or 50 files at once did not risk
+       failing partway, they did it every time. The loop then threw on the
+       first failure, skipping onUploadComplete(), which is what refreshes
+       the page — so the images already saved stayed invisible. Re-picking
+       the same files to recover uploaded the successful ones a second time,
+       because a slot that allows multiple images always creates a new row.
+
+       So: one signature for the whole batch (verified — Cloudinary accepts
+       the same signature for several uploads, each getting its own id), one
+       try per file so a bad one cannot end the run, and the refresh in
+       `finally` so whatever did save is on screen either way. */
+    let saved = 0;
+    const problems: string[] = [];
 
     try {
+      const signRes = await fetch("/api/upload/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sectionId }),
+      });
+      if (!signRes.ok) {
+        const { error } = await signRes.json().catch(() => ({ error: "" }));
+        throw new Error(
+          signRes.status === 429
+            ? "Too many uploads at once. Please wait a moment."
+            : error || "Could not start the upload",
+        );
+      }
+      const { signature, timestamp, apiKey, cloudName, folder, allowedFormats } = await signRes.json();
+
       for (const file of imageFiles) {
-        // 1. Get presigned URL/credentials
-        const signRes = await fetch("/api/upload/presign", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sectionId }),
-        });
-        if (!signRes.ok) {
-          const { error } = await signRes.json().catch(() => ({ error: "" }));
-          throw new Error(signRes.status === 429 ? "Too many uploads at once. Please wait a moment." : error || "Could not start the upload");
+        try {
+          // Every field here is part of what the server signed, so the
+          // browser cannot widen what it is allowed to send.
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("api_key", apiKey);
+          formData.append("timestamp", timestamp.toString());
+          formData.append("signature", signature);
+          formData.append("folder", folder);
+          formData.append("allowed_formats", allowedFormats);
+
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: "POST",
+            body: formData,
+          });
+          if (!uploadRes.ok) throw new Error("upload rejected");
+          const uploadData = await uploadRes.json();
+
+          await uploadImageToSlotAction({
+            url: uploadData.secure_url,
+            sectionId,
+            position,
+            width: uploadData.width,
+            height: uploadData.height,
+            allowMultiple,
+          });
+          saved++;
+        } catch (err) {
+          console.error(`Upload failed for ${file.name}`, err);
+          problems.push(file.name);
+        } finally {
+          setProgress((p) => (p ? { ...p, done: p.done + 1 } : p));
         }
-        const { signature, timestamp, apiKey, cloudName, folder, allowedFormats } = await signRes.json();
-
-        // 2. Upload to Cloudinary. Every field here is part of what the server
-        //    signed, so the browser cannot widen what it is allowed to send.
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("api_key", apiKey);
-        formData.append("timestamp", timestamp.toString());
-        formData.append("signature", signature);
-        formData.append("folder", folder);
-        formData.append("allowed_formats", allowedFormats);
-
-        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!uploadRes.ok) throw new Error("Cloudinary upload failed");
-        const uploadData = await uploadRes.json();
-
-        // 3. Save to database using server action
-        await uploadImageToSlotAction({
-          url: uploadData.secure_url,
-          sectionId,
-          position,
-          width: uploadData.width,
-          height: uploadData.height,
-          allowMultiple
-        });
       }
 
-      onUploadComplete();
+      if (problems.length) {
+        const named = problems.slice(0, 3).join(", ");
+        const rest = problems.length > 3 ? ` and ${problems.length - 3} more` : "";
+        alert(
+          `${saved} of ${imageFiles.length} uploaded.\n\nThese did not: ${named}${rest}.\n` +
+          `The ones that worked are saved — only add the missing files again.`,
+        );
+      }
     } catch (err) {
+      // the batch never started, so nothing was saved
       console.error("Upload failed", err);
       alert(err instanceof Error ? err.message : "Failed to upload images. Please try again.");
     } finally {
+      setFailed(problems.length);
       setIsUploading(false);
+      setProgress(null);
+      // always: whatever did save has to appear, success or not
+      onUploadComplete();
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -106,6 +149,14 @@ export default function SlotUploader({
               ? `${imageCount} image(s) assigned`
               : currentImageUrl ? "Image assigned" : "Awaiting image..."}
           </p>
+          {/* The summary alert is gone as soon as it is dismissed, and a
+              part-finished batch is exactly when someone needs to see what
+              happened after the fact. */}
+          {failed > 0 && !isUploading && (
+            <p className="text-xs font-semibold text-amber-600 mt-0.5">
+              {failed} file{failed === 1 ? "" : "s"} did not upload — add {failed === 1 ? "it" : "them"} again
+            </p>
+          )}
         </div>
       </div>
 
@@ -128,7 +179,10 @@ export default function SlotUploader({
         }`}
       >
         {isUploading ? (
-          <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            {progress && progress.total > 1 ? `${progress.done} / ${progress.total}` : "Uploading..."}
+          </>
         ) : (
           <><UploadCloud size={16} /> {allowMultiple ? "Add Photos" : (currentImageUrl ? "Replace" : "Upload")}</>
         )}
