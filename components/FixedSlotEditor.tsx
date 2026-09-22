@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateSectionDetails } from "@/app/actions/updateSection";
+import { TITLE_MAX, DESCRIPTION_MAX, FIELD_MAX, FIELD_MULTILINE_MAX } from "@/lib/sectionText";
 import { discardEmptySection } from "@/app/actions/discardEmptySection";
 import SlotUploader from "./SlotUploader";
 import ShareControl from "./ShareControl";
@@ -43,9 +44,9 @@ function SlotTextEditor({ fields, content, onChange, onCommit }: {
               <div key={f.key}>
                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{f.label}</label>
                 {f.multiline ? (
-                  <textarea rows={f.key.endsWith("body") ? 4 : 2} value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={`${cls} resize-none`} />
+                  <textarea maxLength={FIELD_MULTILINE_MAX} rows={f.key.endsWith("body") ? 4 : 2} value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={`${cls} resize-none`} />
                 ) : (
-                  <input type="text" value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={cls} />
+                  <input type="text" maxLength={FIELD_MAX} value={value} placeholder={f.defaultValue} onChange={(e) => onChange(f.key, e.target.value)} onBlur={onCommit} className={cls} />
                 )}
               </div>
             );
@@ -85,13 +86,23 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
     router.push("/");
   };
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleUploadComplete = () => {
     router.refresh();
   };
 
+  /* The result used to be discarded, so a save the server refused looked
+     exactly like one that worked — the words stayed on screen and were gone
+     on the next load. Now a refusal is shown. */
   const handleSaveText = (newTitle: string = title, newDesc: string = description, newContent: any = content) => {
     startTransition(async () => {
-      await updateSectionDetails(section.id, newTitle, newDesc, newContent);
+      const res = await updateSectionDetails(section.id, newTitle, newDesc, newContent);
+      if (res && "error" in res && res.error) {
+        setSaveError(res.error);
+        return;
+      }
+      setSaveError(null);
       router.refresh();
     });
   };
@@ -224,6 +235,7 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
               <input 
                 type="text" 
                 value={title}
+                maxLength={TITLE_MAX}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={() => handleSaveText()}
                 className="w-full p-2 border-b-2 border-gray-200 focus:border-black outline-none bg-transparent font-serif text-2xl font-bold text-gray-900 transition-colors"
@@ -234,13 +246,20 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Album Description & Notes</label>
               <textarea 
                 value={description}
+                maxLength={DESCRIPTION_MAX}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => handleSaveText()}
                 className="w-full p-2 border-b-2 border-gray-200 focus:border-black outline-none bg-transparent text-sm text-gray-600 resize-none transition-colors"
                 placeholder="These are some of my favorite moments..."
                 rows={3}
               />
-              {isPending && <span className="text-xs text-indigo-500 font-semibold mt-1 block animate-pulse">Saving...</span>}
+              <div className="mt-1 flex items-start justify-between gap-3">
+                <span className="text-xs text-indigo-500 font-semibold animate-pulse">{isPending ? "Saving..." : ""}</span>
+                {description.length > DESCRIPTION_MAX - 60 && (
+                  <span className="text-xs tabular-nums text-gray-400">{description.length} / {DESCRIPTION_MAX}</span>
+                )}
+              </div>
+              {saveError && <p className="mt-1 text-xs font-semibold text-red-600">{saveError}</p>}
             </div>
           </div>
           
