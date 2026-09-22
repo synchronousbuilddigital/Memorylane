@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { destroyByUrl } from "@/lib/cloudinary";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -38,6 +39,15 @@ export async function updateProfile(input: unknown): Promise<ProfileResult> {
     return { ok: false, error: "That image could not be saved", field: "image" };
   }
 
+  /* The picture being replaced, so the old one can be cleared out. Only
+     ever ours: a Google avatar lives on Google's servers and is not a file
+     this app has any business deleting — the helper's folder check refuses
+     anything outside memory_lane/ anyway. */
+  const previous = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { image: true },
+  });
+
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
@@ -48,6 +58,10 @@ export async function updateProfile(input: unknown): Promise<ProfileResult> {
       ...(image ? { image } : {}),
     },
   });
+
+  if (image && previous?.image && previous.image !== image) {
+    await destroyByUrl(previous.image);
+  }
 
   revalidatePath("/profile");
   revalidatePath("/");

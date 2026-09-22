@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma skills sync || exit 0",
-    "grant-admin": "node --env-file=.env scripts/grant-admin.mjs"
+    "grant-admin": "node --env-file=.env scripts/grant-admin.mjs",
+    "cloudinary-orphans": "node scripts/cloudinary-orphans.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

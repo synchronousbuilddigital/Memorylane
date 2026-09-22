@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { destroyByUrl } from "@/lib/cloudinary";
 import { auth } from "@/lib/auth";
 
 export async function uploadImageToSlotAction({
@@ -42,6 +43,8 @@ export async function uploadImageToSlotAction({
   }
 
   if (existingImage) {
+    const replaced = existingImage.originalUrl;
+
     // Update existing slot
     await prisma.image.update({
       where: { id: existingImage.id },
@@ -53,6 +56,12 @@ export async function uploadImageToSlotAction({
         height: height || 600,
       }
     });
+
+    /* Swapping a slot's photo is a delete nobody thinks of as one: the row
+       is reused, so the picture that was there becomes unreferenced the
+       moment this runs. Left alone it was the quietest of the storage leaks,
+       and on an album edited a few times, the largest. */
+    if (replaced && replaced !== url) await destroyByUrl(replaced);
   } else {
     // Create new image in this slot
     await prisma.image.create({
